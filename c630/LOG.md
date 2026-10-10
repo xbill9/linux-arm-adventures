@@ -29,6 +29,8 @@ Newest last. Times are local (EDT).
 - 11:46: reboot. **GDM + GNOME Wayland session up.** `pd-mapper.service` fails (no maps).
 - 11:52: **Bluetooth fixed**: `c630-bt-addr.service` sets the public address `02:BF:6F:61:DD:AB`. A scan found 16 devices.
 - 11:54: **firmware found**: Lenovo C630 driver cabs (WOA-Project mirror, release 200.0.19.0) contain all 8 files the DTB requests, plus `wlanmdsp.mbn`. Saved to `firmware-local/` (git-ignored). See [FIRMWARE.md](FIRMWARE.md).
+- 12:00: reboot (by the user). `c630-bt-addr.service` **failed**: `Set Public Address … failed with status 0x11 (Invalid Index)`, because `hci0` exists before the chip finishes loading its firmware.
+- 12:08: `c630-bt-addr` now retries every 0.5 s for up to 30 s. Bluetooth is up again. The boot-time fix is not yet verified by a reboot.
 
 ## Next
 

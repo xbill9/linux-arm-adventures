@@ -1,6 +1,13 @@
 #!/bin/sh
 # The C630 WCN3990 Bluetooth comes up "unconfigured" with no public address
 # (none in the DT). Give it a stable, locally administered one from machine-id.
-for i in $(seq 1 30); do [ -e /sys/class/bluetooth/hci0 ] && break; sleep 0.5; done
+# hci0 appears before the chip finishes loading its firmware, so retry until
+# the controller accepts the address (about 1-3 s after boot).
 h=$(sha256sum /etc/machine-id | cut -c1-10 | sed "s/../&:/g; s/:$//")
-exec btmgmt -i hci0 public-addr "02:$h"
+for i in $(seq 1 60); do
+  if btmgmt -i hci0 public-addr "02:$h" 2>&1 | grep -q "complete"; then
+    echo "hci0 public address 02:$h set after $i tries"; exit 0
+  fi
+  sleep 0.5
+done
+echo "hci0 never accepted a public address" >&2; exit 1
