@@ -23,7 +23,7 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | USB-C (both ports) | `ucsi_yoga_c630`; `typec` `port0`, `port1` with partner/cable. Also DisplayPort alt mode (`typec_displayport`) |
 | EC | `lenovo_yoga_c630` (7.2 only; not in Debian's 6.12) |
 | Bluetooth | WCN3990 over UART, `qca/crbtfw21.tlv` + `qca/crnv21.bin`. **Needs a public address at boot** (`c630-bt-addr.service`), then works. A scan found 16 devices |
-| Camera | `Integrated Camera` (UVC, `/dev/video0`, `/dev/video1`). Detected; capture not tested |
+| **Camera** | `Integrated Camera` (UVC `5986:2115`, front, `/dev/video0`; `/dev/video1` is its metadata node). **Captures**, tested 2026-10-10: 1280×720 MJPEG at about 29 fps (143 frames in 5 s), with good exposure and colour. YUYV at 720p is only 10 fps, so use MJPEG. PipeWire lists it as a source through both V4L2 and libcamera (`cam -l`: "Internal front camera"), so GNOME Snapshot and browsers can use it |
 | USB Ethernet | `cdc_ncm` (`enxf8e43b0fecaf`). netconsole does **not** work over it |
 | Suspend | `s2idle` only (`mem_sleep: [s2idle]`). GNOME's idle timer suspended it once. It resumed with a burst of hard-LOCKUP watchdog reports and EC I2C errors, then worked. See [QUIRKS.md](QUIRKS.md#suspend-s2idle-and-the-resume-lockup-storm) |
 | Accelerometer | `accel_3d` (HID sensor over I2C). `monitor-sensor` reported orientation and tilt on 2026-10-10, but **`iio-sensor-proxy` can crash at boot** (SIGSEGV, the unit is left `failed`), and then nothing rotates the screen. See [QUIRKS.md](QUIRKS.md#other-hardware-issues) |
