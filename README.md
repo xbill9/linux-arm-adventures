@@ -5,7 +5,7 @@ Running Debian on Windows-on-ARM laptops: what works, what breaks, how to get th
 | Machine | SoC | Status | Notes |
 |---|---|---|---|
 | Lenovo Yoga C630 (81JL) | Snapdragon 850 (SDM850) | Debian sid, kernel 7.2.9, GNOME. GPU accel, audio, Wi-Fi, video decode, BT, battery and USB-C work (IPA blocked) | [c630/](c630/) |
-| Samsung Galaxy Book Go | Snapdragon 7c Gen 2 | Broken, not yet investigated | [galaxy-book-go/](galaxy-book-go/) |
+| Samsung Galaxy Book Go | Snapdragon 7c Gen 2 | Broken and offline; keyboard fails in Windows too. No upstream support (community DTS only) | [galaxy-book-go/](galaxy-book-go/) |
 
 ## Layout
 
@@ -29,7 +29,7 @@ c630/
   stick/                      the installer stick's shim, GRUB 2.12 and DTB: the known-working boot loader
   backups/                    boot partitions, configs and logs pulled from the laptop
 galaxy-book-go/
-  README.md                   starting notes
+  README.md                   research: keyboard triage, Linux state of the art, boot tricks, sources
 ```
 
 Kernels and initramfs images inside `backups/` are not committed (see `.gitignore`); they are in the tarball and are reproducible from Debian packages.
