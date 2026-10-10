@@ -192,6 +192,8 @@ for i in $(seq 1 60); do
 done
 ```
 
+Once it has run, the controller reports the address as public:
+
 ```
 $ bluetoothctl show
 Controller 02:BF:6F:61:DD:AB (public)

@@ -373,8 +373,9 @@ so the script retries every 0.5 s for up to 30 s:</p>
     echo &quot;hci0 public address 02:$h set after $i tries&quot;; exit 0
   fi
   sleep 0.5
-done
-$ bluetoothctl show
+done</code></pre>
+<p>Once it has run, the controller reports the address as public:</p>
+<pre><code>$ bluetoothctl show
 Controller 02:BF:6F:61:DD:AB (public)
     Powered: yes</code></pre>
 <p>A systemd unit, <code>c630-bt-addr.service</code>, runs it at
