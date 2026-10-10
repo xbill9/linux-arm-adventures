@@ -24,12 +24,20 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | Camera | `Integrated Camera` (UVC, `/dev/video0`, `/dev/video1`). Detected; capture not tested |
 | USB Ethernet | `cdc_ncm` (`enxf8e43b0fecaf`). netconsole does **not** work over it |
 | Suspend | `s2idle` only (`mem_sleep: [s2idle]`). Resume not tested |
+| Accelerometer | `accel_3d` (HID sensor over I2C), via `iio-sensor-proxy`. `monitor-sensor` reports orientation and tilt |
+| Vulkan | Mesa Turnip, `Turnip Adreno (TM) 630` |
+| Storage | UFS (`ufshcd-qcom`), SK hynix `KLUDG4U1EA-B0C1`, 128 GB |
+| CPU frequency | `qcom-cpufreq-hw`, `schedutil`. 0.3–1.77 GHz little cores, 0.83–2.84 GHz big cores |
+| Swap | `/dev/sda4` (6 GB, priority -1) + zram `/dev/zram0` (3.7 GB, priority 100, `systemd-zram-generator`) |
 
 ## Doesn't work / blocked
 
 | Hardware | Why |
 |---|---|
 | IPA (modem cellular data offload) | Loading `ipa_fws.elf` hard-locks the SoC (GSI timeouts, then an RPMh timeout, then a watchdog reset), at boot and on a running system. Blocked with `modprobe.blacklist=ipa`. See [MODEM.md](MODEM.md) |
+| Fingerprint reader | Not visible to Linux: no USB device and nothing in the DT. `fprintd` won't help |
+| Ambient light / proximity | `monitor-sensor` reports none. They would come from the sensor DSP (slpi), which needs `hexagonrpcd` (0.4.0-2 in sid, not installed) plus libssc |
+| VA-API | No driver (`vainfo` fails). Expected: Venus is a V4L2 mem2mem device. Use `ffmpeg -c:v h264_v4l2m2m` (also hevc, vp8, vp9, mpeg2/4, vc1) |
 | LTE data | The modem runs (IMEI, UMTS/LTE, SIM slot, QMI over QRTR all work), but there's no data path without IPA. No SIM inserted yet. See [MODEM.md](MODEM.md) |
 
 ## Known noise in the logs
@@ -40,7 +48,19 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 - `yoga-c630-ec … Failed to create device link …`: harmless.
 - `psci: [Firmware Bug]: failed to set PC mode: -3`: known on this firmware.
 - `coresight-tmc … probe … failed with error -13`: debug hardware, harmless.
+- `ucsi_yoga_c630 … con1: Firmware bug: duplicate partner altmode SVID 0xff01 at offset N`: repeats about every 0.5 s while a USB-C dock (VIA Labs hub + billboard) is plugged in, so the DisplayPort alt mode is read again and again. Harmless, but it floods the log. Watch it during external display testing.
+- `ath10k … failed to load ath10k/pre-cal-snoc-…` and `cal-snoc-18800000.wifi.bin`: optional calibration files. Board data comes from `board-2.bin`.
+- `qcom-q6v5-mss … failed to load msadp`: a modem debug-policy file that ships with no device.
+- `MultiMedia1: no backend DAIs enabled … missing … UCM profile`: logged before UCM loads. `alsa-ucm-conf` has `Qualcomm/sdm845/Lenovo-YOGA-C630-13Q50.conf`, and PipeWire shows the Speaker, Headphones and Mic.
+- `i2c 3-0015` (hid-over-i2c) has no driver: it's the touchpad address for the other model variant. This unit's touchpad is `3-002c`.
+- Platform devices with no driver bound: `ipa` (blocked), `gmu` (attaches through the GPU driver), `dcc` and `pil-reloc` (debug and info). The deferred probe list is empty.
+
+## Extra tools installed (2026-10-10)
+
+`ffmpeg` (V4L2 decoder test), `linux-cpupower`, `sysstat` (`sar` collection enabled), `systemd-zram-generator`, `kexec-tools` (no auto-kexec on reboot: `LOAD_KEXEC` unset, no kexec units, so `c630-menu --once` boots are unaffected), `pipewire-libcamera`.
+
+Skipped as not relevant: `thermald`/`tuned` (temperatures are 35–41 °C at idle), `smartmontools`/`hdparm` (storage is UFS), `bluez-firmware` (Bluetooth uses `firmware-atheros`), `sof-firmware`.
 
 ## Not looked at yet
 
-Fingerprint reader, ambient light/rotation sensors (need `slpi`), suspend/resume cycle, external display over USB-C, and battery life.
+`hexagonrpcd` for the slpi sensors, suspend/resume cycle, external display over USB-C, and battery life.
