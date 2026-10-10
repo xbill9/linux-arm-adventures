@@ -57,6 +57,10 @@ Firmware-level quirks (RTC stuck in 1970, garbage EFI memory-attribute table, 32
 - `qcom-q6v5-mss … failed to load msadp`: a modem debug-policy file that ships with no device.
 - `MultiMedia1: no backend DAIs enabled … missing … UCM profile`: logged before UCM loads. `alsa-ucm-conf` has `Qualcomm/sdm845/Lenovo-YOGA-C630-13Q50.conf`, and PipeWire shows the Speaker, Headphones and Mic.
 - `i2c 3-0015` (hid-over-i2c) has no driver: it's the touchpad address for the other model variant. This unit's touchpad is `3-002c`.
+- `qcom,slim-ngd-ctrl 171c0000.slim-ngd: QMI wait timeout`: once, about 1 s after the WCD934x codec was found on SLIMbus. The codec and audio card come up anyway, so it's harmless unless audio stops working.
+- `fb0: sys_imageblit` / `sys_fillrect: framebuffer is not in virtual address space`: the early boot framebuffer, logged before `msm` takes over the display.
+- `i2c_hid_of 5-0010: IRQ triggered but there's no data`: the touchscreen (`04F3:279F`), once at probe.
+- `` `ThreadPoolForeg' uses wireless extensions ``: Chrome reading Wi-Fi state through the old API. Harmless.
 - Platform devices with no driver bound: `ipa` (blocked), `gmu` (attaches through the GPU driver), `dcc` and `pil-reloc` (debug and info). The deferred probe list is empty.
 
 ## Extra tools installed (2026-10-10)
