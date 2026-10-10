@@ -61,8 +61,13 @@ The one-time boot relies on GRUB 2.12 writing `grubenv` (`save_env`) on ext4 at 
 ## Still missing
 
 - **Lenovo-signed firmware** in `/lib/firmware/qcom/sdm850/LENOVO/81JL/` (GPU zap shader `qcdxkmsuc850.mbn`, adsp, cdsp, modem, ipa, venus). Without it there's no GPU acceleration, audio or Wi-Fi. Windows was wiped, so it has to come from Lenovo's driver packages.
-- GNOME (`gnome-core`) and Google Chrome (arm64 .deb) were planned next.
-- sid's `libpam` 1.7.0 logs `PAM (systemd-user) /usr/lib/pam.d is not supported on this system`. Logins work, but GNOME/GDM may need `/usr/lib/pam.d/systemd-user` copied to `/etc/pam.d/`.
+- GNOME (`gnome-core`) and Google Chrome (arm64 .deb): **install started 2026-10-10** with [scripts/gnome-install.sh](scripts/gnome-install.sh) (665 packages, nothing in the boot path). Not yet verified or rebooted into.
+
+## sid quirks handled
+
+- **PAM:** Debian's `libpam` (1.7.0) deliberately does not read `/usr/lib/pam.d`, so `systemd-user` and `polkit-1` fell back to the generic rules (`PAM (systemd-user) /usr/lib/pam.d is not supported on this system`). Fixed by copying both to `/etc/pam.d/`. **Re-check after `systemd` or `polkitd` upgrades**, since the copies won't follow package changes.
+- **No plymouth:** `gnome-core` pulls in plymouth, which changes the initramfs. It's pinned out with `/etc/apt/preferences.d/no-plymouth` (`Pin-Priority: -1`).
+- **Pre-GNOME initramfs backup:** `/boot/c630boot/initrd-7.2.9.pre-gnome` (sha256 `04d5493bcfbcd6bf…`).
 - **netconsole doesn't work** over the USB Ethernet adapter. `cdc_ncm` batches transmits and netpoll can't flush them. Boot logs before the root mount only exist on screen.
 
 ## Backups
