@@ -17,11 +17,12 @@ c630/
   FIRMWARE.md                 what's missing, where the Lenovo firmware comes from, install plan
   HARDWARE.md                 what works and what doesn't, per device, with the kernel messages
   AUDIT-2026-10-10.md         drivers / firmware / hardware / system-tools audit, and the DNS incident
+  WIFI.md                     Wi-Fi: regdomain/5 GHz DFS association refusals, captive portals vs USB tether
   MODEM.md                    LTE modem: what works over QMI, the IPA lockup, hypotheses, how to test safely
   logs/                       kernel logs from crashes
   LOG.md                      dated log of everything done to the machine
   firmware-local/             proprietary firmware + its README: LOCAL ONLY, git-ignored
-  system/                     systemd units (c630-bt-addr.service)
+  system/                     systemd units (c630-bt-addr.service), regdom.conf (for /etc/modprobe.d)
   initramfs/                  initramfs-tools hook adding GPU firmware
   scripts/                    c630-menu (boot menu generator), apply.sh (stick-style boot setup)
   stick/                      the installer stick's shim, GRUB 2.12 and DTB: the known-working boot loader

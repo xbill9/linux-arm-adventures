@@ -46,13 +46,14 @@ Newest last. Times are local (EDT).
 - 13:35: audit of drivers, firmware, hardware and system tools: [AUDIT-2026-10-10.md](AUDIT-2026-10-10.md).
 - 13:38: **DNS broken by my 13:24 `nmcli general reload conf`** (NetworkManager emptied `/etc/resolv.conf`; ifupdown/dhcpcd owns the Ethernet). Restored `nameserver 192.168.0.1`.
 - 13:40: installed `apt-listbugs`, `needrestart`, `linux-perf`, `gpiod`, `pavucontrol`, `timeshift` (57 packages, nothing in the boot path, holds intact).
+- 15:46: **first Wi-Fi connection** (Starbucks). The 5 GHz channel-112 (DFS) BSS refused the association (`code=18`), then auth timed out. Regdomain was `00`. Pinned the profile to 2.4 GHz (`802-11-wireless.band bg`), and it connected (172.16.225.64/22). The Meraki captive portal was found, but the USB tether's default route (metric 100) hides it. See [WIFI.md](WIFI.md).
+- 15:50: `/etc/modprobe.d/regdom.conf` → `options cfg80211 ieee80211_regdom=US` (cfg80211 is a module, not in the initramfs). Not yet verified across a reboot. `iw` turned out to be installed already, at `/usr/sbin/iw` (not on the user PATH).
 
 ## Next
 
 - Fix the resolv.conf fight for good: let NetworkManager manage the USB Ethernet (see AUDIT).
 - Configure timeshift (rsync, daily + before-upgrade snapshots).
 - Built-in mic: voice test on DMIC2/DMIC3, then mic bias/gain, then a UCM `Mic (internal)` device.
-
-- Connect Wi-Fi and test throughput. Fix the random Wi-Fi MAC.
+- Wi-Fi: reboot and confirm regdomain `US` at boot. Retry 5 GHz (non-DFS BSS). Test throughput.
 - Test speakers, mic, headphone jack, sensors, suspend/resume, and external display over USB-C.
 - IPA/LTE data: test the hypotheses in [MODEM.md](MODEM.md) (firmware build, `gsi-loader = "modem"`, interconnect votes). A SIM is needed for an end-to-end test.
