@@ -13,9 +13,10 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | Captive portals (Starbucks etc.) | `network-manager-config-connectivity-debian` (checks `network-test.debian.org`), so GNOME prompts to sign in and opens Chrome. Fallback: the **Wi-Fi Login** launcher ([desktop/wifi-login.desktop](desktop/wifi-login.desktop), opens `http://neverssl.com/`). GNOME 50 has no built-in portal window |
 | **Video decode/encode** | `qcom-venus-decoder`, `qcom-venus-encoder` |
 | Compute DSP, sensor DSP | cdsp, slpi running. Sensors not yet tested |
-| Keyboard, touchpad | `hid-over-i2c 06CB:CD3E` (Mouse, Touchpad) |
+| Keyboard | `hid-over-i2c 6243:0001` on `i2c-11` (`11-005c`). The same HID device carries `Wireless Radio Control` and the HID sensor hub (accelerometer). Locked up during the install before `regulator_ignore_unused`/`usbcore.autosuspend=-1` were added. See [QUIRKS.md](QUIRKS.md) |
+| Touchpad | `hid-over-i2c 06CB:CD3E` (Mouse, Touchpad) on `3-002c` |
 | Touchscreen + pen | `hid-over-i2c 04F3:279F` (+ `Stylus`). The pen battery shows as `hid-0018:04F3:279F…-battery` |
-| Lid / buttons | `gpio-keys`, `pm8941_pwrkey`, `hid-over-i2c 6243:0001` |
+| Lid / buttons | `gpio-keys`, `pm8941_pwrkey`, plus the keyboard device's system buttons |
 | Battery | `yoga-c630-battery` (Compal PABAS0241231, Li-ion): 55.55 Wh full of 60 Wh design (≈93 %) |
 | AC adapter | `yoga-c630-adapter`, online |
 | USB-C (both ports) | `ucsi_yoga_c630`; `typec` `port0`, `port1` with partner/cable. Also DisplayPort alt mode (`typec_displayport`) |
@@ -23,7 +24,7 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | Bluetooth | WCN3990 over UART, `qca/crbtfw21.tlv` + `qca/crnv21.bin`. **Needs a public address at boot** (`c630-bt-addr.service`), then works. A scan found 16 devices |
 | Camera | `Integrated Camera` (UVC, `/dev/video0`, `/dev/video1`). Detected; capture not tested |
 | USB Ethernet | `cdc_ncm` (`enxf8e43b0fecaf`). netconsole does **not** work over it |
-| Suspend | `s2idle` only (`mem_sleep: [s2idle]`). Resume not tested |
+| Suspend | `s2idle` only (`mem_sleep: [s2idle]`). GNOME's idle timer suspended it once. It resumed with a burst of hard-LOCKUP watchdog reports and EC I2C errors, then worked. See [QUIRKS.md](QUIRKS.md#suspend-s2idle-and-the-resume-lockup-storm) |
 | Accelerometer | `accel_3d` (HID sensor over I2C), via `iio-sensor-proxy`. `monitor-sensor` reports orientation and tilt |
 | Vulkan | Mesa Turnip, `Turnip Adreno (TM) 630` |
 | Storage | UFS (`ufshcd-qcom`), SK hynix `KLUDG4U1EA-B0C1`, 128 GB |
@@ -41,6 +42,8 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | LTE data | The modem runs (IMEI, UMTS/LTE, SIM slot, QMI over QRTR all work), but there's no data path without IPA. No SIM inserted yet. See [MODEM.md](MODEM.md) |
 
 ## Known noise in the logs
+
+Firmware-level quirks (RTC stuck in 1970, garbage EFI memory-attribute table, 32 s watchdog, SMBIOS claiming no UEFI) are in [QUIRKS.md](QUIRKS.md).
 
 - `pd-mapper.service` is masked (the in-kernel `qcom_pd_mapper` is used). `rmtfs` fails only in SAFE mode, where the modem is blocked.
 - `ath10k … failed to load ath10k/WCN3990/hw1.0/firmware-6.bin`: it probes newer APIs first, then uses firmware-5.

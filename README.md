@@ -19,6 +19,7 @@ c630/
   AUDIT-2026-10-10.md         drivers / firmware / hardware / system-tools audit, and the DNS incident
   WIFI.md                     Wi-Fi: regdomain/5 GHz DFS association refusals, captive portals vs USB tether
   MODEM.md                    LTE modem: what works over QMI, the IPA lockup, hypotheses, how to test safely
+  QUIRKS.md                   firmware quirks (RTC, EFI tables, watchdog), install-time keyboard lockups, the stick's GRUB, s2idle resume
   logs/                       kernel logs from crashes
   LOG.md                      dated log of everything done to the machine
   firmware-local/             proprietary firmware + its README: LOCAL ONLY, git-ignored

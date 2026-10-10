@@ -1,0 +1,521 @@
+2026-10-10T12:49:22.958911-04:00 debian kernel: PM: suspend entry (s2idle)
+2026-10-10T12:49:23.000317-04:00 debian kernel: Filesystems sync: 0.040 seconds
+2026-10-10T13:00:24.681036-04:00 debian kernel: Freezing user space processes
+2026-10-10T13:00:24.689913-04:00 debian kernel: Freezing user space processes completed (elapsed 0.002 seconds)
+2026-10-10T13:00:24.690352-04:00 debian kernel: OOM killer disabled.
+2026-10-10T13:00:24.690775-04:00 debian kernel: Freezing remaining freezable tasks
+2026-10-10T13:00:24.690796-04:00 debian kernel: Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+2026-10-10T13:00:24.690811-04:00 debian kernel: printk: Suspending console(s) (use no_console_suspend to debug)
+2026-10-10T13:00:24.690825-04:00 debian kernel: dwc3-qcom-legacy a8f8800.usb: port-1 HS-PHY not in L2
+2026-10-10T13:00:24.691133-04:00 debian kernel: dwc3-qcom-legacy a6f8800.usb: port-1 HS-PHY not in L2
+2026-10-10T13:00:24.691357-04:00 debian kernel: watchdog: CPU7: Watchdog detected hard LOCKUP on cpu 0
+2026-10-10T13:00:24.691441-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.692184-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.692330-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.692390-04:00 debian kernel: Sending NMI from CPU 7 to CPUs 0:
+2026-10-10T13:00:24.692438-04:00 debian kernel: NMI backtrace for cpu 0
+2026-10-10T13:00:24.692485-04:00 debian kernel: CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.692532-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.692579-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.692625-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.692671-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.692716-04:00 debian kernel: sp : ffffdd1386863d40
+2026-10-10T13:00:24.692762-04:00 debian kernel: x29: ffffdd1386863d40 x28: ffffdd1386781400 x27: ffffdd1386872000
+2026-10-10T13:00:24.692809-04:00 debian kernel: x26: ffffdd1385d6d218 x25: 0000000000000000 x24: ffffdd1386878bc0
+2026-10-10T13:00:24.692855-04:00 debian kernel: x23: ffff000083463880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.692901-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb686d78 x18: 0000000000000000
+2026-10-10T13:00:24.692948-04:00 debian kernel: x17: 000000040044ffff x16: 045000f2b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.692995-04:00 debian kernel: x14: ffffdd1386878bc0 x13: ffff0001fb678138 x12: ffff0001fb678178
+2026-10-10T13:00:24.693042-04:00 debian kernel: x11: ffff0001fb6780f8 x10: 0000000000000028 x9 : 000000d73eff9e3c
+2026-10-10T13:00:24.693090-04:00 debian kernel: x8 : 0000000461950ecd x7 : ffffdd1386953008 x6 : 00000000002205f8
+2026-10-10T13:00:24.693324-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.693496-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 00000000004f92a9 x0 : 0000000000000003
+2026-10-10T13:00:24.693775-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.693941-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.694101-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.694266-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:24.694316-04:00 debian kernel:  rest_init+0x118/0x120
+2026-10-10T13:00:24.694363-04:00 debian kernel:  start_kernel+0x8cc/0x8e0
+2026-10-10T13:00:24.694409-04:00 debian kernel:  __primary_switched+0x88/0x98
+2026-10-10T13:00:24.694456-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.694626-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.694881-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.695110-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.695167-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.695214-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.695260-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.695307-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.695354-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.695402-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.695447-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.695493-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.695539-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.695586-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.695632-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.695679-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.695726-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.695774-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.695822-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000d8f3821f23
+2026-10-10T13:00:24.695870-04:00 debian kernel: x8 : 00000004859bd97c x7 : ffffdd1386953008 x6 : 00000000002eaa9a
+2026-10-10T13:00:24.695917-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.695963-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000be8f41 x0 : 0000000000001388
+2026-10-10T13:00:24.696010-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.696078-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.696130-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.696178-04:00 debian kernel:  cpu_startup_entry+0x3c/0x50
+2026-10-10T13:00:24.696224-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.696271-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.696316-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.696463-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.696839-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.696930-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.696986-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.697033-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.697080-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.697128-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.697175-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.697220-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.697266-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.697312-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.697358-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.697404-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.697451-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.697499-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.697738-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.697918-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.697969-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000db39f5332a
+2026-10-10T13:00:24.698017-04:00 debian kernel: x8 : 00000004b5b0e9d5 x7 : ffffdd1386953008 x6 : 00000000003f8bca
+2026-10-10T13:00:24.698063-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.698110-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951a7e x0 : 0000000000001389
+2026-10-10T13:00:24.698157-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.698203-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.698248-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.698293-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:24.698340-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.698385-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.698432-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.698664-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.698899-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.698990-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.699045-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.699092-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.699137-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.699184-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.699230-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.699276-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.699321-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.699368-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.700270-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.700478-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.700532-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.700580-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.700627-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.700811-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.700863-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000dd8066ab97
+2026-10-10T13:00:24.700912-04:00 debian kernel: x8 : 00000004e5c38333 x7 : ffffdd1386953008 x6 : 0000000000506d68
+2026-10-10T13:00:24.700959-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.701006-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951a78 x0 : 000000000000138a
+2026-10-10T13:00:24.701054-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.701099-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.701145-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.701190-04:00 debian kernel:  cpu_startup_entry+0x3c/0x50
+2026-10-10T13:00:24.701237-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.701284-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.701330-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.701476-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.701731-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.701823-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.701881-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.701928-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.701975-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.702022-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.702068-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.702115-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.702161-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.702206-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.702254-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.703179-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.703969-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.704415-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.705209-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.705373-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.705524-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000dfc6dcd0f3
+2026-10-10T13:00:24.705679-04:00 debian kernel: x8 : 0000000515d58f60 x7 : ffffdd1386953008 x6 : 0000000000614eee
+2026-10-10T13:00:24.705826-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.705977-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951bc9 x0 : 000000000000138b
+2026-10-10T13:00:24.706134-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.706280-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.706330-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.706377-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:24.706422-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.706468-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.706515-04:00 debian kernel: watchdog: CPU4: Watchdog detected hard LOCKUP on cpu 5
+2026-10-10T13:00:24.706656-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.749298-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.749922-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.750154-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.750539-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.750669-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.750736-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.750787-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.750834-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.750880-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.750927-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.750972-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.750988-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.751002-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.751015-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.751027-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.751040-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.751053-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.751065-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.751078-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.751090-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.751103-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000e20d523403
+2026-10-10T13:00:24.751116-04:00 debian kernel: x8 : 0000000545e79b2b x7 : ffffdd1386953008 x6 : 0000000000723062
+2026-10-10T13:00:24.751128-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.751141-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951af3 x0 : 000000000000138c
+2026-10-10T13:00:24.751153-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.751166-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.751178-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.751191-04:00 debian kernel:  cpu_startup_entry+0x3c/0x50
+2026-10-10T13:00:24.751203-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.751215-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.751227-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.751300-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.752381-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.752426-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.752444-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.752458-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.752471-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.752484-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.752497-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.752510-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.752523-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.752535-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.752547-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.752560-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.752573-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.752585-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.752598-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.752610-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.752622-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000e453c4009e
+2026-10-10T13:00:24.752635-04:00 debian kernel: x8 : 0000000575f9d8a0 x7 : ffffdd1386953008 x6 : 00000000008311f6
+2026-10-10T13:00:24.752648-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.752661-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951a9f x0 : 000000000000138d
+2026-10-10T13:00:24.752674-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.752686-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.752698-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.752710-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:24.752723-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.752737-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.752749-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.752819-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.752914-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.752945-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.752960-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.752973-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.752986-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.752998-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.753011-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.753023-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.753035-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.753047-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.753059-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.753071-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.753083-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.753095-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.753107-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.753119-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.753131-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000e69a3b038a
+2026-10-10T13:00:24.753144-04:00 debian kernel: x8 : 00000005a60c06b2 x7 : ffffdd1386953008 x6 : 000000000093f386
+2026-10-10T13:00:24.753156-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.753169-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951c08 x0 : 000000000000138e
+2026-10-10T13:00:24.753181-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.753193-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.753205-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.753217-04:00 debian kernel:  cpu_startup_entry+0x3c/0x50
+2026-10-10T13:00:24.753230-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.753241-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.753253-04:00 debian kernel: watchdog: CPU4: Watchdog detected hard LOCKUP on cpu 5
+2026-10-10T13:00:24.753296-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.753456-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.753492-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.753509-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.753558-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.753624-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.753654-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.753670-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.753683-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.753696-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.753709-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.753722-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.753734-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.753746-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.753759-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.753771-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.753783-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.753795-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.753808-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.753820-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.753832-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.753845-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000e8e0b140af
+2026-10-10T13:00:24.753857-04:00 debian kernel: x8 : 00000005d61e2346 x7 : ffffdd1386953008 x6 : 0000000000a4d500
+2026-10-10T13:00:24.753871-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.753883-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951b27 x0 : 000000000000138f
+2026-10-10T13:00:24.753895-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.753907-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.753920-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.753932-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:24.753944-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.753956-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.753969-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.754038-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.754114-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.754143-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.754160-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.754172-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.754185-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.754198-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.754210-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.754222-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.754234-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.754245-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.754257-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.754270-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.754344-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.754363-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.754377-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.754390-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.754403-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000eb272753a7
+2026-10-10T13:00:24.754416-04:00 debian kernel: x8 : 0000000606300f40 x7 : ffffdd1386953008 x6 : 0000000000b5b688
+2026-10-10T13:00:24.754429-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.754441-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951bb4 x0 : 0000000000001390
+2026-10-10T13:00:24.754453-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.754466-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.754478-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.754490-04:00 debian kernel:  cpu_startup_entry+0x3c/0x50
+2026-10-10T13:00:24.754502-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.754514-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.754525-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.754581-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.802410-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.803024-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.803594-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.804452-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.804677-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.804732-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.804780-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.804827-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.804873-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.804918-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.804964-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.805011-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.805057-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.805495-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.805726-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.805777-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.805827-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000ed6d9c3848
+2026-10-10T13:00:24.805874-04:00 debian kernel: x8 : 000000063641f89d x7 : ffffdd1386953008 x6 : 0000000000c697f6
+2026-10-10T13:00:24.805921-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.805967-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951b78 x0 : 0000000000001391
+2026-10-10T13:00:24.806014-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.806060-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.806134-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.806189-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:24.806237-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.806284-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.806330-04:00 debian kernel: watchdog: CPU4: Watchdog detected hard LOCKUP on cpu 5
+2026-10-10T13:00:24.806472-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.881779-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.882323-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.882506-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.882709-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.933288-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.933425-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.933483-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.933532-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.933578-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.933625-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.933672-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.933719-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.933766-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.933812-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.933858-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.933905-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.933953-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.934000-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.934047-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.934096-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.934143-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000efb4135628
+2026-10-10T13:00:24.934191-04:00 debian kernel: x8 : 0000000666556369 x7 : ffffdd1386953008 x6 : 0000000000d7796a
+2026-10-10T13:00:24.934238-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.934285-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951b72 x0 : 0000000000001392
+2026-10-10T13:00:24.934333-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.934379-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.934425-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.934473-04:00 debian kernel:  cpu_startup_entry+0x3c/0x50
+2026-10-10T13:00:24.934520-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.934567-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.934613-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.934782-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:24.993403-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:24.993618-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:24.993721-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:24.993810-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:24.993896-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:24.993996-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:24.994083-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:24.994170-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:24.994256-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:24.994341-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:24.994425-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:24.994511-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:24.994597-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:24.994683-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:24.994769-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:24.994855-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:24.994941-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000f1fa857950
+2026-10-10T13:00:24.995030-04:00 debian kernel: x8 : 00000006966932cf x7 : ffffdd1386953008 x6 : 0000000000e85ad8
+2026-10-10T13:00:24.995118-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:24.995204-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951ac2 x0 : 0000000000001393
+2026-10-10T13:00:24.995292-04:00 debian kernel: Call trace:
+2026-10-10T13:00:24.995376-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:24.995463-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:24.995547-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:24.995633-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:24.995718-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:24.995802-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:24.996342-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:25.041221-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:25.041576-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:25.041640-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:25.041688-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:25.041736-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:25.041785-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:25.041832-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:25.041880-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:25.041926-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:25.041973-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:25.042020-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:25.042094-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:25.042140-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:25.042187-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:25.042233-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:25.042279-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:25.042325-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000f440f7c967
+2026-10-10T13:00:25.042372-04:00 debian kernel: x8 : 00000006c67b5516 x7 : ffffdd1386953008 x6 : 0000000000f93c74
+2026-10-10T13:00:25.042418-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:25.042465-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951acd x0 : 0000000000001394
+2026-10-10T13:00:25.042513-04:00 debian kernel: Call trace:
+2026-10-10T13:00:25.042560-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:25.042608-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:25.042654-04:00 debian kernel:  cpu_startup_entry+0x3c/0x50
+2026-10-10T13:00:25.042700-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:25.042746-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:25.042794-04:00 debian kernel: watchdog: CPU4: Watchdog detected hard LOCKUP on cpu 5
+2026-10-10T13:00:25.043018-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:25.093089-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:25.093379-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:25.093684-04:00 debian kernel: watchdog: CPU3: Watchdog detected hard LOCKUP on cpu 4
+2026-10-10T13:00:25.140759-04:00 debian kernel: Modules linked in: rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+2026-10-10T13:00:25.140997-04:00 debian kernel:  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+2026-10-10T13:00:25.141112-04:00 debian kernel:  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+2026-10-10T13:00:25.141183-04:00 debian kernel: Sending NMI from CPU 3 to CPUs 4:
+2026-10-10T13:00:25.141247-04:00 debian kernel: NMI backtrace for cpu 4
+2026-10-10T13:00:25.141309-04:00 debian kernel: CPU: 4 UID: 0 PID: 0 Comm: swapper/4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+2026-10-10T13:00:25.141371-04:00 debian kernel: Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+2026-10-10T13:00:25.141433-04:00 debian kernel: pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+2026-10-10T13:00:25.141539-04:00 debian kernel: pc : cpuidle_enter_s2idle+0xc8/0x180
+2026-10-10T13:00:25.141599-04:00 debian kernel: lr : cpuidle_enter_s2idle+0xc4/0x180
+2026-10-10T13:00:25.141658-04:00 debian kernel: sp : ffff800080213dd0
+2026-10-10T13:00:25.141719-04:00 debian kernel: x29: ffff800080213dd0 x28: 0000000000000000 x27: 0000000000000000
+2026-10-10T13:00:25.141781-04:00 debian kernel: x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000803bb780
+2026-10-10T13:00:25.141843-04:00 debian kernel: x23: ffff000083462880 x22: ffffdd138686d000 x21: ffffdd1386783d70
+2026-10-10T13:00:25.141914-04:00 debian kernel: x20: ffffdd138686d000 x19: ffff0001fb716d78 x18: 0000000000000004
+2026-10-10T13:00:25.141976-04:00 debian kernel: x17: 000000040044ffff x16: 045000f4b5503510 x15: 0000000000000000
+2026-10-10T13:00:25.142038-04:00 debian kernel: x14: ffff0000803bb780 x13: ffff0001fb708138 x12: ffff0001fb708178
+2026-10-10T13:00:25.142099-04:00 debian kernel: x11: ffff0001fb7080f8 x10: 0000000000000028 x9 : 000000f6876e8f91
+2026-10-10T13:00:25.142161-04:00 debian kernel: x8 : 00000006f68d7d65 x7 : ffffdd1386953008 x6 : 00000000010a1e06
+2026-10-10T13:00:25.142222-04:00 debian kernel: x5 : ffffdd13841c9de0 x4 : 0000000000000015 x3 : ffffdd1386953000
+2026-10-10T13:00:25.142282-04:00 debian kernel: x2 : ffffdd1386953008 x1 : 0000000000951b68 x0 : 0000000000001395
+2026-10-10T13:00:25.142343-04:00 debian kernel: Call trace:
+2026-10-10T13:00:25.142403-04:00 debian kernel:  cpuidle_enter_s2idle+0xc8/0x180 (P)
+2026-10-10T13:00:25.142464-04:00 debian kernel:  do_idle+0x1ec/0x300
+2026-10-10T13:00:25.142524-04:00 debian kernel:  cpu_startup_entry+0x40/0x50
+2026-10-10T13:00:25.142585-04:00 debian kernel:  secondary_start_kernel+0x130/0x160
+2026-10-10T13:00:25.142646-04:00 debian kernel:  __secondary_switched+0xc0/0xc8
+2026-10-10T13:00:25.142709-04:00 debian kernel: ucsi_yoga_c630.ucsi lenovo_yoga_c630.ucsi.0: ucsi_handle_connector_change: GET_CONNECTOR_STATUS failed (-110)
+2026-10-10T13:00:25.144033-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.146595-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.147833-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.148802-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.149683-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.150331-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.151098-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.152037-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.152687-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.153362-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.154232-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.154924-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.155552-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.156396-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.157333-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.157948-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.158555-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.159161-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.160030-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.161158-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.162384-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.163511-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.164633-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.166045-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.166871-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.167694-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.168368-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.168979-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.169643-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.170335-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.171033-04:00 debian kernel: geni_i2c 884000.i2c: error turning SE resources:-13
+2026-10-10T13:00:25.171731-04:00 debian kernel: usb 1-1: reset high-speed USB device number 2 using xhci-hcd
+2026-10-10T13:00:25.172970-04:00 debian kernel: onboard-usb-dev 3-1: reset high-speed USB device number 2 using xhci-hcd
+2026-10-10T13:00:25.173916-04:00 debian kernel: usb 1-1.5: reset high-speed USB device number 4 using xhci-hcd
+2026-10-10T13:00:25.174079-04:00 debian kernel: usb 1-1.5: PM: dpm_run_callback(): usb_dev_resume [usbcore] returns -5
+2026-10-10T13:00:25.174207-04:00 debian kernel: usb 1-1.5: PM: failed to resume async: error -5
+2026-10-10T13:00:25.174330-04:00 debian kernel: usb 1-1.2: reset full-speed USB device number 3 using xhci-hcd
+2026-10-10T13:00:25.175227-04:00 debian kernel: usb 1-1.2: device descriptor read/64, error -71
+2026-10-10T13:00:25.176282-04:00 debian kernel: usb 1-1.2: device descriptor read/64, error -71
+2026-10-10T13:00:25.177191-04:00 debian kernel: usb 1-1.2: reset full-speed USB device number 3 using xhci-hcd
+2026-10-10T13:00:25.178097-04:00 debian kernel: usb 1-1.2: device descriptor read/64, error -71
+2026-10-10T13:00:25.178964-04:00 debian kernel: usb 1-1.2: device descriptor read/64, error -71
+2026-10-10T13:00:25.179815-04:00 debian kernel: usb 1-1.2: reset full-speed USB device number 3 using xhci-hcd
+2026-10-10T13:00:25.180651-04:00 debian kernel: OOM killer enabled.
+2026-10-10T13:00:25.180704-04:00 debian kernel: Restarting tasks: Starting
+2026-10-10T13:00:25.180753-04:00 debian kernel: usb 1-1.5: USB disconnect, device number 4
+2026-10-10T13:00:25.180871-04:00 debian kernel: Restarting tasks: Done
+2026-10-10T13:00:25.180921-04:00 debian kernel: random: crng reseeded on system resumption
+2026-10-10T13:00:25.180970-04:00 debian kernel: PM: suspend exit
+2026-10-10T13:00:25.181017-04:00 debian kernel: usb 1-1.5: new high-speed USB device number 5 using xhci-hcd
+2026-10-10T13:00:25.181968-04:00 debian kernel: usb 1-1.5: New USB device found, idVendor=2109, idProduct=8888, bcdDevice= 0.01
+2026-10-10T13:00:25.182872-04:00 debian kernel: usb 1-1.5: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+2026-10-10T13:00:25.183800-04:00 debian kernel: usb 1-1.5: Product: USB Billboard Device   
+2026-10-10T13:00:25.184622-04:00 debian kernel: usb 1-1.5: Manufacturer: VIA Labs, Inc.         
+2026-10-10T13:00:25.185416-04:00 debian kernel: usb 1-1.5: SerialNumber: 0000000000000001
+2026-10-10T13:00:26.036289-04:00 debian kernel: usb 3-1.3: new high-speed USB device number 4 using xhci-hcd
+2026-10-10T13:00:26.148254-04:00 debian kernel: usb 3-1.3: New USB device found, idVendor=5986, idProduct=2115, bcdDevice=54.20
+2026-10-10T13:00:26.160111-04:00 debian kernel: usb 3-1.3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+2026-10-10T13:00:26.161454-04:00 debian kernel: usb 3-1.3: Product: Integrated Camera
+2026-10-10T13:00:26.162615-04:00 debian kernel: usb 3-1.3: Manufacturer: SunplusIT Inc
+2026-10-10T13:00:26.196245-04:00 debian kernel: uvcvideo 3-1.3:1.0: Found UVC 1.00 device Integrated Camera (5986:2115)
+2026-10-10T13:00:56.280257-04:00 debian kernel: usb 3-1.3: USB disconnect, device number 4
+2026-10-10T13:01:19.032276-04:00 debian kernel: usb 3-1.3: new high-speed USB device number 5 using xhci-hcd
+2026-10-10T13:01:19.144310-04:00 debian kernel: usb 3-1.3: New USB device found, idVendor=5986, idProduct=2115, bcdDevice=54.20
+2026-10-10T13:01:19.156247-04:00 debian kernel: usb 3-1.3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+2026-10-10T13:01:19.157906-04:00 debian kernel: usb 3-1.3: Product: Integrated Camera
+2026-10-10T13:01:19.159305-04:00 debian kernel: usb 3-1.3: Manufacturer: SunplusIT Inc
+2026-10-10T13:01:19.196258-04:00 debian kernel: uvcvideo 3-1.3:1.0: Found UVC 1.00 device Integrated Camera (5986:2115)
+2026-10-10T13:01:23.736089-04:00 debian kernel: qcom,slim-ngd-ctrl 171c0000.slim-ngd: SLIM SAT: Rcvd master capability
+2026-10-10T13:01:23.984750-04:00 debian kernel: rfkill: input handler enabled
+2026-10-10T13:01:24.656107-04:00 debian kernel: qcom,slim-ngd-ctrl 171c0000.slim-ngd: SLIM SAT: Rcvd master capability
+2026-10-10T13:01:27.772104-04:00 debian kernel: rfkill: input handler disabled
+2026-10-10T13:01:28.024106-04:00 debian kernel: qcom,slim-ngd-ctrl 171c0000.slim-ngd: SLIM SAT: Rcvd master capability

@@ -27,7 +27,7 @@ Verified on screen: the menu titles read `[via sda2 EFI/debian]`.
 
 - **The firmware can't use EFI variables.** No `efibootmgr` and no NVRAM boot entries, so only the removable path works. `grub2/update_nvram=false` and `force_efi_extra_removable=true` are preseeded.
 - **A DTB is mandatory.** The firmware hands over ACPI, so GRUB must load `sdm850-lenovo-yoga-c630.dtb` with `devicetree`.
-- **Required kernel options:** `clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1`
+- **Required kernel options:** `clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1`. The keyboards locked up during the install before the last two were added ([QUIRKS.md](QUIRKS.md))
 - **GRUB 2.14 (sid) does not work.** Every kernel goes black the instant GRUB hands over, with no output even with `earlycon=efifb`. All `grub*` and `shim*` packages are `apt-mark hold`. **Do not unhold them without a tested way back.**
 - `/boot/grub/grub.cfg` (from `update-grub`) is still generated, but nothing boots from it. It's only reachable through `configfile`.
 
