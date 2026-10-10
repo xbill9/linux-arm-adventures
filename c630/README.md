@@ -61,7 +61,7 @@ The one-time boot relies on GRUB 2.12 writing `grubenv` (`save_env`) on ext4 at 
 ## Still missing
 
 - **Lenovo-signed firmware** in `/lib/firmware/qcom/sdm850/LENOVO/81JL/` (GPU zap shader `qcdxkmsuc850.mbn`, adsp, cdsp, modem, ipa, venus). Without it there's no GPU acceleration, audio or Wi-Fi. Windows was wiped, so it has to come from Lenovo's driver packages.
-- GNOME (`gnome-core`) and Google Chrome (arm64 .deb): **install started 2026-10-10** with [scripts/gnome-install.sh](scripts/gnome-install.sh) (665 packages, nothing in the boot path). Not yet verified or rebooted into.
+- GNOME (`gnome-core`) and Google Chrome (arm64 .deb): **installed 2026-10-10** with [scripts/gnome-install.sh](scripts/gnome-install.sh): GNOME Shell 50.5, GDM 51.0 (via `display-manager.service`, default target `graphical.target`), Chrome 155.0.8059.39 (adds `google-chrome.sources`). 665 packages, nothing in the boot path. The rebuilt 7.2.9 initramfs has the same file list as before. Not yet rebooted into. With no GPU firmware, GNOME renders in software (llvmpipe) on the `msm_dpu` display.
 
 ## sid quirks handled
 
