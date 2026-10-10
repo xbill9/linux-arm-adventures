@@ -1,0 +1,51 @@
+[ 1361.108065] ipa 1e40000.ipa: channel 4 limited to 256 TREs
+[ 1361.110466] ipa 1e40000.ipa: IPA driver initialized
+[ 1364.556290] ipa 1e40000.ipa: GSI command 0 for event ring 2 timed out, state 1
+[ 1364.556715] ipa 1e40000.ipa: GSI command 0 for channel 3 timed out, state 1
+[ 1364.556980] ipa 1e40000.ipa: GSI command 0 for event ring 0 timed out, state 1
+[ 1364.557221] ipa 1e40000.ipa: GSI command 0 for channel 4 timed out, state 1
+[ 1364.557457] ipa 1e40000.ipa: GSI command 0 for event ring 1 timed out, state 1
+[ 1364.557688] ipa 1e40000.ipa: GSI command 0 for channel 5 timed out, state 1
+[ 1364.557924] ipa 1e40000.ipa: GSI command 0 for event ring 3 timed out, state 1
+[ 1364.558152] ipa 1e40000.ipa: GSI command 0 for channel 6 timed out, state 1
+[ 1364.558379] ipa 1e40000.ipa: GSI command 1 for channel 4 timed out, state 2
+[ 1364.648017] [drm:dpu_encoder_frame_done_timeout:2730] [dpu error]enc35 frame done timeout
+[ 1371.360066] ------------[ cut here ]------------
+[ 1371.360238] WARNING: drivers/soc/qcom/rpmh.c:386 at rpmh_write_batch+0x158/0x290, CPU#4: sugov:4/474
+[ 1371.360295] Modules linked in: ipa(+) rfcomm snd_seq_dummy snd_hrtimer snd_seq snd_seq_device algif_hash algif_skcipher af_alg bnep dm_mod binfmt_misc 8021q garp mrp stp llc nls_ascii nls_cp437 vfat fat snd_soc_wsa881x regmap_sdw q6asm_dai q6afe_dai snd_soc_wcd934x q6routing soundwire_qcom snd_soc_wcd_mbhc snd_soc_wcd_common gpio_wcd934x q6adm snd_soc_wcd_classh q6asm q6afe snd_q6dsp_common q6core wcd934x regmap_slimbus apr venus_dec venus_enc videobuf2_dma_contig uvcvideo fastrpc qrtr_smd videobuf2_vmalloc qcom_pd_mapper uvc videobuf2_memops hci_uart btqca btrtl btintel btbcm pm8941_pwrkey qcom_spmi_adc5 bluetooth qcom_vadc_common qcom_spmi_temp_alarm snd_soc_sdm845 ecdh_generic snd_soc_rt5663 snd_soc_qcom_sdw snd_soc_qcom_common snd_soc_rl6231 soundwire_bus aes_ce_blk ghash_ce snd_soc_core gf128mul snd_compress snd_pcm_dmaengine snd_pcm snd_timer venus_core hid_sensor_accel_3d snd qcom_tsens ath10k_snoc v4l2_mem2mem videobuf2_v4l2 hid_sensor_trigger ath10k_core soundcore hid_sensor_iio_common videodev kfifo_buf
+[ 1371.360490]  videobuf2_common ath coresight_stm stm_p_basic industrialio mc mac80211 stm_core qcom_rng coresight_tmc coresight_etm4x coresight_funnel coresight_replicator qcom_q6v5_mss coresight qcom_q6v5_pas cfg80211 qcom_pil_info qrtr qcom_q6v5 rfkill slim_qcom_ngd_ctrl qcom_sysmon libarc4 lmh qcom_cpufreq_hw slimbus qcom_common pdr_interface qcom_pdr_msg qcom_smd qmi_helpers cdc_mbim cdc_wdm joydev sg evdev typec_displayport i2c_dev configfs efi_pstore efivarfs autofs4 usbhid cdc_ncm cdc_ether usbnet mii ext4 crc16 mbcache jbd2 crc32c_cryptoapi hid_sensor_custom hid_sensor_hub hid_multitouch onboard_usb_dev msm xhci_plat_hcd xhci_hcd hid_generic ubwc_config ucsi_yoga_c630 panel_edp mdt_loader dwc3 typec_ucsi sd_mod ocmem i2c_hid_of aux_hpd_bridge udc_core lenovo_yoga_c630_battery drm_gpuvm i2c_hid_acpi_prp0001 qcom_pon usbcore drm_exec reboot_mode i2c_hid ti_sn65dsi86 gpu_sched hid lenovo_yoga_c630 rtc_pm8xxx ulpi socinfo drm_dp_aux_bus drm_display_helper qcom_spmi_pmic cec phy_qcom_qmp_combo ufs_qcom rc_core
+[ 1371.360610]  dwc3_qcom_legacy aux_bridge drm_client_lib qcom_stats qcom_refgen_regulator usb_common ufshcd_pltfrm drm_kms_helper reset_qcom_pdc i2c_qcom_geni camcc_sdm845 videocc_sdm845 dispcc_sdm845 ufshcd_core typec phy_qcom_qmp_usb nvmem_qfprom phy_qcom_qusb2 drm scsi_mod phy_qcom_qmp_ufs qcom_rpmh_regulator icc_osm_l3 gpucc_sdm845 scsi_common qcom_hwspinlock qcom_wdt bam_dma gpio_keys llcc_qcom pwm_bl icc_bwmon fixed smp2p rmtfs_mem
+[ 1371.360667] CPU: 4 UID: 0 PID: 474 Comm: sugov:4 Not tainted 7.2.9+deb14-arm64 #1 PREEMPTLAZY  Debian 7.2.9-1 
+[ 1371.360714] Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN34WW(V3.01) 06/19/2019
+[ 1371.360759] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[ 1371.360802] pc : rpmh_write_batch+0x158/0x290
+[ 1371.360844] lr : rpmh_write_batch+0x150/0x290
+[ 1371.360887] sp : ffff8000842b36d0
+[ 1371.360930] x29: ffff8000842b36d0 x28: ffffdd1386e2a270 x27: ffff0000810ea080
+[ 1371.360972] x26: ffffdd1385b849e8 x25: 0000000000000004 x24: ffff000198876d08
+[ 1371.361012] x23: ffff000198876d08 x22: ffff000198876d28 x21: 0000000000000000
+[ 1371.361053] x20: 0000000000000001 x19: 0000000000000000 x18: 0000000000000004
+[ 1371.361094] x17: ffff000091ef19c0 x16: 00000000000015e9 x15: ffffdd1386872218
+[ 1371.361136] x14: ffffdd1386771140 x13: 00000000000000c0 x12: ffff0001fb704140
+[ 1371.361179] x11: 00000000000000c0 x10: 0000000000000de0 x9 : ffffdd13852207ac
+[ 1371.361220] x8 : ffff0000a03f0e40 x7 : 0000000000000000 x6 : ffffdd13868af2f0
+[ 1371.361261] x5 : 0000000000000004 x4 : ffff8000842b3668 x3 : 0000000000000000
+[ 1371.361302] x2 : 0000000000000000 x1 : 0000000000000000 x0 : 0000000000000000
+[ 1371.361343] Call trace:
+[ 1371.361383]  rpmh_write_batch+0x158/0x290 (P)
+[ 1371.361425]  qcom_icc_bcm_voter_commit+0x40c/0x900
+[ 1371.361466]  qcom_icc_set+0x28/0x40
+[ 1371.361507]  apply_constraints+0x84/0xf0
+[ 1371.361548]  icc_set_bw+0xfc/0x4e0
+[ 1371.361589]  _set_opp_bw.part.0+0x54/0xe0
+[ 1371.361629]  _set_opp+0x2a8/0x6b0
+[ 1371.361670]  dev_pm_opp_set_opp+0x74/0xf8
+[ 1371.361710]  qcom_cpufreq_hw_target_index+0x104/0x138 [qcom_cpufreq_hw]
+[ 1371.361752]  __cpufreq_driver_target+0x1f4/0x3c0
+[ 1371.361795]  sugov_work+0x54/0x80
+[ 1371.361835]  kthread_worker_fn+0x360/0x3b0
+[ 1371.361876]  kthread+0x134/0x150
+[ 1371.361914]  ret_from_fork+0x10/0x20
+[ 1371.361956] ---[ end trace 0000000000000000 ]---
+[ 1371.361997] Error sending AMC RPMH requests (-110)
+[ 1372.024440] watchdog: CPU1: Watchdog detected hard LOCKUP on cpu 2

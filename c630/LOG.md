@@ -38,9 +38,11 @@ Newest last. Times are local (EDT).
 - 12:24–12:33: bisect with `--once <id> "<extra args>"`: GPU OK, DSPs OK, modem+IPA reset, modem alone OK, venus OK. **Culprit: IPA.**
 - 12:33: `modprobe.blacklist=ipa` on all normal entries. Default back to normal mode (`C630_MODE=full`).
 - 12:34: plain reboot: **everything up**. FD630 GPU, sound card, `wlan0`, venus, all four remoteprocs running, BT, GNOME. `systemctl is-system-running` = `running`.
+- 12:58: modem investigation: `qmicli -d qrtr://0` works. LTE model (IMEI, `umts, lte`, SIM slot present, no SIM). ModemManager finds no modem.
+- 13:03: `sudo modprobe ipa` on the running system: the IPA driver initialized, the GSI timed out about 3 s later, then an RPMh timeout and a **hard lockup**. The watchdog reset it and it came back on its own in about 50 s (IPA blocked). Not a boot-ordering problem. Log saved: `logs/2026-10-10-ipa-modprobe-crash.log`. See [MODEM.md](MODEM.md).
 
 ## Next
 
 - Connect Wi-Fi and test throughput. Fix the random Wi-Fi MAC.
 - Test speakers, mic, headphone jack, sensors, suspend/resume, and external display over USB-C.
-- Look at why IPA resets the SoC (firmware version vs. kernel's IPA v3.1 support?).
+- IPA/LTE data: test the hypotheses in [MODEM.md](MODEM.md) (firmware build, `gsi-loader = "modem"`, interconnect votes). A SIM is needed for an end-to-end test.

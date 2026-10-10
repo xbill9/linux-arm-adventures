@@ -28,7 +28,8 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 
 | Hardware | Why |
 |---|---|
-| IPA (modem cellular data offload) | Loading `ipa_fws.elf` resets the SoC. Blocked with `modprobe.blacklist=ipa`. See [FIRMWARE.md](FIRMWARE.md) |
+| IPA (modem cellular data offload) | Loading `ipa_fws.elf` hard-locks the SoC (GSI timeouts, then an RPMh timeout, then a watchdog reset), at boot and on a running system. Blocked with `modprobe.blacklist=ipa`. See [MODEM.md](MODEM.md) |
+| LTE data | The modem runs (IMEI, UMTS/LTE, SIM slot, QMI over QRTR all work), but there's no data path without IPA. No SIM inserted yet. See [MODEM.md](MODEM.md) |
 
 ## Known noise in the logs
 
