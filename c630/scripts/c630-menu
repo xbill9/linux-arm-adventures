@@ -8,6 +8,7 @@
 #                       and the pre-firmware initramfs is used if one was saved
 #                       (/boot/c630boot/initrd-<kver>.pre-firmware)
 #   c630-debug-<kver>   verbose, all hardware
+#   c630-dtbtest-<kver> only if /boot/c630boot/dtb-<kver>.test exists: experimental DT
 # plus c630-control: the installer stick's own kernel + installer.
 #
 # /etc/default/c630-menu:
@@ -86,6 +87,14 @@ menuentry "[via \$c630_from] Debian $v SAFE - no Qualcomm firmware$safe_note$t2"
 menuentry "[via \$c630_from] Debian $v - verbose debug" --id c630-debug-$v {
     devicetree /boot/c630boot/dtb-$v
     linux  /boot/vmlinuz-$v root=UUID=$U ro $P $DBG \$once
+    initrd /boot/initrd.img-$v
+}
+EOF
+  # Experimental DT: only listed while /boot/c630boot/dtb-<kver>.test exists; never the default.
+  [ -f "$DIR/dtb-$v.test" ] && cat >> "$tmp" <<EOF
+menuentry "[via \$c630_from] Debian $v - TEST device tree (dtb-$v.test)" --id c630-dtbtest-$v {
+    devicetree /boot/c630boot/dtb-$v.test
+    linux  /boot/vmlinuz-$v root=UUID=$U ro $P quiet \$once
     initrd /boot/initrd.img-$v
 }
 EOF

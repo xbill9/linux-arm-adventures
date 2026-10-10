@@ -48,8 +48,18 @@ Device tree (`sdm850-lenovo-yoga-c630.dtb`, from the 7.2.9 kernel package):
 ## Hypotheses (not yet tested)
 
 1. **The firmware doesn't match what the Linux driver expects.** `ipa_fws.elf` comes from Lenovo's Windows driver (`qcipa850.cab`, release 200.0.19.0). The GSI may hang if it isn't the build the upstream SDM845 IPA v3.5.1 support was written against. Next: compare with any `ipa_fws` that upstream linux-firmware or other SDM845 devices ship, and try an older cab release.
-2. **Loader mode.** Try `qcom,gsi-loader = "modem"`, so the modem's firmware loads GSI instead of Linux. Test it as a one-time boot with a patched copy of the DTB (`fdtput -t s … qcom,gsi-loader modem`), keeping the current DTB as the default.
+2. ~~**Loader mode.**~~ **Tested 2026-10-10. No crash, but no data path either.** See below.
 3. **Interconnect / power votes.** The lockup goes through RPMh. A missing or wrong IPA interconnect or power-domain vote could stall the bus. Check what the upstream DTS and kernel commits say about C630/SDM845 IPA and whether anyone has LTE data working on a C630.
+
+## Test: `qcom,gsi-loader = "modem"` (2026-10-10, 13:11–13:19)
+
+A patched DTB (`/boot/c630boot/dtb-7.2.9+deb14-arm64.test`, made with `fdtput -t s … /soc@0/ipa@1e40000 qcom,gsi-loader modem`, differing in that one line only), booted once via the menu's `c630-dtbtest-<kver>` entry. The default DT is untouched. Confirmed live: `/sys/firmware/devicetree/base/soc@0/ipa@1e40000/qcom,gsi-loader` = `modem`.
+
+1. `sudo modprobe ipa` (modem already running): `IPA driver initialized`. **No GSI timeouts, no lockup**, still alive after 18 s and minutes later.
+2. Restarted the modem so it boots with IPA present (`echo stop/start > /sys/class/remoteproc/remoteproc1/state`). IPA received every event (`modem stopping` → `offline` → `starting` → `running`), the modem booted (`MBA booted without debug policy, loading mpss`), and ath10k Wi-Fi recovered by itself.
+3. **No IPA setup and no `rmnet_ipa0` netdev**, even 50 s after the modem was running. ModemManager: still `No modems were found`. The IPA sysfs reports features `MAPv4`, endpoints `modem_rx`/`modem_tx`.
+
+**Reading:** with loader `modem`, Linux waits for the modem to load the GSI firmware and signal it over SMP2P. The Lenovo modem firmware never does that. On Windows the AP driver (`qcipa850.sys` + `ipa_fws.elf`) loads it, which is what `self` mimics. So `modem` is safe but inert, and the real problem is the `self` path: the GSI hangs right after Linux loads `ipa_fws.elf` (hypotheses 1 and 3). No SIM was inserted, but this stage comes before anything SIM-related.
 
 ## How to test safely
 
