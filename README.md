@@ -15,6 +15,10 @@ c630/
   RECOVERY.md                 runbook: rescue stick -> SSH -> fix, with no typing on the laptop
   INCIDENT-2026-10-10.md      the sid upgrade that blacked out every kernel, and what fixed it
   FIRMWARE.md                 what's missing, where the Lenovo firmware comes from, install plan
+  HARDWARE.md                 what works and what doesn't, per device, with the kernel messages
+  LOG.md                      dated log of everything done to the machine
+  firmware-local/             proprietary firmware + its README: LOCAL ONLY, git-ignored
+  system/                     systemd units (c630-bt-addr.service)
   scripts/                    c630-menu (boot menu generator), apply.sh (stick-style boot setup)
   stick/                      the installer stick's shim, GRUB 2.12 and DTB: the known-working boot loader
   backups/                    boot partitions, configs and logs pulled from the laptop
