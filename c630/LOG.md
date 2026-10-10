@@ -42,8 +42,16 @@ Newest last. Times are local (EDT).
 - 13:03: `sudo modprobe ipa` on the running system: the IPA driver initialized, the GSI timed out about 3 s later, then an RPMh timeout and a **hard lockup**. The watchdog reset it and it came back on its own in about 50 s (IPA blocked). Not a boot-ordering problem. Log saved: `logs/2026-10-10-ipa-modprobe-crash.log`. See [MODEM.md](MODEM.md).
 - 13:11–13:19: **`gsi-loader = "modem"` test** (patched DTB, one-time boot via the new `c630-dtbtest-<kver>` menu entry; the forced reboot was needed because the GNOME session was blocking shutdown). `modprobe ipa`: no lockup. Modem restart: IPA sees all modem events, but the modem never loads/signals GSI, so there's no `rmnet_ipa0`. Safe but inert. The C630 got 192.168.0.65 from DHCP on this boot. See [MODEM.md](MODEM.md).
 - 13:24: **captive portals**: installed `network-manager-config-connectivity-debian`. Wi-Fi gets a stable per-network MAC (`wifi.cloned-mac-address=stable`, since the hardware MAC is random each boot). Added a "Wi-Fi Login" launcher (`xdg-open http://neverssl.com/`, Chrome is the default browser).
+- 13:26–13:34: audio tests. The speaker tone played without errors (whether it was audible isn't confirmed). The "Mic" in UCM is the **headset** mic (AMIC2), which hisses at −18 dBFS with nothing plugged in. A DMIC scan found activity only on **DMIC2/DMIC3**. Voice test pending.
+- 13:35: audit of drivers, firmware, hardware and system tools: [AUDIT-2026-10-10.md](AUDIT-2026-10-10.md).
+- 13:38: **DNS broken by my 13:24 `nmcli general reload conf`** (NetworkManager emptied `/etc/resolv.conf`; ifupdown/dhcpcd owns the Ethernet). Restored `nameserver 192.168.0.1`.
+- 13:40: installed `apt-listbugs`, `needrestart`, `linux-perf`, `gpiod`, `pavucontrol`, `timeshift` (57 packages, nothing in the boot path, holds intact).
 
 ## Next
+
+- Fix the resolv.conf fight for good: let NetworkManager manage the USB Ethernet (see AUDIT).
+- Configure timeshift (rsync, daily + before-upgrade snapshots).
+- Built-in mic: voice test on DMIC2/DMIC3, then mic bias/gain, then a UCM `Mic (internal)` device.
 
 - Connect Wi-Fi and test throughput. Fix the random Wi-Fi MAC.
 - Test speakers, mic, headphone jack, sensors, suspend/resume, and external display over USB-C.

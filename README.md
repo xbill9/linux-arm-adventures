@@ -16,6 +16,7 @@ c630/
   INCIDENT-2026-10-10.md      the sid upgrade that blacked out every kernel, and what fixed it
   FIRMWARE.md                 what's missing, where the Lenovo firmware comes from, install plan
   HARDWARE.md                 what works and what doesn't, per device, with the kernel messages
+  AUDIT-2026-10-10.md         drivers / firmware / hardware / system-tools audit, and the DNS incident
   MODEM.md                    LTE modem: what works over QMI, the IPA lockup, hypotheses, how to test safely
   logs/                       kernel logs from crashes
   LOG.md                      dated log of everything done to the machine
