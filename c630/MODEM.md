@@ -47,7 +47,7 @@ Device tree (`sdm850-lenovo-yoga-c630.dtb`, from the 7.2.9 kernel package):
 
 ## Hypotheses (not yet tested)
 
-1. **The firmware doesn't match what the Linux driver expects.** `ipa_fws.elf` comes from Lenovo's Windows driver (`qcipa850.cab`, release 200.0.19.0). The GSI may hang if it isn't the build the upstream SDM845 IPA v3.5.1 support was written against. Next: compare with any `ipa_fws` that upstream linux-firmware or other SDM845 devices ship, and try an older cab release.
+1. **The firmware doesn't match what the Linux driver expects.** `ipa_fws.elf` comes from Lenovo's Windows driver (`qcipa850.cab`, release 200.0.19.0). The GSI may hang if it isn't the build the upstream SDM845 IPA v3.5.1 support was written against. Next: compare with any `ipa_fws` that upstream linux-firmware or other SDM845 devices ship, and try an older cab release. **Candidate found:** postmarketOS's C630 firmware ([sdm845-mainline/firmware-lenovo-yoga-c630](https://gitlab.com/sdm845-mainline/firmware-lenovo-yoga-c630)) has its own `ipa_fws.mdt`: one 33,088-byte file with no `.bNN` parts, sha256 `5094a6cf8546b643…`, which differs from Lenovo's `ipa_fws.elf` (`c3ebf4d6191a09d6…`). Test it through a patched `firmware-name` in a test DTB, not by overwriting `ipa_fws.elf`. Nobody's reported LTE data working with it, as far as found.
 2. ~~**Loader mode.**~~ **Tested 2026-10-10. No crash, but no data path either.** See below.
 3. **Interconnect / power votes.** The lockup goes through RPMh. A missing or wrong IPA interconnect or power-domain vote could stall the bus. Check what the upstream DTS and kernel commits say about C630/SDM845 IPA and whether anyone has LTE data working on a C630.
 

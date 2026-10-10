@@ -53,6 +53,7 @@ Newest last. Times are local (EDT).
 - 16:30: deleted `/timeshift` (the two partial snapshots). `/` went from 24G used to 12G.
 - 16:30–16:40: **firmware quirks and keyboard lockups written up** in [QUIRKS.md](QUIRKS.md), from the installer log and all 22 journal boots. The keyboards that locked up during the install (built-in and Lenovo USB-C receiver, as the user reported) predate `regulator_ignore_unused usbcore.autosuspend=-1`. Neither option is in the stick's original `grub.cfg`, and both are on every entry now. The **RTC never gets set** (reads 1970-01-03), so journal times before the first NTP sync are wrong: today's 14:30 boot really started about 15:40. Also found: GNOME's idle timer **suspended the machine at 12:49**, and it resumed at 13:00 with 19 hard-LOCKUP watchdog reports (CPUs in `cpuidle_enter_s2idle`) and 31 EC I2C errors, but came back. Log: `logs/2026-10-10-s2idle-resume-lockup.log`. HARDWARE.md had the keyboard device wrong (it listed the touchpad), now fixed.
 - 16:45: **other hardware issues** added to [QUIRKS.md](QUIRKS.md#other-hardware-issues): `iio-sensor-proxy` segfaults at boot (the unit is left `failed`, so no auto-rotate), speaker amp `wsa881x :00:4` failed a register read, and the modem logs `port failed halt` on every stop. Storage, Wi-Fi firmware, USB and thermal are clean.
+- 16:54: **reviewed [rigoorozco/yoga-alarm](https://github.com/rigoorozco/yoga-alarm)** (Arch Linux ARM packages for the C630, last pushed 2026-08-15). Useful: a UCM speaker/headphone routing fix ([HARDWARE.md](HARDWARE.md)), the postmarketOS firmware set with pd-mapper `.jsn` maps and a different IPA blob ([FIRMWARE.md](FIRMWARE.md), [MODEM.md](MODEM.md) hypothesis 1), and its kernel config delta. Nothing tried yet.
 
 ## Next
 
@@ -62,7 +63,7 @@ Newest last. Times are local (EDT).
 - Wi-Fi: reboot and confirm regdomain `US` at boot. Retry 5 GHz (non-DFS BSS). Test throughput.
 - Suspend: decide on GNOME/GDM idle auto-suspend, then a deliberate `systemctl suspend` test (EC, Wi-Fi, audio after resume). See [QUIRKS.md](QUIRKS.md#suspend-s2idle-and-the-resume-lockup-storm).
 - Confirm the keyboard-lockup cause: a one-time boot without `regulator_ignore_unused`, then without `usbcore.autosuspend=-1`, with SSH open.
-- Speakers: `speaker-test -c2 -t wav`, and check both WSA881x amps play.
+- Speakers: `speaker-test -c2 -t wav`, and check both WSA881x amps play. If silent, try yoga-alarm's UCM routing (see [HARDWARE.md](HARDWARE.md)) with `dpkg-divert` on `HiFi-MM1.conf` so an `alsa-ucm-conf` upgrade doesn't silently undo it.
 - `iio-sensor-proxy`: make it survive boot (restart on failure, or install `hexagonrpcd`).
 - Test mic, headphone jack, sensors, and external display over USB-C.
 - IPA/LTE data: test the hypotheses in [MODEM.md](MODEM.md) (firmware build, `gsi-loader = "modem"`, interconnect votes). A SIM is needed for an end-to-end test.

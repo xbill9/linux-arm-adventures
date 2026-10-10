@@ -47,6 +47,13 @@ These are proprietary, so they live in `c630/firmware-local/` (git-ignored) and 
 
 Earlier references: [aarch64-laptops/build#62](https://github.com/aarch64-laptops/build/issues/62) (the Windows `DriverStore` paths of the same files), [Celliwig/Lenovo-Yoga-c630 `yoga_fw_extract`](https://github.com/Celliwig/Lenovo-Yoga-c630/blob/master/yoga_fw_extract/yoga_fw_extract.sh) (extraction from an installed Windows), and [kcxt/c630_bootstrap](https://github.com/kcxt/c630_bootstrap) (an Arch setup that adds the zap shader and `a630_*` to the initramfs).
 
+[rigoorozco/yoga-alarm](https://github.com/rigoorozco/yoga-alarm) (Arch Linux ARM packages, last pushed 2026-08-15) gets its firmware from a different source: [sdm845-mainline/firmware-lenovo-yoga-c630](https://gitlab.com/sdm845-mainline/firmware-lenovo-yoga-c630) at commit `6ddfd13d`, the postmarketOS package. Besides the eight DT files it ships things our cabs don't give us. None of it has been compared or tried here:
+
+- **pd-mapper maps:** `adspr.jsn`, `adspua.jsn`, `cdspr.jsn`, `modemuw.jsn` under `81JL/`. Only matter if the userspace `pd-mapper` is ever wanted back. The in-kernel one works.
+- **Variants:** `qcdsp1v2850_nm.mbn`, `qcdsp2850_nm.mbn`, `qcslpi850_cls.mbn`.
+- **A different IPA blob:** `postmarketos/ipa_fws.mdt` (33 KB, sha256 `5094a6cf8546b643…`), which is not the same blob as Lenovo's `ipa_fws.elf`. yoga-alarm installs it outside the DT's `firmware-name` path, so that package isn't evidence IPA works with it. It's a candidate for [MODEM.md](MODEM.md) hypothesis 1.
+- Its kernel is the `sdm845-mainline` tree (`sdm845-7.1-rc1`), not stock. The C630 delta it adds to the `sdm845.config` fragment ([yoga.config](https://github.com/rigoorozco/yoga-alarm/blob/develop/packages/linux-yoga/yoga.config)) is `UCSI_LENOVO_YOGA_C630`, `HID_LENOVO`, `QCOM_WDT`, `SPI_QCOM_GENI`, `REGULATOR_QCOM_REFGEN`, `GPIO_SHARED_PROXY` and the CrOS EC Type-C/extcon options.
+
 ## Other pieces
 
 - **The initramfs needs the GPU firmware.** `msm` is in the initramfs and probes before the root mount. sid's initramfs-tools 0.151 copies **no** `qcom/` firmware into it, so the GPU fails even though `firmware-qcom-soc` has `a630_sqe.fw`. Fix: an initramfs hook that adds `qcom/a630_sqe.fw`, `qcom/a630_gmu.bin` and `qcom/sdm850/LENOVO/81JL/qcdxkmsuc850.mbn`.
