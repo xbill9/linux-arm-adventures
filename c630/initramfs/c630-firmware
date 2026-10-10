@@ -1,0 +1,12 @@
+#!/bin/sh
+# initramfs-tools hook: put the C630 GPU firmware into the initramfs.
+# msm probes the GPU before the root filesystem is mounted, and sid's
+# initramfs-tools copies no qcom/ firmware on its own.
+# Install as /etc/initramfs-tools/hooks/c630-firmware (mode 755).
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in prereqs) prereqs; exit 0 ;; esac
+. /usr/share/initramfs-tools/hook-functions
+for f in qcom/a630_sqe.fw qcom/a630_gmu.bin qcom/sdm850/LENOVO/81JL/qcdxkmsuc850.mbn; do
+  add_firmware "$f" || echo "W: c630-firmware: $f not found" >&2
+done

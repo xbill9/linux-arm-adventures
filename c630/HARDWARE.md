@@ -1,12 +1,17 @@
 # C630 hardware status
 
-Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 over SSH, **before** installing the Lenovo firmware.
+Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 over SSH. Lenovo firmware installed at 12:34; IPA blocked.
 
 ## Works
 
 | Hardware | Driver / detail |
 |---|---|
-| Display (built-in eDP) | `msm_dpu`, `/dev/dri/card0`, `card0-eDP-1 connected`. Rendering is software only (see GPU below) |
+| Display (built-in eDP) | `msm_dpu`, `/dev/dri/card0`, `card0-eDP-1 connected` |
+| **GPU acceleration** | Adreno 630, Mesa freedreno: renderer `FD630` (zap shader + `a630_*` from the initramfs) |
+| **Audio** | adsp running. Card `sdm845 - Lenovo-YOGA-C630-13Q50`. Speakers/mic not yet tested |
+| **Wi-Fi** | modem running, `wlan0` (WCN3990, ath10k_snoc, `firmware-atheros` api 5). The MAC is random each boot (`invalid MAC address`). Not yet connected |
+| **Video decode/encode** | `qcom-venus-decoder`, `qcom-venus-encoder` |
+| Compute DSP, sensor DSP | cdsp, slpi running. Sensors not yet tested |
 | Keyboard, touchpad | `hid-over-i2c 06CB:CD3E` (Mouse, Touchpad) |
 | Touchscreen + pen | `hid-over-i2c 04F3:279F` (+ `Stylus`). The pen battery shows as `hid-0018:04F3:279F…-battery` |
 | Lid / buttons | `gpio-keys`, `pm8941_pwrkey`, `hid-over-i2c 6243:0001` |
@@ -19,24 +24,16 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | USB Ethernet | `cdc_ncm` (`enxf8e43b0fecaf`). netconsole does **not** work over it |
 | Suspend | `s2idle` only (`mem_sleep: [s2idle]`). Resume not tested |
 
-## Needs the Lenovo firmware
+## Doesn't work / blocked
 
-See [FIRMWARE.md](FIRMWARE.md). The files have been found but not yet installed.
-
-| Hardware | Missing | Kernel message |
-|---|---|---|
-| GPU acceleration | `qcdxkmsuc850.mbn`, and `a630_sqe.fw` **in the initramfs** | `Unable to load …/qcdxkmsuc850.mbn`, `failed to load a630_sqe.fw` |
-| Audio | `qcadsp850.mbn` (adsp remoteproc) | `--- no soundcards ---` |
-| Wi-Fi | modem `qcdsp1v2850.mbn` / `qcdsp2850.mbn` + `wlanmdsp.mbn` (served by `tqftpserv`); `ath10k_snoc` is loaded and waiting | no `wlan0` |
-| Modem data (IPA) | `ipa_fws.elf` | `ipa … probe … failed with error -2` |
-| Video decode | `qcvss850.mbn` | `qcom-venus … fail to load video firmware` |
-| Compute DSP | `qccdsp850.mbn` | `cdsp` offline |
-| Sensors | `qcslpi850.mbn` | `slpi` offline |
+| Hardware | Why |
+|---|---|
+| IPA (modem cellular data offload) | Loading `ipa_fws.elf` resets the SoC. Blocked with `modprobe.blacklist=ipa`. See [FIRMWARE.md](FIRMWARE.md) |
 
 ## Known noise in the logs
 
-- `pd-mapper.service` fails (`no pd maps available`). Kernel 7.2 has the in-kernel `qcom_pd_mapper`, so the userspace one should be masked.
-- `rmtfs: failed to update start state` at boot: harmless until the modem firmware is present.
+- `pd-mapper.service` is masked (the in-kernel `qcom_pd_mapper` is used). `rmtfs` fails only in SAFE mode, where the modem is blocked.
+- `ath10k … failed to load ath10k/WCN3990/hw1.0/firmware-6.bin`: it probes newer APIs first, then uses firmware-5.
 - `integrity: Couldn't get UEFI db list` / `MODSIGN`: the firmware has no usable EFI variables.
 - `yoga-c630-ec … Failed to create device link …`: harmless.
 - `psci: [Firmware Bug]: failed to set PC mode: -3`: known on this firmware.

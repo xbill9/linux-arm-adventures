@@ -4,7 +4,7 @@ Running Debian on Windows-on-ARM laptops: what works, what breaks, how to get th
 
 | Machine | SoC | Status | Notes |
 |---|---|---|---|
-| Lenovo Yoga C630 (81JL) | Snapdragon 850 (SDM850) | Boots Debian sid on kernel 7.2.9 (6.12.107 fallback); battery, USB-C, Bluetooth work | [c630/](c630/) |
+| Lenovo Yoga C630 (81JL) | Snapdragon 850 (SDM850) | Debian sid, kernel 7.2.9, GNOME. GPU accel, audio, Wi-Fi, video decode, BT, battery and USB-C work (IPA blocked) | [c630/](c630/) |
 | Samsung Galaxy Book Go | Snapdragon 7c Gen 2 | Broken, not yet investigated | [galaxy-book-go/](galaxy-book-go/) |
 
 ## Layout
@@ -19,6 +19,7 @@ c630/
   LOG.md                      dated log of everything done to the machine
   firmware-local/             proprietary firmware + its README: LOCAL ONLY, git-ignored
   system/                     systemd units (c630-bt-addr.service)
+  initramfs/                  initramfs-tools hook adding GPU firmware
   scripts/                    c630-menu (boot menu generator), apply.sh (stick-style boot setup)
   stick/                      the installer stick's shim, GRUB 2.12 and DTB: the known-working boot loader
   backups/                    boot partitions, configs and logs pulled from the laptop

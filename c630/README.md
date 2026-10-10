@@ -36,19 +36,22 @@ Verified on screen: the menu titles read `[via sda2 EFI/debian]`.
 `/usr/local/sbin/c630-menu` ([scripts/c630-menu](scripts/c630-menu)) writes `/boot/grub/c630.cfg`:
 
 - a quiet entry and a `verbose debug` entry for every installed kernel, each with its own DTB copied to `/boot/c630boot/dtb-<kver>`
+- a **SAFE** entry per kernel: no Qualcomm firmware (`modprobe.blacklist=qcom_q6v5_pas,qcom_q6v5_mss,venus_core,ipa msm.skip_gpu=1`), using `/boot/c630boot/initrd-<kver>.pre-firmware` if saved
+- `modprobe.blacklist=ipa` on every normal entry
 - a **CONTROL** entry that boots the installer stick's own kernel and installer from the disk, so no USB is needed
-- default kernel set in `/etc/default/c630-menu` (`C630_DEFAULT=7.2.9+deb14-arm64` since 2026-10-10)
+- default set in `/etc/default/c630-menu`: `C630_DEFAULT=7.2.9+deb14-arm64`, `C630_MODE=full` (or `safe`)
 - it refuses to write a menu whose default kernel has no entry, and it keeps the previous menu as `c630.cfg.prev`
 
 It runs automatically from `/etc/kernel/postinst.d`, `/etc/kernel/postrm.d` and `/etc/initramfs/post-update.d` (`zz-c630-menu`).
 
 ```sh
 sudo c630-menu                                   # regenerate
-sudo c630-menu --once 7.2.9+deb14-arm64          # boot that kernel once, then back to default
-sudo grub-editenv /boot/grub/grubenv set next_entry=c630-debug-7.2.9+deb14-arm64   # once, verbose
+sudo c630-menu --once c630-7.2.9+deb14-arm64                       # boot that entry once
+sudo c630-menu --once c630-7.2.9+deb14-arm64 "modprobe.blacklist=X" # once, with extra kernel options
+sudo c630-fw-rollback                                              # undo the firmware install, SAFE by default
 ```
 
-The one-time boot relies on GRUB 2.12 writing `grubenv` (`save_env`) on ext4 at boot. That should work, but it was **not yet confirmed on this machine** as of 2026-10-10.
+One-time boots rely on GRUB 2.12 writing `grubenv` (`save_env`) on ext4 at boot. **Confirmed working** on 2026-10-10, including auto-recovery after a SoC reset.
 
 ## Kernels
 
@@ -60,7 +63,7 @@ The one-time boot relies on GRUB 2.12 writing `grubenv` (`save_env`) on ext4 at 
 
 ## Still missing
 
-- **Lenovo-signed firmware** in `/lib/firmware/qcom/sdm850/LENOVO/81JL/`. Without it there's no GPU acceleration, audio or Wi-Fi. **Found** in Lenovo's driver cabinets and saved locally. See [FIRMWARE.md](FIRMWARE.md). Not yet installed.
+- **Lenovo-signed firmware: installed 2026-10-10.** GPU acceleration, audio, Wi-Fi and video decode work. **IPA is blocked** because it resets the SoC. See [FIRMWARE.md](FIRMWARE.md).
 - **Bluetooth works** since 2026-10-10 via `c630-bt-addr.service`, which sets the missing public address at boot.
 - GNOME (`gnome-core`) and Google Chrome (arm64 .deb): **installed 2026-10-10** with [scripts/gnome-install.sh](scripts/gnome-install.sh): GNOME Shell 50.5, GDM 51.0 (via `display-manager.service`, default target `graphical.target`), Chrome 155.0.8059.39 (adds `google-chrome.sources`). 665 packages, nothing in the boot path. The rebuilt 7.2.9 initramfs has the same file list as before. Not yet rebooted into. With no GPU firmware, GNOME renders in software (llvmpipe) on the `msm_dpu` display.
 

@@ -2,7 +2,13 @@
 
 For a C630 that won't boot. The goal is to type as little as possible on the laptop itself.
 
-## 0. First try the menu
+## 0. Before anything else: SAFE and one-time boots
+
+- **A one-time test boot crashed or hung?** Hold power 10 s and turn it on. GRUB already cleared the one-time flag, so it boots the default. (A SoC reset does this by itself.)
+- **The default boot is broken?** Pick **`Debian <kver> SAFE - no Qualcomm firmware`** in the menu. It blocks every DSP/modem/video/GPU driver and uses the pre-firmware initramfs.
+- **Firmware suspected?** `sudo c630-fw-rollback` (over SSH or in the rescue chroot) undoes the install and makes SAFE the default.
+
+## 0b. Then the menu
 
 At the GRUB menu (10 s timeout):
 - the `verbose debug` entry of a kernel shows where it stops. Photograph the last screenful.

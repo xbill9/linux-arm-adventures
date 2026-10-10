@@ -54,9 +54,29 @@ Earlier references: [aarch64-laptops/build#62](https://github.com/aarch64-laptop
 - **Already installed:** `rmtfs`, `tqftpserv` and `qrtr-tools` (active). `ath10k_snoc` is loaded, waiting for the modem.
 - **Bluetooth** doesn't need any of this. It loads `qca/crbtfw21.tlv` + `crnv21.bin` from `firmware-atheros`, but needs a public address set at boot. `c630-bt-addr.service` handles that (`/usr/local/sbin/c630-bt-addr`).
 
-## Install plan (not yet done)
+## Installed 2026-10-10, and what each piece needed
 
-1. Copy the nine files to `/usr/lib/firmware/qcom/sdm850/LENOVO/81JL/` on the laptop.
-2. Add the initramfs hook for the GPU firmware, then rebuild the 7.2.9 initramfs, keeping `/boot/c630boot/initrd-7.2.9.pre-gnome` as the known-good copy.
-3. Mask `pd-mapper.service`.
-4. Reboot, then check `/sys/class/remoteproc/*/state`, `/proc/asound/cards`, `ip link` (wlan0), and GPU acceleration (`glxinfo -B`).
+| Piece | Done |
+|---|---|
+| Firmware files | `/usr/lib/firmware/qcom/sdm850/LENOVO/81JL/` (the nine files above, checksums verified) |
+| GPU firmware in the initramfs | `/etc/initramfs-tools/hooks/c630-firmware` ([initramfs/c630-firmware](initramfs/c630-firmware)) adds `qcom/a630_sqe.fw`, `qcom/a630_gmu.bin`, `…/81JL/qcdxkmsuc850.mbn` |
+| Userspace pd-mapper | masked. The in-kernel `qcom_pd_mapper` handles it (audio works) |
+| **IPA** | **blocked on every boot** (`modprobe.blacklist=ipa`, in `c630-menu`'s `P`). **Loading `ipa_fws.elf` resets the whole SoC** about 6 s into boot. IPA is only the modem's cellular data path, so Wi-Fi doesn't need it |
+
+### How the crash was found (bisect with one-time boots)
+
+The first full-firmware boot reset the chip right after `systemd-udevd` started, and the log ended there. Each step was a `c630-menu --once c630-7.2.9+deb14-arm64 "modprobe.blacklist=…"` boot. A crash auto-recovers to the SAFE default.
+
+| Test | Enabled | Result |
+|---|---|---|
+| full | everything | **reset** |
+| 1 | GPU only | OK: renderer `FD630` |
+| 2 | + adsp/cdsp/slpi (`qcom_q6v5_pas`) | OK: sound card `sdm845 - Lenovo-YOGA-C630-13Q50` |
+| 3 | + modem (`qcom_q6v5_mss`) + IPA | **reset** |
+| 3a | + modem, IPA blocked | OK: `wlan0` (WCN3990, `firmware-atheros` firmware-5) |
+| 4 | + venus, IPA blocked | OK: `qcom-venus-decoder`/`-encoder` |
+| default | all but IPA | OK: `systemctl is-system-running` = `running` |
+
+### Undo
+
+`sudo c630-fw-rollback` ([scripts/c630-fw-rollback](scripts/c630-fw-rollback)) moves the firmware and hook to `/root/c630-fw-rollback-<time>/`, restores the pre-firmware initramfs, unmasks pd-mapper and sets the menu to SAFE. It works from SSH or from the rescue chroot.

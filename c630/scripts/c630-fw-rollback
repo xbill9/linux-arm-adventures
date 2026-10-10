@@ -1,0 +1,45 @@
+#!/bin/sh
+# Undo the Lenovo firmware install on the C630 and boot SAFE by default.
+# Works on the running system or from the rescue stick's chroot.
+# Nothing is deleted: removed files go to /root/c630-fw-rollback-<time>/.
+set -e
+[ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
+TS=$(date +%Y%m%d-%H%M%S)
+KEEP=/root/c630-fw-rollback-$TS
+FW=/usr/lib/firmware/qcom/sdm850/LENOVO/81JL
+mkdir -p "$KEEP"
+
+echo "== firmware"
+if [ -d "$FW" ]; then mv "$FW" "$KEEP/81JL" && echo "moved $FW -> $KEEP/81JL"; else echo "no $FW"; fi
+
+echo "== initramfs hook"
+for h in /etc/initramfs-tools/hooks/c630-firmware; do
+  [ -f "$h" ] && mv "$h" "$KEEP/" && echo "moved $h -> $KEEP/"
+done
+
+echo "== initramfs images"
+for f in /boot/c630boot/initrd-*.pre-firmware; do
+  [ -f "$f" ] || continue
+  v=$(basename "$f" .pre-firmware); v=${v#initrd-}
+  if [ -f "/boot/vmlinuz-$v" ]; then
+    cp -a "/boot/initrd.img-$v" "$KEEP/initrd.img-$v" 2>/dev/null || true
+    cp -a "$f" "/boot/initrd.img-$v" && echo "restored /boot/initrd.img-$v from $f"
+  fi
+done
+
+echo "== services"
+if [ "$(readlink /etc/systemd/system/pd-mapper.service 2>/dev/null)" = /dev/null ]; then
+  rm -f /etc/systemd/system/pd-mapper.service && echo "pd-mapper unmasked"
+fi
+
+echo "== menu: SAFE by default"
+D=/etc/default/c630-menu
+touch $D
+grep -q '^C630_MODE=' $D && sed -i 's/^C630_MODE=.*/C630_MODE=safe/' $D || echo 'C630_MODE=safe' >> $D
+cat $D
+/usr/local/sbin/c630-menu
+grub-editenv /boot/grub/grubenv unset next_entry 2>/dev/null || true
+
+sync
+if command -v fsfreeze >/dev/null && [ -d /proc/1 ]; then fsfreeze -f / && fsfreeze -u / || true; fi
+echo "== done. Removed files kept in $KEEP"

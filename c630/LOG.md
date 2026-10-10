@@ -31,8 +31,16 @@ Newest last. Times are local (EDT).
 - 11:54: **firmware found**: Lenovo C630 driver cabs (WOA-Project mirror, release 200.0.19.0) contain all 8 files the DTB requests, plus `wlanmdsp.mbn`. Saved to `firmware-local/` (git-ignored). See [FIRMWARE.md](FIRMWARE.md).
 - 12:00: reboot (by the user). `c630-bt-addr.service` **failed**: `Set Public Address … failed with status 0x11 (Invalid Index)`, because `hci0` exists before the chip finishes loading its firmware.
 - 12:08: `c630-bt-addr` now retries every 0.5 s for up to 30 s. Bluetooth is up again. The boot-time fix is not yet verified by a reboot.
+- 12:08–12:16: safety net: `c630-menu` gained SAFE entries (`modprobe.blacklist=qcom_q6v5_pas,qcom_q6v5_mss,venus_core,ipa msm.skip_gpu=1` + pre-firmware initramfs), `C630_MODE=safe|full` and `--once`. `c630-fw-rollback` added. Pre-firmware initramfs copies saved.
+- 12:16: test A: `--once` into 6.12.107 → booted it, **GRUB cleared `next_entry`** (one-time boots proven). The BT fix worked at boot.
+- 12:18: test B: plain reboot → **SAFE 7.2.9 by default**. No DSPs, no GPU driver, display + GDM fine.
+- 12:20: firmware installed (9 files), `c630-firmware` initramfs hook, pd-mapper masked. One-time FULL boot → **SoC reset ~6 s in**, **auto-recovered to SAFE** with no user action.
+- 12:24–12:33: bisect with `--once <id> "<extra args>"`: GPU OK, DSPs OK, modem+IPA reset, modem alone OK, venus OK. **Culprit: IPA.**
+- 12:33: `modprobe.blacklist=ipa` on all normal entries. Default back to normal mode (`C630_MODE=full`).
+- 12:34: plain reboot: **everything up**. FD630 GPU, sound card, `wlan0`, venus, all four remoteprocs running, BT, GNOME. `systemctl is-system-running` = `running`.
 
 ## Next
 
-- Install the firmware, add the initramfs hook for GPU firmware, and mask `pd-mapper` ([FIRMWARE.md § Install plan](FIRMWARE.md#install-plan-not-yet-done)).
-- Then check audio, Wi-Fi, GPU acceleration and video decode, and update [HARDWARE.md](HARDWARE.md).
+- Connect Wi-Fi and test throughput. Fix the random Wi-Fi MAC.
+- Test speakers, mic, headphone jack, sensors, suspend/resume, and external display over USB-C.
+- Look at why IPA resets the SoC (firmware version vs. kernel's IPA v3.1 support?).
