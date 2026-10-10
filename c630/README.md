@@ -1,6 +1,6 @@
 # Lenovo Yoga C630 (81JL, Snapdragon 850)
 
-Debian **sid** (upgraded from trixie on 2026-10-10). Dev machine. Hostname `debian`, network `192.168.0.66` on a USB Ethernet adapter (driver `cdc_ncm`). The rescue system gets `192.168.0.65`.
+Debian **sid** (upgraded from trixie on 2026-10-10), default kernel **7.2.9**. Dev machine. Hostname `debian`, network `192.168.0.66` on a USB Ethernet adapter (driver `cdc_ncm`). The rescue system gets `192.168.0.65`.
 
 ## Disk layout (UFS)
 
@@ -37,7 +37,7 @@ Verified on screen: the menu titles read `[via sda2 EFI/debian]`.
 
 - a quiet entry and a `verbose debug` entry for every installed kernel, each with its own DTB copied to `/boot/c630boot/dtb-<kver>`
 - a **CONTROL** entry that boots the installer stick's own kernel and installer from the disk, so no USB is needed
-- default kernel set in `/etc/default/c630-menu` (`C630_DEFAULT=6.12.107+deb13-arm64`)
+- default kernel set in `/etc/default/c630-menu` (`C630_DEFAULT=7.2.9+deb14-arm64` since 2026-10-10)
 - it refuses to write a menu whose default kernel has no entry, and it keeps the previous menu as `c630.cfg.prev`
 
 It runs automatically from `/etc/kernel/postinst.d`, `/etc/kernel/postrm.d` and `/etc/initramfs/post-update.d` (`zz-c630-menu`).
@@ -54,14 +54,15 @@ The one-time boot relies on GRUB 2.12 writing `grubenv` (`save_env`) on ext4 at 
 
 | Kernel | Status |
 |---|---|
-| 6.12.107+deb13 | **Default. Boots.** Byte-identical to the installer stick's kernel. Initramfs predates the sid upgrade |
+| 7.2.9+deb14 | **Default since 2026-10-10. Boots** (quiet and verbose). Battery (`yoga-c630-battery`, 55.6/60 Wh), AC adapter, both USB-C ports (UCSI) and the Bluetooth adapter (`hci0`) all work |
+| 6.12.107+deb13 | **Fallback. Boots.** Byte-identical to the installer stick's kernel. Initramfs predates the sid upgrade. No battery/USB-C drivers |
 | 6.12.111+deb13 | Untested under GRUB 2.12 |
-| 7.2.9+deb14 | Untested under GRUB 2.12. Its initramfs has the UFS/PHY/ext4 modules, and the seven modules 6.12 needs that are missing from it are built into 7.2. It has all three C630 drivers (EC, battery, UCSI) |
 
 ## Still missing
 
 - **Lenovo-signed firmware** in `/lib/firmware/qcom/sdm850/LENOVO/81JL/` (GPU zap shader `qcdxkmsuc850.mbn`, adsp, cdsp, modem, ipa, venus). Without it there's no GPU acceleration, audio or Wi-Fi. Windows was wiped, so it has to come from Lenovo's driver packages.
 - GNOME (`gnome-core`) and Google Chrome (arm64 .deb) were planned next.
+- sid's `libpam` 1.7.0 logs `PAM (systemd-user) /usr/lib/pam.d is not supported on this system`. Logins work, but GNOME/GDM may need `/usr/lib/pam.d/systemd-user` copied to `/etc/pam.d/`.
 - **netconsole doesn't work** over the USB Ethernet adapter. `cdc_ncm` batches transmits and netpoll can't flush them. Boot logs before the root mount only exist on screen.
 
 ## Backups
