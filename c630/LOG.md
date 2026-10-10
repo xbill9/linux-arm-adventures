@@ -48,12 +48,14 @@ Newest last. Times are local (EDT).
 - 13:40: installed `apt-listbugs`, `needrestart`, `linux-perf`, `gpiod`, `pavucontrol`, `timeshift` (57 packages, nothing in the boot path, holds intact).
 - 15:46: **first Wi-Fi connection** (Starbucks). The 5 GHz channel-112 (DFS) BSS refused the association (`code=18`), then auth timed out. Regdomain was `00`. Pinned the profile to 2.4 GHz (`802-11-wireless.band bg`), and it connected (172.16.225.64/22). The Meraki captive portal was found, but the USB tether's default route (metric 100) hides it. See [WIFI.md](WIFI.md).
 - 15:50: `/etc/modprobe.d/regdom.conf` → `options cfg80211 ieee80211_regdom=US` (cfg80211 is a module, not in the initramfs). Not yet verified across a reboot. `iw` turned out to be installed already, at `/usr/sbin/iw` (not on the user PATH).
+- 16:04–16:16: **screen kept dimming after ~30 s idle** although GNOME had `idle-dim=false` and blank set to Never. Debug-restarted `gsd-power` (GNOME 51, `gnome-settings-daemon` 51.0-2): it arms `dim callback for 30s` regardless of `idle-dim`, `idle-brightness` (100 made no difference) or `idle-delay` (7200 made no difference), then calls `org.gnome.Shell.Brightness.SetDimming true` (backlight 2882 → 1256). Cause: the power profile was **power-saver** (on AC, battery full). `powerprofilesctl set balanced` → no dim in the next minute. Settings restored (`idle-brightness` 30, `idle-delay` 0). Seen on the way: `iio-sensor-proxy` segfaults at boot (no ambient light sensor anyway, only `accel_3d`); the battery exposes no `capacity` file; kbd-backlight dim fails harmlessly (no kbd backlight).
 
 ## Next
 
 - Fix the resolv.conf fight for good: let NetworkManager manage the USB Ethernet (see AUDIT).
 - Configure timeshift (rsync, daily + before-upgrade snapshots).
 - Built-in mic: voice test on DMIC2/DMIC3, then mic bias/gain, then a UCM `Mic (internal)` device.
+- Screen dim: confirm it stays off on `balanced` over a longer idle and across a reboot.
 - Wi-Fi: reboot and confirm regdomain `US` at boot. Retry 5 GHz (non-DFS BSS). Test throughput.
 - Test speakers, mic, headphone jack, sensors, suspend/resume, and external display over USB-C.
 - IPA/LTE data: test the hypotheses in [MODEM.md](MODEM.md) (firmware build, `gsi-loader = "modem"`, interconnect votes). A SIM is needed for an end-to-end test.
