@@ -41,6 +41,7 @@ Newest last. Times are local (EDT).
 - 12:58: modem investigation: `qmicli -d qrtr://0` works. LTE model (IMEI, `umts, lte`, SIM slot present, no SIM). ModemManager finds no modem.
 - 13:03: `sudo modprobe ipa` on the running system: the IPA driver initialized, the GSI timed out about 3 s later, then an RPMh timeout and a **hard lockup**. The watchdog reset it and it came back on its own in about 50 s (IPA blocked). Not a boot-ordering problem. Log saved: `logs/2026-10-10-ipa-modprobe-crash.log`. See [MODEM.md](MODEM.md).
 - 13:11–13:19: **`gsi-loader = "modem"` test** (patched DTB, one-time boot via the new `c630-dtbtest-<kver>` menu entry; the forced reboot was needed because the GNOME session was blocking shutdown). `modprobe ipa`: no lockup. Modem restart: IPA sees all modem events, but the modem never loads/signals GSI, so there's no `rmnet_ipa0`. Safe but inert. The C630 got 192.168.0.65 from DHCP on this boot. See [MODEM.md](MODEM.md).
+- 13:24: **captive portals**: installed `network-manager-config-connectivity-debian`. Wi-Fi gets a stable per-network MAC (`wifi.cloned-mac-address=stable`, since the hardware MAC is random each boot). Added a "Wi-Fi Login" launcher (`xdg-open http://neverssl.com/`, Chrome is the default browser).
 
 ## Next
 

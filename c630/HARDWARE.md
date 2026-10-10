@@ -9,7 +9,8 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | Display (built-in eDP) | `msm_dpu`, `/dev/dri/card0`, `card0-eDP-1 connected` |
 | **GPU acceleration** | Adreno 630, Mesa freedreno: renderer `FD630` (zap shader + `a630_*` from the initramfs) |
 | **Audio** | adsp running. Card `sdm845 - Lenovo-YOGA-C630-13Q50`. Speakers/mic not yet tested |
-| **Wi-Fi** | modem running, `wlan0` (WCN3990, ath10k_snoc, `firmware-atheros` api 5). The MAC is random each boot (`invalid MAC address`). Not yet connected |
+| **Wi-Fi** | modem running, `wlan0` (WCN3990, ath10k_snoc, `firmware-atheros` api 5). Scans fine. The hardware MAC is random each boot (`invalid MAC address`), so NetworkManager uses a **stable per-network MAC** instead ([system/NetworkManager/c630-wifi-mac.conf](system/NetworkManager/c630-wifi-mac.conf)) |
+| Captive portals (Starbucks etc.) | `network-manager-config-connectivity-debian` (checks `network-test.debian.org`), so GNOME prompts to sign in and opens Chrome. Fallback: the **Wi-Fi Login** launcher ([desktop/wifi-login.desktop](desktop/wifi-login.desktop), opens `http://neverssl.com/`). GNOME 50 has no built-in portal window |
 | **Video decode/encode** | `qcom-venus-decoder`, `qcom-venus-encoder` |
 | Compute DSP, sensor DSP | cdsp, slpi running. Sensors not yet tested |
 | Keyboard, touchpad | `hid-over-i2c 06CB:CD3E` (Mouse, Touchpad) |

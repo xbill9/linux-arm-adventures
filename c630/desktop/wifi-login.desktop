@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Wi-Fi Login
+Comment=Open the captive portal (Starbucks, hotels, airports) in the browser
+Exec=xdg-open http://neverssl.com/
+Icon=network-wireless
+Categories=Network;
+Keywords=captive;portal;hotspot;starbucks;wifi;login;
