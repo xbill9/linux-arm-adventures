@@ -1,0 +1,119 @@
+Linux debian 6.12.107+deb13-arm64 #1 SMP Debian 6.12.107-1 (2026-08-29) aarch64 GNU/Linux
+forky/sid
+
+NAME      SIZE FSTYPE UUID                                 PARTUUID                             PARTTYPENAME         LABEL MOUNTPOINT
+sda     113.5G                                                                                                             
+├─sda1     16M vfat   E725-516C                            5ed82b92-3c64-41e3-88f1-21f751760841 Linux filesystem           
+├─sda2    977M vfat   3BA7-7161                            4381a21c-2b02-4612-8f27-fa69f5563b71 EFI System                 /boot/efi
+├─sda3  106.7G ext4   a81deabf-0654-4f68-b795-284305d26f13 8d5250e9-3e9c-4c87-be2e-288eddfe3819 Linux filesystem           /
+└─sda4    5.9G swap   bdd44ee8-8158-47bb-a259-24f5ddf6857c 66ae7bc9-76b5-40a5-9d65-3475528190df Linux swap                 [SWAP]
+sdb       128M                                                                                                             
+├─sdb2    128K                                             0b1bc290-fed9-fff0-f27f-d35957102973                            
+└─sdb3      1M                                             99a4e342-40fa-526a-a3ec-1836b86279b0                            
+sdc         4G                                                                                                             
+├─sdc1      8M vfat   CAF2-BF03                            b64c5513-3be4-e3c7-81b0-0917177d0cfd Microsoft basic data DPP   
+├─sdc2      8M vfat   3AD0-D191                            a047b524-6f34-2a52-f914-aa9e68e4e39c                            
+├─sdc3    128K                                             b966138f-5cb5-0ced-da74-2729f6363cc6                            
+├─sdc4      1M                                             a566d838-2bea-3fff-8734-bbdafd81ebc4                            
+├─sdc5    256K                                             1972bca0-7012-c2d7-df69-fc8fe39da786                            
+├─sdc6    256K                                             a3f13bd7-a354-44c8-d943-25785066a330                            
+├─sdc7     16M vfat   3046-D4D7                            0b717b56-d224-a15e-34ee-297d635bfa6a                            
+├─sdc8      8K                                             7ef9ef94-6790-06bf-4b27-8b2a925bda2e                            
+├─sdc9    256K                                             507c059a-726f-028d-6e7e-2aeaedc74a2e                            
+├─sdc10    16K                                             1b20c1e8-0ada-3fd5-2e19-5ee0933272d5                            
+├─sdc11   512K                                             0b693cd8-1d37-a915-b70e-f5b6286dde47                            
+├─sdc12     2M                                             8049b778-4351-901e-b8bc-8534feb62da4                            
+├─sdc13   128K                                             162f66a8-1075-5ed4-30ea-87f26e906f17                            
+├─sdc14   512K                                             1531fd22-c436-802b-0823-41737b68fcf1                            
+├─sdc15    16M vfat   306D-6087                            df33d6d0-c396-2074-d366-0c90cb214f10                            
+├─sdc16     5M                                             6f617f39-b3b7-ba6e-21c2-cef22e816f34                            
+├─sdc17    64K                                             f231e455-6d33-9a31-5181-4dca2c62211f                            
+├─sdc18     4K                                             4b5bd77a-2f0e-f291-a7cd-14f2beff3f7e                            
+├─sdc19     2M                                             cd5c58d8-2df7-108a-03ea-9cc1426e661b                            
+├─sdc20   512K                                             2886ee8a-56b3-6a97-b8d9-d00f69af15c2                            
+├─sdc21     2M                                             c5a4f3e4-bd02-dc0f-4e4a-437320e4297f                            
+├─sdc22   128K                                             9c8165b1-9227-013c-6c8d-34cf5b7d867c                            
+├─sdc23   512K                                             64d60952-832e-23e2-fb42-936cc3bb8ac3                            
+├─sdc24    16M vfat   306D-6087                            95cd1d0c-7c31-e81a-e4c0-084d1a89bb76                            
+├─sdc25     5M                                             f277cdfd-eb14-c122-af81-4b44e65142c0                            
+├─sdc26    64K                                             a5d60cd7-696b-157f-2f01-28bc636ae4f7                            
+└─sdc27     2M                                             8f4d019a-23e2-fcc7-8d9c-da7e80c7ebd1                            
+sdd       1.5G                                                                                                             
+├─sdd2      2M                                             05cbbecb-ddd9-738c-6305-e4d044e4be47                            
+├─sdd3      2M                                             7fd1edcd-986f-a219-1e27-cc6e1249d363                            
+├─sdd4      2M                                             ab2368bc-2e86-fd79-7183-65af6af2343c                            
+└─sdd5    128K                                             a54a8cae-42e5-bd5a-4b66-6833465d0f9c                            
+sde         4M                                                                                                             
+├─sde1    3.5M                                             5aa07161-a33d-9f1b-b5d1-52d2c3c7d3d1                            
+└─sde2    128K                                             a4e94c32-3263-2855-f02f-c364d07dceef                            
+sdf         4M                                                                                                             
+├─sdf1    3.5M                                             b9e2f229-216a-ff1c-4ca3-347e09e3d198                            
+└─sdf2    128K                                             92abcc97-a79a-c3fa-5f9c-ee3df5b92374                            
+
+/dev/sdf1: PARTLABEL="XBL" PARTUUID="b9e2f229-216a-ff1c-4ca3-347e09e3d198"
+/dev/sdf2: PARTLABEL="XBL_CONFIG" PARTUUID="92abcc97-a79a-c3fa-5f9c-ee3df5b92374"
+/dev/sdd2: PARTLABEL="modemst1" PARTUUID="05cbbecb-ddd9-738c-6305-e4d044e4be47"
+/dev/sdd5: PARTLABEL="fsc" PARTUUID="a54a8cae-42e5-bd5a-4b66-6833465d0f9c"
+/dev/sdd3: PARTLABEL="modemst2" PARTUUID="7fd1edcd-986f-a219-1e27-cc6e1249d363"
+/dev/sdd4: PARTLABEL="fsg" PARTUUID="ab2368bc-2e86-fd79-7183-65af6af2343c"
+/dev/sdb2: PARTLABEL="cdt" PARTUUID="0b1bc290-fed9-fff0-f27f-d35957102973"
+/dev/sdb3: PARTLABEL="ddr" PARTUUID="99a4e342-40fa-526a-a3ec-1836b86279b0"
+/dev/sde2: PARTLABEL="XBL_CONFIG" PARTUUID="a4e94c32-3263-2855-f02f-c364d07dceef"
+/dev/sde1: PARTLABEL="XBL" PARTUUID="5aa07161-a33d-9f1b-b5d1-52d2c3c7d3d1"
+/dev/sdc15: SEC_TYPE="msdos" UUID="306D-6087" BLOCK_SIZE="4096" TYPE="vfat" PARTLABEL="TZAPPS" PARTUUID="df33d6d0-c396-2074-d366-0c90cb214f10"
+/dev/sdc2: SEC_TYPE="msdos" UUID="3AD0-D191" BLOCK_SIZE="4096" TYPE="vfat" PARTLABEL="PLAT" PARTUUID="a047b524-6f34-2a52-f914-aa9e68e4e39c"
+/dev/sdc23: PARTLABEL="BACKUP_HYP" PARTUUID="64d60952-832e-23e2-fb42-936cc3bb8ac3"
+/dev/sdc13: PARTLABEL="DEVCFG" PARTUUID="162f66a8-1075-5ed4-30ea-87f26e906f17"
+/dev/sdc21: PARTLABEL="BACKUP_TZ" PARTUUID="c5a4f3e4-bd02-dc0f-4e4a-437320e4297f"
+/dev/sdc11: PARTLABEL="AOP" PARTUUID="0b693cd8-1d37-a915-b70e-f5b6286dde47"
+/dev/sdc9: PARTLABEL="UEFI_BS_NV" PARTUUID="507c059a-726f-028d-6e7e-2aeaedc74a2e"
+/dev/sdc7: SEC_TYPE="msdos" UUID="3046-D4D7" BLOCK_SIZE="512" TYPE="vfat" PARTLABEL="LogFS" PARTUUID="0b717b56-d224-a15e-34ee-297d635bfa6a"
+/dev/sdc18: PARTLABEL="limits" PARTUUID="4b5bd77a-2f0e-f291-a7cd-14f2beff3f7e"
+/dev/sdc5: PARTLABEL="APDP" PARTUUID="1972bca0-7012-c2d7-df69-fc8fe39da786"
+/dev/sdc26: PARTLABEL="BACKUP_QUP" PARTUUID="a5d60cd7-696b-157f-2f01-28bc636ae4f7"
+/dev/sdc16: PARTLABEL="RESERVEDRO" PARTUUID="6f617f39-b3b7-ba6e-21c2-cef22e816f34"
+/dev/sdc3: PARTLABEL="SEC" PARTUUID="b966138f-5cb5-0ced-da74-2729f6363cc6"
+/dev/sdc24: SEC_TYPE="msdos" UUID="306D-6087" BLOCK_SIZE="4096" TYPE="vfat" PARTLABEL="BACKUP_TZAPPS" PARTUUID="95cd1d0c-7c31-e81a-e4c0-084d1a89bb76"
+/dev/sdc14: PARTLABEL="HYP" PARTUUID="1531fd22-c436-802b-0823-41737b68fcf1"
+/dev/sdc1: SEC_TYPE="msdos" LABEL="DPP" UUID="CAF2-BF03" BLOCK_SIZE="4096" TYPE="vfat" PARTLABEL="DPP" PARTUUID="b64c5513-3be4-e3c7-81b0-0917177d0cfd"
+/dev/sdc22: PARTLABEL="BACKUP_DEVCFG" PARTUUID="9c8165b1-9227-013c-6c8d-34cf5b7d867c"
+/dev/sdc12: PARTLABEL="TZ" PARTUUID="8049b778-4351-901e-b8bc-8534feb62da4"
+/dev/sdc20: PARTLABEL="BACKUP_AOP" PARTUUID="2886ee8a-56b3-6a97-b8d9-d00f69af15c2"
+/dev/sdc10: PARTLABEL="BOOTMODE" PARTUUID="1b20c1e8-0ada-3fd5-2e19-5ee0933272d5"
+/dev/sdc8: PARTLABEL="SSD" PARTUUID="7ef9ef94-6790-06bf-4b27-8b2a925bda2e"
+/dev/sdc19: PARTLABEL="ImageFv" PARTUUID="cd5c58d8-2df7-108a-03ea-9cc1426e661b"
+/dev/sdc6: PARTLABEL="MSADP" PARTUUID="a3f13bd7-a354-44c8-d943-25785066a330"
+/dev/sdc27: PARTLABEL="BACKUP_ImageFv" PARTUUID="8f4d019a-23e2-fcc7-8d9c-da7e80c7ebd1"
+/dev/sdc17: PARTLABEL="QUP" PARTUUID="f231e455-6d33-9a31-5181-4dca2c62211f"
+/dev/sdc4: PARTLABEL="TOOLSFV" PARTUUID="a566d838-2bea-3fff-8734-bbdafd81ebc4"
+/dev/sdc25: PARTLABEL="BACKUP_RESERVEDRO" PARTUUID="f277cdfd-eb14-c122-af81-4b44e65142c0"
+/dev/sda4: UUID="bdd44ee8-8158-47bb-a259-24f5ddf6857c" TYPE="swap" PARTUUID="66ae7bc9-76b5-40a5-9d65-3475528190df"
+/dev/sda2: UUID="3BA7-7161" BLOCK_SIZE="4096" TYPE="vfat" PARTUUID="4381a21c-2b02-4612-8f27-fa69f5563b71"
+/dev/sda3: UUID="a81deabf-0654-4f68-b795-284305d26f13" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="8d5250e9-3e9c-4c87-be2e-288eddfe3819"
+/dev/sda1: UUID="E725-516C" BLOCK_SIZE="4096" TYPE="vfat" PARTUUID="5ed82b92-3c64-41e3-88f1-21f751760841"
+
+label: gpt
+label-id: 3AD10756-62FA-43DF-8975-24FCBDC09232
+device: /dev/sda
+unit: sectors
+first-lba: 6
+last-lba: 29765626
+sector-size: 4096
+
+/dev/sda1 : start=         256, size=        4096, type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, uuid=5ED82B92-3C64-41E3-88F1-21F751760841
+/dev/sda2 : start=        4352, size=      250112, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, uuid=4381A21C-2B02-4612-8F27-FA69F5563B71
+/dev/sda3 : start=      254464, size=    27974656, type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, uuid=8D5250E9-3E9C-4C87-BE2E-288EDDFE3819
+/dev/sda4 : start=    28229120, size=     1536256, type=0657FD6D-A4AB-43C4-84E5-0933C84B4F4F, uuid=66AE7BC9-76B5-40A5-9D65-3475528190DF
+
+BOOT_IMAGE=/boot/vmlinuz-6.12.107+deb13-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1 ignore_loglevel earlycon=efifb keep_bootcon
+
+grub-common
+grub-efi-arm64
+grub-efi-arm64-bin
+grub-efi-arm64-signed
+grub-efi-arm64-unsigned
+grub2-common
+shim-helpers-arm64-signed
+shim-signed
+shim-signed-common
+shim-unsigned

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Keep /boot/c630.dtb matching the newest installed kernel (not just the one being installed).
+newest=$(linux-version list | linux-version sort | tail -n1)
+[ "$1" = "$newest" ] || exit 0
+f=/usr/lib/linux-image-$1/qcom/sdm850-lenovo-yoga-c630.dtb
+[ -f "$f" ] && cp "$f" /boot/c630.dtb
+exit 0

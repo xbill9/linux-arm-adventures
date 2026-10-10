@@ -1,0 +1,22 @@
+# Hand-written C630 menu, modelled on the installer stick's. Not touched by update-grub.
+set default=0
+set timeout=10
+search --no-floppy --fs-uuid --set=root a81deabf-0654-4f68-b795-284305d26f13
+
+menuentry "[via $c630_from] 1: Debian 6.12.107 (disk kernel + disk initramfs, verbose)" {
+    devicetree /boot/c630boot/c630.dtb
+    linux  /boot/vmlinuz-6.12.107+deb13-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1 ignore_loglevel earlycon=efifb keep_bootcon
+    initrd /boot/initrd.img-6.12.107+deb13-arm64
+}
+menuentry "[via $c630_from] 2: CONTROL - stick kernel + installer (should reach the language screen)" {
+    devicetree /boot/c630boot/c630.dtb
+    linux  /boot/c630boot/vmlinuz rescue/enable=true --- clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1
+    initrd /boot/c630boot/initrd.gz
+}
+menuentry "[via $c630_from] 3: Debian 6.12.107 kernel, NO initramfs (expect a root-mount panic)" {
+    devicetree /boot/c630boot/c630.dtb
+    linux  /boot/vmlinuz-6.12.107+deb13-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1 ignore_loglevel earlycon=efifb keep_bootcon
+}
+menuentry "[via $c630_from] 4: full generated Debian menu" {
+    configfile /boot/grub/grub.cfg
+}

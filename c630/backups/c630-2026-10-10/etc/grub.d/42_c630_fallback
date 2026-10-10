@@ -1,0 +1,40 @@
+#!/bin/sh
+# Fixed fallback: kernel 6.12.111 with its own matching DTB (not the shared /boot/c630.dtb).
+cat <<'G'
+menuentry 'Debian 6.12 (known-good)' --id c630-known-good {
+  insmod part_gpt
+  insmod ext2
+  search --no-floppy --fs-uuid --set=root a81deabf-0654-4f68-b795-284305d26f13
+  devicetree /boot/c630-6.12.dtb
+  linux /boot/vmlinuz-6.12.111+deb13-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1 panic=10
+  initrd /boot/initrd.img-6.12.111+deb13-arm64
+}
+G
+cat <<'G'
+menuentry 'Debian 6.12.107 (pre-upgrade initrd)' --id c630-pre-upgrade {
+  insmod part_gpt
+  insmod ext2
+  search --no-floppy --fs-uuid --set=root a81deabf-0654-4f68-b795-284305d26f13
+  devicetree /boot/c630-6.12.dtb
+  linux /boot/vmlinuz-6.12.107+deb13-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1
+  initrd /boot/initrd.img-6.12.107+deb13-arm64
+}
+G
+cat <<'G'
+menuentry 'DEBUG 6.12.107 pre-upgrade (verbose, stops on error)' --id c630-debug-6107 {
+  insmod part_gpt
+  insmod ext2
+  search --no-floppy --fs-uuid --set=root a81deabf-0654-4f68-b795-284305d26f13
+  devicetree /boot/c630-6.12.dtb
+  linux /boot/vmlinuz-6.12.107+deb13-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1 ignore_loglevel earlycon=efifb keep_bootcon printk.devkmsg=on
+  initrd /boot/initrd.img-6.12.107+deb13-arm64
+}
+menuentry 'DEBUG 7.2.9 (verbose, stops on error)' --id c630-debug-729 {
+  insmod part_gpt
+  insmod ext2
+  search --no-floppy --fs-uuid --set=root a81deabf-0654-4f68-b795-284305d26f13
+  devicetree /boot/c630.dtb
+  linux /boot/vmlinuz-7.2.9+deb14-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1 ignore_loglevel earlycon=efifb keep_bootcon printk.devkmsg=on
+  initrd /boot/initrd.img-7.2.9+deb14-arm64
+}
+G

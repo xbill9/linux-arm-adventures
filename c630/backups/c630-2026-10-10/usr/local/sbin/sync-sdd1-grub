@@ -1,0 +1,20 @@
+#!/bin/sh
+# Mirror Debian's boot loaders onto the hand-built ESP (sdd1, UUID E725-516C),
+# which boots GRUB under the Windows Boot Manager name. Never fails apt.
+src=/boot/efi/EFI/debian
+dev=/dev/disk/by-uuid/E725-516C
+[ -f "$src/grubaa64.efi" ] && [ -e "$dev" ] || exit 0
+mnt=$(mktemp -d) || exit 0
+if mount "$dev" "$mnt" 2>/dev/null; then
+  d="$mnt/EFI/Microsoft/Boot"
+  if [ -d "$d" ] && ! cmp -s "$src/grubaa64.efi" "$d/bootmgfw.efi"; then
+    cp "$src/grubaa64.efi" "$d/grubaa64.efi"
+    cp "$src/grubaa64.efi" "$d/bootmgfw.efi"
+    for f in shimaa64.efi mmaa64.efi fbaa64.efi; do [ -f "$src/$f" ] && cp "$src/$f" "$d/$f"; done
+    sync
+    logger -t sync-sdd1-grub "updated sdd1 boot loaders from $src"
+  fi
+  umount "$mnt"
+fi
+rmdir "$mnt"
+exit 0

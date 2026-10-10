@@ -1,0 +1,23 @@
+search --file --set=root /.disk/id/a0bf5d39-9bcd-44b4-98bd-b304a52b54b5
+set prefix=($root)/boot/grub
+search --no-floppy --file --set=dtbroot /c630.dtb
+set default=0
+set timeout=10
+
+menuentry 'Yoga C630: Install (with c630.dtb)' {
+    devicetree ($dtbroot)/c630.dtb
+    linux    /install.a64/vmlinuz clk_ignore_unused pd_ignore_unused --- quiet
+    initrd   /install.a64/initrd.gz
+}
+menuentry 'Yoga C630: Graphical install (with c630.dtb)' {
+    devicetree ($dtbroot)/c630.dtb
+    linux    /install.a64/vmlinuz clk_ignore_unused pd_ignore_unused --- quiet
+    initrd   /install.a64/gtk/initrd.gz
+}
+menuentry 'Yoga C630: Expert install (with c630.dtb, verbose)' {
+    devicetree ($dtbroot)/c630.dtb
+    linux    /install.a64/vmlinuz clk_ignore_unused pd_ignore_unused priority=low ---
+    initrd   /install.a64/initrd.gz
+}
+
+source $prefix/${grub_cpu}-efi/grub.cfg

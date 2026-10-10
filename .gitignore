@@ -1,0 +1,8 @@
+# Large and reproducible from Debian packages; kept in the backup tarball
+c630/backups/*.tar.gz
+c630/backups/**/vmlinuz*
+c630/backups/**/initrd*
+c630/backups/**/Persisted_Capsules.bin
+
+# Personal assistant notes from the laptop; kept in the local tarball only
+c630/backups/**/.claude/

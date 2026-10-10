@@ -1,0 +1,8 @@
+#!/bin/sh
+cat <<'G'
+if search --no-floppy --file --set=dtbdev /boot/c630.dtb; then
+  devicetree ($dtbdev)/boot/c630.dtb
+elif search --no-floppy --file --set=dtbdev /c630.dtb; then
+  devicetree ($dtbdev)/c630.dtb
+fi
+G

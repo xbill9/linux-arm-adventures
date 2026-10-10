@@ -1,0 +1,4 @@
+#!/bin/sh
+# Rebuild the C630 boot menu (/boot/grub/c630.cfg). Never fails the caller.
+/usr/local/sbin/c630-menu >&2 || true
+exit 0
