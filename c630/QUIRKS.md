@@ -68,3 +68,16 @@ Only `s2idle` is offered (`/sys/power/mem_sleep` = `[s2idle]`). It has run once,
 - Log: [logs/2026-10-10-s2idle-resume-lockup.log](logs/2026-10-10-s2idle-resume-lockup.log).
 
 **Open:** decide whether auto-suspend stays on (`gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'`, and the same for GDM's own settings), or run a deliberate suspend test: `systemctl suspend`, then check `journalctl -k -b` and that the EC (battery, UCSI) still answers. `nmi_watchdog=0` would tell whether the lockup reports are only the detector.
+
+## Other hardware issues
+
+Found in a sweep of every 7.2.9 boot on 2026-10-10. Storage (UFS), the Wi-Fi firmware, the USB controllers, thermal throttling, the touchpad and the touchscreen logged no errors.
+
+| Issue | Evidence | Status |
+|---|---|---|
+| **`iio-sensor-proxy` crashes at boot** | `Buffer '/dev/iio:device0' did not have data within 0.5s`, then `'registry' sensor unavailable after 30s, is hexagonrpcd running?`, then `code=killed, status=11/SEGV`. The unit is left `failed` | Auto-rotate is gone for that boot. `sudo systemctl restart iio-sensor-proxy` should bring it back. The "registry" probe wants `hexagonrpcd`, the slpi sensor daemon, which isn't installed |
+| **Speaker amp `sdw:0:0:0217:2110:00:4` (WSA881x) failed a read** | `trf on Slave 1 failed:-5 read addr 311c`, `wsa881x-codec … ASoC error (-5) … register: [0x0000311c]`. Once on boot 0, 29× on the boot that suspended. On every boot: `din-ports (2) mismatch with controller (6)` and an `SWR CMD error, fifo status …, flushing fifo` | The amp at `:00:3` hasn't logged errors. **Whether both speakers play is untested**: `speaker-test -c2 -t wav` |
+| **The modem doesn't halt cleanly** | `qcom-q6v5-mss … Handover signaled, but it already happened` on every start, `port failed halt` on every stop (shutdown and restart). `qcom_smd_qrtr … invalid ipcrouter packet` during the `gsi-loader` test | It still stops, and shutdown finishes. See [MODEM.md](MODEM.md) |
+| Bluetooth UART | `qcom_geni_serial 898000.serial: serial engine reports 0 RX bytes in!` on some boots, while `crbtfw21.tlv` loads | Bluetooth works anyway |
+| Audio codec chatter | `wcd934x … Port Closed TX/RX port`, `underflow error on TX port`, `mux … has no paths` | Noise |
+| Temperatures | 41–51 °C while the journal scans were running, against 35–41 °C idle earlier | Not a problem so far. Watch it under real load |

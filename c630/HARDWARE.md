@@ -8,7 +8,7 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 |---|---|
 | Display (built-in eDP) | `msm_dpu`, `/dev/dri/card0`, `card0-eDP-1 connected` |
 | **GPU acceleration** | Adreno 630, Mesa freedreno: renderer `FD630` (zap shader + `a630_*` from the initramfs) |
-| **Audio** | adsp running. Card `sdm845 - Lenovo-YOGA-C630-13Q50`. Speakers/mic not yet tested |
+| **Audio** | adsp running. Card `sdm845 - Lenovo-YOGA-C630-13Q50`. Speakers/mic not yet tested. **One speaker amp (`wsa881x` `sdw:…:00:4`) failed a register read at boot** on 2026-10-10. A left/right test is needed. See [QUIRKS.md](QUIRKS.md#other-hardware-issues) |
 | **Wi-Fi** | modem running, `wlan0` (WCN3990, ath10k_snoc, `firmware-atheros` api 5). **Connects** on 2.4 GHz. 5 GHz DFS channels were refused under regdomain `00`, now fixed with `regdom.conf`. See [WIFI.md](WIFI.md). The hardware MAC is random each boot (`invalid MAC address`), so NetworkManager uses a **stable per-network MAC** instead ([system/NetworkManager/c630-wifi-mac.conf](system/NetworkManager/c630-wifi-mac.conf)) |
 | Captive portals (Starbucks etc.) | `network-manager-config-connectivity-debian` (checks `network-test.debian.org`), so GNOME prompts to sign in and opens Chrome. Fallback: the **Wi-Fi Login** launcher ([desktop/wifi-login.desktop](desktop/wifi-login.desktop), opens `http://neverssl.com/`). GNOME 50 has no built-in portal window |
 | **Video decode/encode** | `qcom-venus-decoder`, `qcom-venus-encoder` |
@@ -17,7 +17,7 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | Touchpad | `hid-over-i2c 06CB:CD3E` (Mouse, Touchpad) on `3-002c` |
 | Touchscreen + pen | `hid-over-i2c 04F3:279F` (+ `Stylus`). The pen battery shows as `hid-0018:04F3:279F…-battery` |
 | Lid / buttons | `gpio-keys`, `pm8941_pwrkey`, plus the keyboard device's system buttons |
-| Battery | `yoga-c630-battery` (Compal PABAS0241231, Li-ion): 55.55 Wh full of 60 Wh design (≈93 %) |
+| Battery | `yoga-c630-battery` (Compal PABAS0241231, Li-ion): 55.55 Wh full of 60 Wh design (≈93 %). No `capacity` file: the percentage comes from `energy_now`/`energy_full` |
 | AC adapter | `yoga-c630-adapter`, online |
 | USB-C (both ports) | `ucsi_yoga_c630`; `typec` `port0`, `port1` with partner/cable. Also DisplayPort alt mode (`typec_displayport`) |
 | EC | `lenovo_yoga_c630` (7.2 only; not in Debian's 6.12) |
@@ -25,7 +25,7 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | Camera | `Integrated Camera` (UVC, `/dev/video0`, `/dev/video1`). Detected; capture not tested |
 | USB Ethernet | `cdc_ncm` (`enxf8e43b0fecaf`). netconsole does **not** work over it |
 | Suspend | `s2idle` only (`mem_sleep: [s2idle]`). GNOME's idle timer suspended it once. It resumed with a burst of hard-LOCKUP watchdog reports and EC I2C errors, then worked. See [QUIRKS.md](QUIRKS.md#suspend-s2idle-and-the-resume-lockup-storm) |
-| Accelerometer | `accel_3d` (HID sensor over I2C), via `iio-sensor-proxy`. `monitor-sensor` reports orientation and tilt |
+| Accelerometer | `accel_3d` (HID sensor over I2C). `monitor-sensor` reported orientation and tilt on 2026-10-10, but **`iio-sensor-proxy` can crash at boot** (SIGSEGV, the unit is left `failed`), and then nothing rotates the screen. See [QUIRKS.md](QUIRKS.md#other-hardware-issues) |
 | Vulkan | Mesa Turnip, `Turnip Adreno (TM) 630` |
 | Storage | UFS (`ufshcd-qcom`), SK hynix `KLUDG4U1EA-B0C1`, 128 GB |
 | CPU frequency | `qcom-cpufreq-hw`, `schedutil`. 0.3–1.77 GHz little cores, 0.83–2.84 GHz big cores |
