@@ -6,3 +6,6 @@ c630/backups/**/Persisted_Capsules.bin
 
 # Personal assistant notes from the laptop; kept in the local tarball only
 c630/backups/**/.claude/
+
+# Lenovo/Qualcomm proprietary firmware: local only, never published
+c630/firmware-local/

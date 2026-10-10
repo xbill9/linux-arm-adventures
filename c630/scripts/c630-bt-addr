@@ -1,0 +1,6 @@
+#!/bin/sh
+# The C630 WCN3990 Bluetooth comes up "unconfigured" with no public address
+# (none in the DT). Give it a stable, locally administered one from machine-id.
+for i in $(seq 1 30); do [ -e /sys/class/bluetooth/hci0 ] && break; sleep 0.5; done
+h=$(sha256sum /etc/machine-id | cut -c1-10 | sed "s/../&:/g; s/:$//")
+exec btmgmt -i hci0 public-addr "02:$h"
