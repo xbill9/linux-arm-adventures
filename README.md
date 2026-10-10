@@ -28,6 +28,8 @@ c630/
   scripts/                    c630-menu (boot menu generator), apply.sh (stick-style boot setup)
   stick/                      the installer stick's shim, GRUB 2.12 and DTB: the known-working boot loader
   backups/                    boot partitions, configs and logs pulled from the laptop
+articles/
+  c630-debian/                the C630 write-up for dev.to, Medium and Substack: source markdown, cover, Medium HTML, evidence
 galaxy-book-go/
   README.md                   research: keyboard triage, Linux state of the art, boot tricks, sources
 ```

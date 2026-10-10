@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.11" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Debian sid on a Lenovo Yoga C630: Held GRUB, One-Time Boots and the IPA Reset</title>
+  <meta name="description" content="A step by step guide to running Debian sid with kernel 7.2 and GNOME on the Snapdragon 850 Yoga C630: which boot loader the firmware runs, why GRUB 2.14 blacks out every kernel, a generated boot menu with one-time test boots, the Lenovo firmware, and the one driver that resets the SoC." />
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <style>
+    body{font-family:-apple-system,'Segoe UI',Roboto,'Liberation Sans',Arial,sans-serif;
+         font-size:18px;line-height:1.58;max-width:42em;color:#242424;}
+    h1,h2,h3,h4{font-weight:700;line-height:1.25;margin-top:1.8em;}
+    h4{font-size:1.25em;}
+    img{max-width:100%;height:auto;display:block;margin:1.6em 0;}
+    pre{background:#f7f7f7;border:1px solid #e6e6e6;border-radius:4px;
+        padding:12px 14px;overflow-x:auto;font-size:14px;line-height:1.45;}
+    code{font-family:'Liberation Mono',Menlo,Consolas,monospace;}
+    :not(pre)>code{background:#f2f2f2;padding:1px 5px;border-radius:3px;font-size:.9em;}
+    blockquote{border-left:3px solid #ddd;margin-left:0;padding-left:1em;color:#555;}
+    hr{border:0;border-top:1px solid #e6e6e6;margin:2.4em 0;}
+  </style>
+</head>
+<body>
+<p>This article provides a step by step guide to running Debian sid on a
+Lenovo Yoga C630, the Snapdragon 850 Windows-on-ARM laptop from 2018. A
+small set of POSIX shell scripts is built to keep the boot recoverable
+while the kernel, firmware and desktop change underneath it.</p>
+<figure><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/cover.f29f1bde.jpg" alt="Debian sid on a Lenovo Yoga C630: Held GRUB, One-Time Boots and the IPA Reset" /></figure>
+<p><a
+href="https://github.com/xbill9/linux-arm-adventures">https://github.com/xbill9/linux-arm-adventures</a></p>
+<p><strong>Kernel 7.2.9, GNOME on Wayland, GPU acceleration, audio,
+Wi-Fi, Bluetooth, video decode, battery and both USB-C ports all work.
+LTE data is the one thing blocked, because loading the modem's IPA
+driver resets the whole SoC.</strong></p>
+<hr />
+<h4 id="what-is-the-problem">What Is the Problem?</h4>
+<p>The C630 boots Linux through a firmware built for Windows. It hands
+the kernel ACPI tables that Linux cannot use, it cannot store EFI
+variables, and its real-time clock is never set. Each of these breaks a
+different step of a normal Debian install.</p>
+<p>The kernel side is in good shape. Debian's 7.2 kernel ships the C630
+device tree, the embedded controller driver
+(<code>lenovo_yoga_c630</code>) and the USB-C driver
+(<code>ucsi_yoga_c630</code>). The hard parts are the boot loader, the
+proprietary firmware and one driver.</p>
+<hr />
+<h4 id="at-this-point-you-should-have">At This Point You Should
+Have…</h4>
+<ul>
+<li>A Lenovo Yoga C630 (model 81JL) with Debian installed from a C630
+installer stick that carries a shim, GRUB 2.12 and the device tree.</li>
+<li>A second machine on the same network, with an SSH key already
+installed on the C630.</li>
+<li>A USB Ethernet adapter. Wi-Fi needs firmware that Debian does not
+ship.</li>
+</ul>
+<hr />
+<h4 id="step-1--find-the-boot-loader-the-firmware-runs">Step 1 — Find
+the Boot Loader the Firmware Runs</h4>
+<p>This laptop has two EFI system partitions on its UFS disk:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/devto-c630-debian-table-1.png"
+alt="Table: Partition, Size, Holds, Booted by the firmware" /></p>
+<p>The firmware has no NVRAM boot entries and <code>efibootmgr</code>
+reports <code>EFI variables are not supported</code>. It boots only the
+removable path, <code>EFI/BOOT/BOOTAA64.EFI</code>, on partition 2.</p>
+<p>The way to know which loader runs is to make every loader say its own
+name. Each <code>grub.cfg</code> stub sets a variable before handing
+over to the shared menu:</p>
+<pre><code>search.fs_uuid a81deabf-0654-4f68-b795-284305d26f13 root
+set prefix=($root)&#39;/boot/grub&#39;
+set c630_from=&quot;sda2 EFI/debian&quot;
+export c630_from
+configfile $prefix/c630.cfg</code></pre>
+<p>Every menu entry title starts with <code>[via $c630_from]</code>. The
+menu on screen read <code>[via sda2 EFI/debian]</code>, which settles
+it.</p>
+<hr />
+<h4 id="mag_right-tip-the-installer-stick-has-the-same-trap">🔎 Tip: The
+Installer Stick Has the Same Trap</h4>
+<p>From the stick, the firmware boots the ISO's internal
+<code>efi.img</code>. Editing the stick's partition 2 changes nothing on
+the next boot.</p>
+<hr />
+<h4 id="step-2--hold-grub-212">Step 2 — Hold GRUB 2.12</h4>
+<p>A trixie to sid upgrade installed GRUB 2.14 and a new shim. After it,
+every kernel went black the instant GRUB handed over, including a 6.12
+kernel, with no output even with
+<code>ignore_loglevel earlycon=efifb</code>.</p>
+<p>GRUB is the cause, and the evidence is that nothing else changed:</p>
+<ul>
+<li><code>vmlinuz-6.12.107</code> on disk is byte-identical to the
+stick's kernel, which boots.</li>
+<li>The device tree is byte-identical to the stick's.</li>
+<li>The 6.12.107 initramfs was built the day before the upgrade and was
+untouched.</li>
+</ul>
+<p>The same three files fail under GRUB 2.14 and boot under GRUB 2.12.
+Why 2.14 fails on this firmware is not known. Its newer Linux EFI
+handoff is a suspect, not investigated.</p>
+<p>The fix is to copy the stick's shim and GRUB 2.12 back onto
+<code>/boot/efi</code> (<code>scripts/apply.sh</code>) and hold every
+package that could replace them:</p>
+<pre><code>$ apt-mark showhold
+grub-common
+grub-efi-arm64
+grub-efi-arm64-bin
+grub-efi-arm64-signed
+grub-efi-arm64-unsigned
+grub2-common
+shim-helpers-arm64-signed
+shim-signed
+shim-signed-common
+shim-unsigned</code></pre>
+<p>The held packages are at 2.14-4. They stay installed, and the hold
+stops them reinstalling themselves over the 2.12 binary on the ESP.</p>
+<hr />
+<h4
+id="step-3--generate-a-boot-menu-that-update-grub-does-not-touch">Step 3
+— Generate a Boot Menu That <code>update-grub</code> Does Not Touch</h4>
+<p><code>update-grub</code> still writes
+<code>/boot/grub/grub.cfg</code>, and nothing boots from it. What boots
+is <code>/boot/grub/c630.cfg</code>, written by <code>c630-menu</code>
+(<code>c630/scripts/c630-menu</code>). For every installed kernel it
+writes four entries, each with that kernel's own device tree:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/devto-c630-debian-table-2.png"
+alt="Table: Entry, What it is for" /></p>
+<p>A <code>CONTROL</code> entry boots the installer stick's own kernel
+and installer from the disk. If it reaches the language screen, the boot
+loader and DTB are fine and the fault is in the kernel or initramfs of
+the entry that failed.</p>
+<p>The menu regenerates itself from hooks in
+<code>/etc/kernel/postinst.d</code>, <code>/etc/kernel/postrm.d</code>
+and <code>/etc/initramfs/post-update.d</code>, and it refuses to write a
+menu whose default kernel has no entry.</p>
+<p>Every entry carries the same kernel options. This is the default
+entry as booted:</p>
+<pre><code>$ cat /proc/cmdline
+BOOT_IMAGE=/boot/vmlinuz-7.2.9+deb14-arm64 root=UUID=a81deabf-0654-4f68-b795-284305d26f13 ro clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1 modprobe.blacklist=ipa quiet</code></pre>
+<p><code>clk_ignore_unused pd_ignore_unused regulator_ignore_unused</code>
+stop Linux switching off clocks, power domains and regulators the device
+tree does not claim. The keyboards locked up during the install before
+<code>regulator_ignore_unused usbcore.autosuspend=-1</code> were added,
+and none of the 22 boots since has shown a lockup. That cause is likely,
+not reproduced.</p>
+<p>Use the root UUID, never a device name. The UFS has shown up as
+<code>sda</code>, <code>sdb</code> and <code>sdd</code> on different
+boots.</p>
+<hr />
+<h4 id="step-4--test-every-risky-change-with-a-one-time-boot">Step 4 —
+Test Every Risky Change With a One-Time Boot</h4>
+<p>A test boot that hangs must come back to a working default on the
+next power cycle. GRUB 2.12 can write <code>grubenv</code> at boot, so
+the menu clears the one-time entry before booting it:</p>
+<pre><code>if test -s $prefix/grubenv; then
+  load_env
+  if test -n &quot;$next_entry&quot;; then
+    set default=&quot;$next_entry&quot;
+    set next_entry=
+    set once=&quot;$c630_once_args&quot;
+    export once
+    set c630_once_args=
+    save_env next_entry c630_once_args
+  fi
+fi</code></pre>
+<p><code>$once</code> is appended to every <code>linux</code> line, so a
+one-time boot can also carry extra kernel options:</p>
+<pre><code>sudo c630-menu --once c630-7.2.9+deb14-arm64 &quot;modprobe.blacklist=qcom_q6v5_mss&quot;</code></pre>
+<p>A SoC reset during that boot recovers by itself, because the watchdog
+resets the chip and GRUB boots the default.</p>
+<hr />
+<h4 id="step-5--move-to-kernel-72">Step 5 — Move to Kernel 7.2</h4>
+<p>Debian's 6.12 kernel boots, but it has no battery or USB-C drivers
+and it logs four <code>clk_core_disable</code> warnings from the display
+driver on every boot. The 7.2.9 kernel from sid has neither problem:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/devto-c630-debian-table-3.png"
+alt="Table: 6.12.107, 7.2.9" /></p>
+<p>7.2.9 is the default in <code>/etc/default/c630-menu</code>. 6.12
+stays in the menu as the fallback.</p>
+<hr />
+<h4 id="step-6--install-gnome-on-sid">Step 6 — Install GNOME on sid</h4>
+<p><code>gnome-core</code> and Google Chrome's arm64 package install
+with <code>scripts/gnome-install.sh</code>. Two sid problems need fixing
+alongside:</p>
+<ul>
+<li><strong>PAM:</strong> sid's <code>libpam</code> 1.7.0 does not read
+<code>/usr/lib/pam.d</code>, so <code>systemd-user</code> and
+<code>polkit-1</code> fall back to the generic rules. Copy both files to
+<code>/etc/pam.d/</code>, and check them again after a
+<code>systemd</code> or <code>polkitd</code> upgrade.</li>
+<li><strong>Plymouth:</strong> <code>gnome-core</code> pulls it in, and
+it changes the initramfs. Pin it out with <code>Pin-Priority: -1</code>
+in <code>/etc/apt/preferences.d/no-plymouth</code>.</li>
+</ul>
+<pre><code>$ gnome-shell --version
+GNOME Shell 50.5</code></pre>
+<hr />
+<h4 id="step-7--fix-the-bluetooth-address">Step 7 — Fix the Bluetooth
+Address</h4>
+<p>The WCN3990 Bluetooth controller comes up with no public address,
+because none is provisioned. <code>c630-bt-addr</code> derives a stable,
+locally administered one from <code>/etc/machine-id</code>.
+<code>hci0</code> appears before the chip finishes loading its firmware,
+so the script retries every 0.5 s for up to 30 s:</p>
+<pre><code>for i in $(seq 1 60); do
+  if btmgmt -i hci0 public-addr &quot;02:$h&quot; 2&gt;&amp;1 | grep -q &quot;complete&quot;; then
+    echo &quot;hci0 public address 02:$h set after $i tries&quot;; exit 0
+  fi
+  sleep 0.5
+done
+$ bluetoothctl show
+Controller 02:BF:6F:61:DD:AB (public)
+    Powered: yes</code></pre>
+<p>A systemd unit, <code>c630-bt-addr.service</code>, runs it at
+boot.</p>
+<hr />
+<h4 id="step-8--install-the-lenovo-firmware">Step 8 — Install the Lenovo
+Firmware</h4>
+<p>The device tree asks for eight signed files under
+<code>qcom/sdm850/LENOVO/81JL/</code>. Debian does not ship them. They
+come from Lenovo's Windows driver release 200.0.19.0, mirrored by
+WOA-Project, in three cabinet files that <code>7z x</code> unpacks with
+no Windows needed:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/devto-c630-debian-table-4.png"
+alt="Table: Cabinet, Files, Enables" /></p>
+<p>The files are proprietary, so the repository records only their
+sha256 sums and source URL.</p>
+<p><strong>The GPU firmware must be in the initramfs.</strong>
+<code>msm</code> loads before the root filesystem mounts, and sid's
+initramfs-tools copies no <code>qcom/</code> firmware. An initramfs hook
+(<code>c630/initramfs/c630-firmware</code>) adds
+<code>qcom/a630_sqe.fw</code>, <code>qcom/a630_gmu.bin</code> and the
+zap shader.</p>
+<p><strong>Mask the userspace <code>pd-mapper.service</code>.</strong>
+Debian has no <code>.jsn</code> maps for this SoC, so it fails. The
+in-kernel <code>qcom_pd_mapper</code> in 7.2 does the job.</p>
+<hr />
+<h4 id="step-9--bisect-the-reset-down-to-one-driver">Step 9 — Bisect the
+Reset Down to One Driver</h4>
+<p>The first boot with all the firmware reset the SoC about 6 s in,
+right after <code>systemd-udevd</code> started. Each step below is one
+<code>c630-menu --once</code> boot that blocks a different set of
+drivers:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/devto-c630-debian-table-5.png"
+alt="Table: Test, Enabled, Result" /></p>
+<p>IPA is the hardware data path between the LTE modem and Linux. Every
+normal entry now carries <code>modprobe.blacklist=ipa</code>, and the
+modem itself still runs, because Wi-Fi depends on it.</p>
+<hr />
+<h4 id="why-does-ipa-reset-the-soc">Why Does IPA Reset the SoC?</h4>
+<p><code>modprobe ipa</code> on a running system fails the same way,
+only slower. The cause is in the driver and its firmware, at any point
+in the boot:</p>
+<pre><code>[1361.110] ipa 1e40000.ipa: IPA driver initialized
+[1364.556] ipa 1e40000.ipa: GSI command 0 for event ring 2 timed out, state 1
+[1364.648] [dpu error]enc35 frame done timeout
+[1371.361] Error sending AMC RPMH requests (-110)
+[1372.024] watchdog: CPU1: Watchdog detected hard LOCKUP on cpu 2</code></pre>
+<p>The driver comes up. About 3 s later the GSI, IPA's DMA engine, stops
+answering commands. The display stalls, then the RPMh resource manager
+stops answering, and the whole SoC hard-locks. The watchdog resets it,
+and the default entry is back up in about 50 s.</p>
+<p>Setting <code>qcom,gsi-loader = "modem"</code> in a test device tree
+stops the lockup. In that mode Linux waits for the modem to load the GSI
+firmware, and the Lenovo modem firmware never does, so no
+<code>rmnet_ipa0</code> interface appears. Safe, but no data.</p>
+<p>Two hypotheses are untested. The Lenovo <code>ipa_fws.elf</code> may
+be a different build from the one the upstream driver was written
+against, and postmarketOS ships a different IPA blob that is a
+candidate. Or an interconnect or power vote for IPA may be missing from
+the device tree.</p>
+<hr />
+<h4 id="mag_right-tip-make-a-crash-test-cost-nothing">🔎 Tip: Make a
+Crash Test Cost Nothing</h4>
+<p>The watchdog reset takes several seconds, so the kernel log of the
+failed boot survives in <code>journalctl -b -1 -k</code>. Flush and
+freeze the filesystem before a test that may lock up:</p>
+<pre><code>sudo journalctl --flush; sync; sudo sh -c &#39;fsfreeze -f / &amp;&amp; fsfreeze -u /&#39;</code></pre>
+<hr />
+<h4 id="step-10--get-wi-fi-onto-5-ghz">Step 10 — Get Wi-Fi Onto 5
+GHz</h4>
+<p><code>wlan0</code> is the WCN3990 on <code>ath10k_snoc</code>. At
+boot the regulatory domain is the world default, <code>00</code>, and an
+access point on channel 112, a DFS channel, refused the association:</p>
+<pre><code>wlan0: ae:17:d8:07:9a:8d denied association (code=18)</code></pre>
+<p>The same network on 2.4 GHz connected at once. <code>cfg80211</code>
+is a module loaded after the initramfs, so one modprobe option sets the
+country with no initramfs rebuild:</p>
+<pre><code>options cfg80211 ieee80211_regdom=US</code></pre>
+<p>That file is <code>/etc/modprobe.d/regdom.conf</code>. Not yet
+verified across a reboot.</p>
+<p>The Wi-Fi MAC address is random on every boot
+(<code>invalid MAC address; choosing random</code>), so NetworkManager
+uses a stable MAC per network
+(<code>wifi.cloned-mac-address=stable</code>). A captive portal login
+should then survive a reboot. Not yet verified.</p>
+<hr />
+<h4 id="what-works">What Works?</h4>
+<pre><code>$ glxinfo -B | grep -E &#39;renderer|Accelerated&#39;
+    Accelerated: yes
+OpenGL renderer string: FD630</code></pre>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/devto-c630-debian-table-6.png"
+alt="Table: Hardware, State" /></p>
+<hr />
+<h4 id="firmware-quirks-worth-knowing">Firmware Quirks Worth
+Knowing</h4>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/c630-debian/medium/img/devto-c630-debian-table-7.png"
+alt="Table: Quirk, Effect" /></p>
+<hr />
+<h4 id="how-do-you-recover-when-it-does-not-boot">How Do You Recover
+When It Does Not Boot?</h4>
+<p>The runbook (<code>c630/RECOVERY.md</code>) keeps typing on the
+laptop to two lines:</p>
+<ol type="1">
+<li>Boot the installer stick, choose Rescue, pick the root filesystem
+and open a shell in it.</li>
+<li>Type <code>mkdir /run/sshd</code> and
+<code>/usr/sbin/sshd</code>.</li>
+</ol>
+<p>Everything else happens over SSH from the second machine. Before
+rebooting out of rescue, check every file the boot depends on as GRUB
+will see it. GRUB cannot replay the ext4 journal, so
+<code>debugfs -R 'stat /boot/grub/c630.cfg'</code> reads the raw disk,
+and <code>grub-script-check</code> parses the menu.</p>
+<hr />
+<h4 id="summary">Summary</h4>
+<p>The goal of this article was to run a current Debian with a full
+desktop on the Yoga C630 without losing the ability to boot. The key to
+the solution was a boot path that stays fixed while everything above it
+changes: a held GRUB 2.12, a generated menu with a SAFE entry per
+kernel, and one-time boots for every risky change. The results were:</p>
+<ul>
+<li>🟢 Debian sid, kernel 7.2.9 and GNOME Shell 50.5 on Wayland, with
+GPU acceleration, audio, Wi-Fi, Bluetooth, video decode, camera, battery
+and USB-C.</li>
+<li>🟢 One-time boots recover by themselves from a SoC reset, which
+turned a firmware install into a bisect.</li>
+<li>❌ GRUB 2.14 blacks out every kernel on this firmware. The cause
+inside GRUB is unknown.</li>
+<li>❌ Loading IPA resets the SoC, so LTE data is blocked.</li>
+<li>⚠️ Speakers, suspend and the 5 GHz fix across a reboot are not yet
+tested.</li>
+</ul>
+<p>Scope: one C630 (81JL, BIOS <code>9UCN34WW</code>), Debian sid as of
+2026-10-10, Lenovo firmware release 200.0.19.0, tested in one day, with
+no SIM in the modem.</p>
+<p>The strategy for bringing up Debian on the Yoga C630 was validated
+with an incremental step by step approach.</p>
+<hr />
+<h4 id="references">References</h4>
+<ul>
+<li>Repository: <a
+href="https://github.com/xbill9/linux-arm-adventures">https://github.com/xbill9/linux-arm-adventures</a></li>
+<li>Lenovo C630 firmware mirror: <a
+href="https://github.com/WOA-Project/Qualcomm-Reference-Drivers/tree/master/Lenovo/YogaC630">WOA-Project/Qualcomm-Reference-Drivers</a></li>
+<li>postmarketOS C630 firmware: <a
+href="https://gitlab.com/sdm845-mainline/firmware-lenovo-yoga-c630">sdm845-mainline/firmware-lenovo-yoga-c630</a></li>
+<li>Arch Linux ARM packages for the C630: <a
+href="https://github.com/rigoorozco/yoga-alarm">rigoorozco/yoga-alarm</a></li>
+<li>Earlier C630 firmware notes: <a
+href="https://github.com/aarch64-laptops/build/issues/62">aarch64-laptops/build#62</a></li>
+</ul>
+</body>
+</html>
