@@ -14,6 +14,7 @@ Kernel 7.2.9+deb14-arm64, Debian sid, GNOME 50 on Wayland. Checked 2026-10-10 ov
 | **Video decode/encode** | `qcom-venus-decoder`, `qcom-venus-encoder` |
 | Compute DSP, sensor DSP | cdsp, slpi running. Sensors not yet tested |
 | Keyboard | `hid-over-i2c 6243:0001` on `i2c-11` (`11-005c`). The same HID device carries `Wireless Radio Control` and the HID sensor hub (accelerometer). Locked up during the install before `regulator_ignore_unused`/`usbcore.autosuspend=-1` were added. See [QUIRKS.md](QUIRKS.md) |
+| Keyboard backlight | **Fn+Space toggles it in firmware**, confirmed 2026-10-10. Linux can't see it: there's no `kbd_backlight` LED in `/sys/class/leds/`, so GNOME and `brightnessctl` have nothing to control. The keyboard's HID descriptor has no backlight usage (its only outputs are the five lock LEDs). The EC driver exports only battery and UCSI functions. A hidraw capture showed Fn+Space sends nothing but empty key reports (report 1, all zeros), so the keyboard firmware or the EC handles it. Getting a level or software control would mean reverse-engineering an undocumented EC command |
 | Touchpad | `hid-over-i2c 06CB:CD3E` (Mouse, Touchpad) on `3-002c` |
 | Touchscreen + pen | `hid-over-i2c 04F3:279F` (+ `Stylus`). The pen battery shows as `hid-0018:04F3:279F…-battery` |
 | Lid / buttons | `gpio-keys`, `pm8941_pwrkey`, plus the keyboard device's system buttons |
