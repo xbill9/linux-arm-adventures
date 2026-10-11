@@ -1,14 +1,8 @@
 @echo off
-title Loading Galaxy Book Go drivers (minimal + USB)...
+title Loading Galaxy Book Go drivers (minimal + USB, no SMMU/PEP)...
 set LOG=X:\drvload-log.txt
 for %%d in (C D E F G H I J K L M N O P Q R S T U V W Y Z) do if exist %%d:\GBGo-Drivers set LOG=%%d:\drvload-log.txt
 echo ==== %DATE% %TIME% ====>>"%LOG%"
-echo [pass 1] qcsmmu7180.inf_arm64_fb45a758baf0c0f3
-echo [pass 1] START qcsmmu7180.inf_arm64_fb45a758baf0c0f3>>"%LOG%"
-drvload X:\Drivers\qcsmmu7180.inf_arm64_fb45a758baf0c0f3\qcsmmu7180.inf >>"%LOG%" 2>&1
-echo [pass 1] qcpep.wd7180.inf_arm64_8c2bf704ae20b939
-echo [pass 1] START qcpep.wd7180.inf_arm64_8c2bf704ae20b939>>"%LOG%"
-drvload X:\Drivers\qcpep.wd7180.inf_arm64_8c2bf704ae20b939\qcpep.wd7180.inf >>"%LOG%" 2>&1
 echo [pass 1] qcscm7180.inf_arm64_c15e0d2e13cf9827
 echo [pass 1] START qcscm7180.inf_arm64_c15e0d2e13cf9827>>"%LOG%"
 drvload X:\Drivers\qcscm7180.inf_arm64_c15e0d2e13cf9827\qcscm7180.inf >>"%LOG%" 2>&1
@@ -69,12 +63,6 @@ drvload X:\Drivers\qcusbcucsi7180.inf_arm64_d2ae44ab02b37b6e\qcusbcucsi7180.inf 
 echo [pass 1] qcxhcifilter7180.inf_arm64_39faba6210deaa83
 echo [pass 1] START qcxhcifilter7180.inf_arm64_39faba6210deaa83>>"%LOG%"
 drvload X:\Drivers\qcxhcifilter7180.inf_arm64_39faba6210deaa83\qcxhcifilter7180.inf >>"%LOG%" 2>&1
-echo [pass 2] qcsmmu7180.inf_arm64_fb45a758baf0c0f3
-echo [pass 2] START qcsmmu7180.inf_arm64_fb45a758baf0c0f3>>"%LOG%"
-drvload X:\Drivers\qcsmmu7180.inf_arm64_fb45a758baf0c0f3\qcsmmu7180.inf >>"%LOG%" 2>&1
-echo [pass 2] qcpep.wd7180.inf_arm64_8c2bf704ae20b939
-echo [pass 2] START qcpep.wd7180.inf_arm64_8c2bf704ae20b939>>"%LOG%"
-drvload X:\Drivers\qcpep.wd7180.inf_arm64_8c2bf704ae20b939\qcpep.wd7180.inf >>"%LOG%" 2>&1
 echo [pass 2] qcscm7180.inf_arm64_c15e0d2e13cf9827
 echo [pass 2] START qcscm7180.inf_arm64_c15e0d2e13cf9827>>"%LOG%"
 drvload X:\Drivers\qcscm7180.inf_arm64_c15e0d2e13cf9827\qcscm7180.inf >>"%LOG%" 2>&1
