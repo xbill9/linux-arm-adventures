@@ -1,0 +1,13 @@
+#!/bin/sh
+# DPkg::Pre-Invoke hook: a timeshift snapshot before package changes, at most
+# once an hour, keeping the last 5 of them. Never fails apt.
+STAMP=/var/lib/c630-apt-snapshot.stamp
+LOG=/var/log/c630-apt-snapshot.log
+if [ -f $STAMP ] && [ $(( $(date +%s) - $(stat -c %Y $STAMP) )) -lt 3600 ]; then exit 0; fi
+touch $STAMP
+echo "c630-apt-snapshot: timeshift snapshot before package changes (log: $LOG)" >&2
+timeshift --create --scripted --tags O --comments "before apt $(date "+%F %T")" >>$LOG 2>&1 || echo "c630-apt-snapshot: snapshot FAILED, continuing" >&2
+timeshift --list --scripted 2>/dev/null | awk "/before apt/ {print \$3}" | head -n -5 | while read s; do
+  timeshift --delete --scripted --snapshot "$s" >>$LOG 2>&1
+done
+exit 0

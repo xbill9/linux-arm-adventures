@@ -1,0 +1,1 @@
+DPkg::Pre-Invoke { "/usr/local/sbin/c630-apt-snapshot || true"; };

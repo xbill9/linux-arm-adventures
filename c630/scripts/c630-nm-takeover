@@ -1,0 +1,49 @@
+#!/bin/sh
+# Hand the USB Ethernet from ifupdown/dhcpcd to NetworkManager, so NM owns
+# /etc/resolv.conf for both wired and Wi-Fi. Reverts by itself if DNS or the
+# gateway don't work within 60 s. Run detached: systemd-run --unit=c630-nm-takeover
+IF=enxf8e43b0fecaf
+CON="USB Ethernet"
+TS=$(date +%Y%m%d-%H%M%S)
+BAK=/etc/network/interfaces.bak-$TS
+exec >>/root/c630-nm-takeover.log 2>&1
+echo "=== $TS"
+set -x
+cp -a /etc/network/interfaces "$BAK"
+
+revert() {
+  echo "REVERTING"
+  nmcli con down "$CON" || true
+  nmcli con delete "$CON" || true
+  nmcli dev set $IF managed no || true
+  cp -a "$BAK" /etc/network/interfaces
+  systemctl restart NetworkManager || true
+  sleep 3
+  ifup $IF
+  sleep 5
+  ip -br addr show $IF
+  echo "REVERTED"
+  exit 1
+}
+
+ifdown $IF || true
+sed -i -e "/^allow-hotplug $IF\$/d" -e "/^iface $IF inet dhcp\$/d" -e "s/^# The primary network interface\$/# The primary network interface ($IF) is managed by NetworkManager since $TS/" /etc/network/interfaces
+# The ifupdown plugin only reads /etc/network/interfaces at startup: restart, don't reload.
+systemctl restart NetworkManager
+for i in $(seq 1 20); do nmcli -t general status >/dev/null 2>&1 && break; sleep 1; done
+sleep 2
+nmcli dev set $IF managed yes
+nmcli -t -f DEVICE,STATE dev
+nmcli -t -f NAME con show | grep -qx "$CON" || \
+  nmcli con add type ethernet ifname $IF con-name "$CON" autoconnect yes ipv4.method auto ipv6.method auto
+nmcli con up "$CON" || true
+
+for i in $(seq 1 30); do
+  if ip route | grep -q "^default .* dev $IF" && getent hosts deb.debian.org >/dev/null; then
+    echo "OK after $((i*2)) s"
+    ip -br addr show $IF; ip route | grep default; cat /etc/resolv.conf
+    exit 0
+  fi
+  sleep 2
+done
+revert
