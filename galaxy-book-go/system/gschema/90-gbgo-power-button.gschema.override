@@ -1,0 +1,5 @@
+# /usr/share/glib-2.0/schemas/90-gbgo-power-button.gschema.override
+# Galaxy Book Go: suspend is untested, so the power button shows GNOME's
+# power-off dialog instead of suspending. Then: glib-compile-schemas.
+[org.gnome.settings-daemon.plugins.power]
+power-button-action='interactive'

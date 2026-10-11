@@ -1,22 +1,43 @@
 #!/bin/sh
-# Build a patched Galaxy Book Go DTB from the installer stick's draft DTB.
-#   gbgo-dtb-patch <in.dtb> <out.dtb>
-# Fixes (each checked against Samsung's own ACPI tables, dumped 2026-10-11):
-#  - keyboard IRQ: the draft uses TLMM 48 ("this one is wrong" in its source),
-#    which idles low, so i2c-hid polls the keyboard ~1100x/s and floods the log.
-#    ACPI ECKB: GpioInt(Level, ActiveLow, PullUp) on GIO0 virtual pin 0x140
-#    = direct-connect IRQ #5 = PDC pin 67 = TLMM 104.
-# Prints the dts diff, so every change is visible.
+# Build the patched Galaxy Book Go DTB from the installer stick's draft DTB.
+#   gbgo-dtb-patch <stick.dtb> <out.dtb>
+# Each fix was checked against Samsung's own ACPI tables (dumped 2026-10-11,
+# see ACPI.md). Prints the dts diff, so every change is visible.
+#  1. keyboard IRQ: the draft uses TLMM 48 ("this one is wrong" in its source),
+#     which idles low, so i2c-hid polls the keyboard ~1100x/s and floods the
+#     log. ACPI ECKB: GpioInt(Level, ActiveLow, PullUp) on GIO0 virtual pin
+#     0x140 = direct-connect IRQ #5 = PDC pin 67 = TLMM 104.
+#  2. power button: the draft disables pon@800, so pm8941-pwrkey never binds.
+#  (RTC: left disabled. Enabling rtc@6000 was tested 2026-10-11: the PMIC
+#   counter reads 1970-01-03 (Samsung's firmware keeps the offset elsewhere), so
+#   the kernel set the system clock to 1970 at every boot until NTP. Off is
+#   better than wrong; the clock comes from systemd-timesyncd.)
+#  3. lid: no node at all. ACPI LID0 returns the raw level of GPIO 93
+#     (1 = open), so SW_LID on TLMM 93, active low.
 set -e
 IN=$1; OUT=$2
 [ -f "$IN" ] && [ -n "$OUT" ] || { sed -n '2,3p' "$0"; exit 1; }
 T=$(mktemp -d)
+trap 'rm -rf "$T"' EXIT
 dtc -q -I dtb -O dts -o "$T/in.dts" "$IN"
-cp "$T/in.dts" "$T/out.dts"
 TLMM=$(awk '/pinctrl@3500000 \{/{f=1} f&&/phandle = </{gsub(/.*<|>.*/,""); print; exit}' "$T/in.dts")
 [ -n "$TLMM" ] || { echo "TLMM phandle not found" >&2; exit 1; }
-# keyboard@5: interrupts-extended = <TLMM 48 LEVEL_LOW> -> <TLMM 104 LEVEL_LOW>
 awk -v t="$TLMM" '
+  # 3. lid switch: a new top-level node, just before the root node closes
+  #    (dtc wants a node'"'"'s properties before its subnodes)
+  /^\};$/ && !lid { lid=1
+    print ""
+    print "\tgpio-keys {"
+    print "\t\tcompatible = \"gpio-keys\";"
+    print "\t\tswitch-lid {"
+    print "\t\t\tlabel = \"Lid\";"
+    print "\t\t\tgpios = <" t " 0x5d 0x01>;"
+    print "\t\t\tlinux,input-type = <0x05>;"
+    print "\t\t\tlinux,code = <0x00>;"
+    print "\t\t};"
+    print "\t};"
+    print; next }
+  # 1. keyboard IRQ + its pin config
   /keyboard@5 \{/ {k=1}
   k && /interrupts-extended = </ { sub("<" t " 0x30 0x08>", "<" t " 0x68 0x08>") }
   k && /^\t*\};/ {k=0}
@@ -24,9 +45,16 @@ awk -v t="$TLMM" '
   p && /pins = "gpio48";/ { sub("gpio48", "gpio104") }
   p && /bias-disable;/ { sub("bias-disable", "bias-pull-up") }
   p && /^\t*\};/ {p=0}
+  # 2. power button: drop pon@800 status = "disabled" (resin keeps its own)
+  /pon@800 \{/ {pon=1}
+  pon && /^\t*(pwrkey|resin) \{/ {pon=0}
+  pon && /status = "disabled";/ { next }
   {print}' "$T/in.dts" > "$T/out.dts"
 diff -u "$T/in.dts" "$T/out.dts" || true
-[ "$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>')" = 3 ] || { echo "expected exactly 3 changed lines" >&2; rm -rf "$T"; exit 1; }
+# exactly the expected edits: +13 (3 keyboard, 10 lid lines)
+#                              -4 (3 keyboard, pon status)
+add=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>' || true)
+del=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^<' || true)
+[ "$add" = 13 ] && [ "$del" = 4 ] || { echo "unexpected diff: +$add -$del (want +13 -4)" >&2; exit 1; }
 dtc -q -I dts -O dtb -o "$OUT" "$T/out.dts"
-rm -rf "$T"
 echo "wrote $OUT"

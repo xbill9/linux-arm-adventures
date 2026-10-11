@@ -60,6 +60,17 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:46: normal entries get `loglevel=3` (`GRUB_CMDLINE_LINUX_DEFAULT`). The keyboard's `incomplete report` errors were flooding the console; `quiet` alone (loglevel 4) still shows errors. SAFE and debug entries stay verbose.
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 
+## Power button and lid (fixed 13:01); RTC left off
+
+Both came from the DTB, built by [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch) together with the keyboard fix (`8012d6d42635b0e3…`, verified on the raw disk):
+
+- **Power button:** the draft DTB disables `pon@800` (`qcom,pm8998-pon`), so `pm8941-pwrkey` never bound. Enabled; `resin` (volume-down) stays off. Test: one press gave `KEY_POWER` 1 then 0, and GNOME's power-off dialog. **That dialog powers off by itself after 60 s unless you press Cancel** (it did, at 12:59).
+- **Lid:** no node at all. ACPI `LID0._LID` returns the raw level of GPIO 93 (`1` = open), so a new `gpio-keys` node: `SW_LID` on `tlmm 93`, `GPIO_ACTIVE_LOW`. Test: lid open reads open; close → `SW_LID 1`, open → `SW_LID 0`.
+- **Suspend is untested**, so for now ([system/logind/gbgo-no-suspend.conf](system/logind/gbgo-no-suspend.conf) → `/etc/systemd/logind.conf.d/`) closing the lid **locks** the screen, and ([system/gschema/90-gbgo-power-button.gschema.override](system/gschema/90-gbgo-power-button.gschema.override) → `/usr/share/glib-2.0/schemas/`, then `glib-compile-schemas`) the power button shows the **power-off dialog**. Both defaults would suspend.
+- **RTC: tested and left disabled.** With `rtc@6000` enabled (`rtc-pm8xxx`), the PMIC counter reads **1970-01-03** (Samsung's firmware keeps its offset elsewhere; it showed the date as Oct 9 while it was Oct 11), and `CONFIG_RTC_HCTOSYS` set the system clock to 1970 at boot until NTP. With `CONFIG_RTC_SYSTOHC` it would also have written NTP time into the counter ~11 min after sync, changing what the firmware shows; the driver was unbound before that happened, so the counter was never written. Without an RTC, systemd-timesyncd restores the last saved time at boot and NTP corrects it. Writing the counter (`hwclock --systohc`) would fix boots but make the firmware show ~2083; not done.
+
+Verified on a normal boot (13:01): `pm8941_pwrkey` and `gpio-keys` present, no `/sys/class/rtc`, 0 keyboard flood lines, Wi-Fi, Bluetooth, GPU `FD618`, `running`.
+
 ## Keyboard IRQ flood (fixed 12:47)
 
 The draft DTB gives the keyboard `interrupts-extended = <&tlmm 48 IRQ_TYPE_LEVEL_LOW>`, with the comment "this one is wrong, the proper one has not been found yet". GPIO 48 sits low permanently, so the level interrupt never clears: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete report (11/65535)` (or `11/33026`) about **1100 times a second**, 785,000 lines in 14 minutes, ~7 % CPU. Keys only worked because of that constant polling.
@@ -91,7 +102,7 @@ Verified across a reboot: address set at 10.3 s on the first try, `hci0` `UP RUN
 | Default entry hangs or goes black | Hold power 10 s, power on; at the GRUB menu (10 s) pick `… SAFE` or `… verbose debug` |
 | No GRUB menu | Stick on the hub, F10 → stick → **Galaxy Book Go: Rescue mode (with DTB)** → `sda3` → Execute a shell → `mkdir /run/sshd; /usr/sbin/sshd`. Host keys, the SSH key and `/etc/sudoers.d/90-xbill` are already in place |
 | Undo the boot fix | From `/root/gbgo-backup-20261011-104919/`: restore `grub` → `/etc/default/grub`, remove `/etc/grub.d/09_galaxy-book-go`, move `fbaa64.efi.from-EFI-BOOT` back to `/boot/efi/EFI/BOOT/fbaa64.efi`, `update-grub` |
-| Undo the keyboard DTB fix | `cp /boot/dtb/sc7180-samsung-galaxy-book-go.dtb.orig /boot/dtb/sc7180-samsung-galaxy-book-go.dtb` |
+| Undo all DTB fixes (keyboard, power button, lid) | `cp /boot/dtb/sc7180-samsung-galaxy-book-go.dtb.orig /boot/dtb/sc7180-samsung-galaxy-book-go.dtb` |
 | Undo Bluetooth address | `systemctl disable gbgo-bt-addr` |
 | Undo the keyboard rule | `rm /etc/udev/rules.d/61-gbgo-keyboard.rules`, reboot |
 
