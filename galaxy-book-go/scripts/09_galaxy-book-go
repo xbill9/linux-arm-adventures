@@ -1,0 +1,37 @@
+#!/bin/sh
+# GRUB generator for the Samsung Galaxy Book Go (sc7180): every installed kernel
+# gets an entry that loads the device tree (Debian ships no Book Go DTB, and
+# ACPI boot reboots this machine), plus a verbose entry for debugging.
+# Installed as /etc/grub.d/09_galaxy-book-go, so it runs before 10_linux and
+# re-runs on every update-grub (kernel upgrades).
+# Entry ids: gbgo-<kver>, gbgo-debug-<kver>. Pick the default with GRUB_DEFAULT
+# in /etc/default/grub (gbgo-safe-<kver>: no msm, no DSPs); boot one once with: grub-reboot gbgo-<kver>
+set -e
+. /usr/share/grub/grub-mkconfig_lib  # sets grub_probe and the helpers below
+DTB=${GBGO_DTB:-/boot/dtb/sc7180-samsung-galaxy-book-go.dtb}
+ARGS="clk_ignore_unused pd_ignore_unused"
+DBG="ignore_loglevel"
+# SAFE: no display driver (EFI framebuffer only) and no Qualcomm DSP/modem.
+SAFE="modprobe.blacklist=msm,qcom_q6v5_pas,qcom_q6v5_mss ignore_loglevel"
+[ -f "$DTB" ] || { echo "09_galaxy-book-go: $DTB missing, no Book Go entries" >&2; exit 0; }
+DEV=$(prepare_grub_to_access_device "$(${grub_probe} --target=device /boot)" | sed 's/^/	/')
+D=$(make_system_path_relative_to_its_root "$DTB")
+for K in $(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V -r); do
+  V=${K#/boot/vmlinuz-}
+  I=/boot/initrd.img-$V
+  [ -f "$I" ] || continue
+  echo "Found Galaxy Book Go entry: $V" >&2
+  for kind in normal safe debug; do
+    if [ $kind = normal ]; then id=gbgo-$V; title="Debian $V (Galaxy Book Go DTB)"; extra="${GRUB_CMDLINE_LINUX_DEFAULT}"
+    elif [ $kind = safe ]; then id=gbgo-safe-$V; title="Debian $V (Galaxy Book Go DTB) SAFE - no display driver, no DSPs"; extra=$SAFE
+    else id=gbgo-debug-$V; title="Debian $V (Galaxy Book Go DTB) - verbose debug"; extra=$DBG; fi
+    cat <<ENTRY
+menuentry '$title' --id $id {
+$DEV
+	linux	$(make_system_path_relative_to_its_root "$K") root=UUID=${GRUB_DEVICE_UUID} ro ${GRUB_CMDLINE_LINUX} $ARGS $extra
+	initrd	$(make_system_path_relative_to_its_root "$I")
+	devicetree	$D
+}
+ENTRY
+  done
+done

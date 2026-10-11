@@ -25,13 +25,17 @@ c630/
   firmware-local/             proprietary firmware + its README: LOCAL ONLY, git-ignored
   system/                     systemd units (c630-bt-addr.service), regdom.conf (for /etc/modprobe.d)
   initramfs/                  initramfs-tools hook adding GPU firmware
-  scripts/                    c630-menu (boot menu generator), apply.sh (stick-style boot setup)
+  scripts/                    c630-menu (boot menu generator), apply.sh (stick-style boot setup), c630-nm-takeover, c630-apt-snapshot
   stick/                      the installer stick's shim, GRUB 2.12 and DTB: the known-working boot loader
   backups/                    boot partitions, configs and logs pulled from the laptop
 articles/
   c630-debian/                the C630 write-up for dev.to, Medium and Substack: source markdown, cover, Medium HTML, evidence
 galaxy-book-go/
   README.md                   research: keyboard triage, Linux state of the art, boot tricks, sources
+  DEBIAN.md                   Debian 13 on this unit: why it didn't boot, the DTB boot fix, keyboard-as-tablet fix, recovery
+  scripts/                    09_galaxy-book-go (GRUB generator with the DTB), gbgo-fix-boot.sh (applies it from rescue)
+  system/                     61-gbgo-keyboard.rules (keyboard tagged as a tablet pad)
+  backups/                    pre-fix GRUB config and ESP
   win11-stick/                Win11 ARM installer stick: load.cmd (drvload order), winpeshl.ini, autounattend.xml, update script
 ```
 

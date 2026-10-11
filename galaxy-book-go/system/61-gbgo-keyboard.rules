@@ -1,0 +1,6 @@
+# Galaxy Book Go internal keyboard (I2C HID 0CF2:9028 behind the EC).
+# It also reports a stray ABS axis, so udev's input_id tags it as a tablet pad
+# and libinput (GNOME/Wayland) treats it as one instead of a keyboard.
+# Runs after 60-input-id.rules; clears the tablet tags on both the inputN
+# node and its eventN child (libinput also reads the parent's tags).
+ACTION!="remove", SUBSYSTEM=="input", ATTRS{name}=="hid-over-i2c 0CF2:9028 Keyboard", ENV{ID_INPUT_TABLET}="", ENV{ID_INPUT_TABLET_PAD}="", ENV{ID_INPUT_KEYBOARD}="1", ENV{ID_INPUT_KEY}="1"
