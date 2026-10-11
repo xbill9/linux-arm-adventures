@@ -1,0 +1,77 @@
+#!/bin/sh
+# Check everything the Galaxy Book Go's boot depends on, before any reboot.
+#   gbgo-boot-verify [<esp-sha256sums>]
+# Exits 1 if anything that would stop a boot is wrong; prints every check.
+# The optional file is `sha256sum` output for /boot/efi taken when it was known
+# to work (paths relative to /boot/efi).
+DEF_KVER=6.12.111+deb13-arm64
+DTB=/boot/dtb/sc7180-samsung-galaxy-book-go.dtb
+KG=/boot/gbgo-known-good
+bad=0
+ok()   { echo "OK    $*"; }
+fail() { echo "FAIL  $*"; bad=1; }
+warn() { echo "WARN  $*"; }
+
+# boot loader: packages held at 2.12, ESP files unchanged
+for p in grub-common grub-efi-arm64 grub-efi-arm64-bin grub-efi-arm64-signed grub2-common shim-signed; do
+  v=$(dpkg-query -W -f '${Version}' "$p" 2>/dev/null)
+  case "$v" in *2.12*|*16.1*) ok "$p $v" ;; *) fail "$p is $v (expected GRUB 2.12 / shim 16.1)" ;; esac
+  apt-mark showhold | grep -qx "$p" || fail "$p not held"
+done
+if [ -n "$1" ]; then
+  (cd /boot/efi && sha256sum -c --quiet "$1") && ok "ESP files match $1" || fail "ESP files differ from $1"
+fi
+for f in EFI/BOOT/BOOTAA64.EFI EFI/BOOT/grubaa64.efi EFI/debian/grub.cfg; do
+  [ -s "/boot/efi/$f" ] && ok "/boot/efi/$f present" || fail "/boot/efi/$f missing"
+done
+
+# grub.cfg: syntax, default, the default entry's pieces, as GRUB will read them
+grub-script-check /boot/grub/grub.cfg && ok "grub.cfg syntax" || fail "grub.cfg syntax"
+grep -q "set default=\"gbgo-$DEF_KVER\"" /boot/grub/grub.cfg && ok "default gbgo-$DEF_KVER" || fail "default is not gbgo-$DEF_KVER"
+# fixed-string match: kernel versions contain "+", a regex operator
+E=$(awk -v id="--id gbgo-$DEF_KVER " 'index($0, id) {p=1} p {print} p && /^}/ {exit}' /boot/grub/grub.cfg)
+for want in "devicetree" "clk_ignore_unused" "pd_ignore_unused" "/boot/vmlinuz-$DEF_KVER" "/boot/initrd.img-$DEF_KVER"; do
+  echo "$E" | grep -q -- "$want" && ok "default entry has $want" || fail "default entry lacks $want"
+done
+for f in "$DTB" "/boot/vmlinuz-$DEF_KVER" "/boot/initrd.img-$DEF_KVER" /boot/grub/grub.cfg; do
+  [ -s "$f" ] || { fail "$f missing"; continue; }
+done
+sync
+R=$(findmnt -no SOURCE /)
+for f in "$DTB" "/boot/initrd.img-$DEF_KVER" /boot/grub/grub.cfg; do
+  T=$(mktemp); debugfs -R "dump $f $T" "$R" >/dev/null 2>&1
+  if [ "$(sha256sum < "$T")" = "$(sha256sum < "$f")" ]; then ok "raw disk matches $f"; else fail "raw disk differs for $f (not flushed?)"; fi
+  rm -f "$T"
+done
+
+# initramfs: default kernel vs known-good, every image's contents
+if [ -f "$KG/SHA256SUMS" ]; then
+  (cd $KG && sha256sum -c --quiet SHA256SUMS) && ok "known-good initramfs copies intact" || fail "known-good copies damaged"
+  if cmp -s "/boot/initrd.img-$DEF_KVER" "$KG/initrd.img-$DEF_KVER"; then ok "initrd $DEF_KVER unchanged from known-good"
+  else warn "initrd $DEF_KVER was rebuilt; comparing contents with known-good"
+    a=$(mktemp); b=$(mktemp)
+    lsinitramfs "$KG/initrd.img-$DEF_KVER" | grep -E '\.ko|firmware/' | sed 's/\.xz$//; s/\.zst$//' | sort > "$a"
+    lsinitramfs "/boot/initrd.img-$DEF_KVER" | grep -E '\.ko|firmware/' | sed 's/\.xz$//; s/\.zst$//' | sort > "$b"
+    gone=$(comm -23 "$a" "$b" | wc -l); new=$(comm -13 "$a" "$b" | wc -l)
+    echo "      modules/firmware: $gone gone, $new new"; comm -23 "$a" "$b" | head -20 | sed 's/^/      gone: /'
+    [ "$gone" = 0 ] && ok "rebuilt initrd keeps every module/firmware" || fail "rebuilt initrd lost $gone files"
+    rm -f "$a" "$b"
+  fi
+fi
+for i in /boot/initrd.img-*; do
+  [ -L "$i" ] && continue
+  v=${i#/boot/initrd.img-}
+  L=$(lsinitramfs "$i" 2>/dev/null) || { fail "$i does not unpack"; continue; }
+  miss=""
+  for m in ufs-qcom phy-qcom-qmp-ufs i2c-qcom-geni i2c-hid-of msm qcom-rpmh-regulator; do
+    echo "$L" | grep -q "/$m\.ko" || miss="$miss $m"
+  done
+  # built into the kernel (=y) on Debian's arm64 config, so never in the initramfs as a module
+  grep -q '^CONFIG_PINCTRL_SC7180=y' "/boot/config-$v" || echo "$L" | grep -q '/pinctrl-sc7180\.ko' || miss="$miss pinctrl-sc7180"
+  fw=$(echo "$L" | grep -c -E 'qcdxkmsuc7180|a630_sqe|a630_gmu')
+  [ -z "$miss" ] && ok "$v initrd: storage/keyboard/display modules present, $fw/3 GPU firmware" || fail "$v initrd missing:$miss"
+  [ -f "/boot/vmlinuz-$v" ] || fail "$v has an initrd but no kernel"
+done
+# shellcheck disable=SC2015
+[ $bad = 0 ] && echo "ALL BOOT CHECKS PASSED" || echo "BOOT CHECKS FAILED: do not reboot"
+exit $bad

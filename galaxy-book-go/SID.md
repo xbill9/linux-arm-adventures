@@ -2,6 +2,24 @@
 
 Started 13:38 with [scripts/gbgo-sid-upgrade](scripts/gbgo-sid-upgrade), run detached (`systemd-run --unit=gbgo-sid-upgrade`), log `/var/log/gbgo-sid-upgrade.log`. 1546 upgraded, 166 new, 17 removed, 10 held.
 
+## Result (14:07)
+
+Upgrade finished 14:03:53, `Result=success`, all 1712 packages set up, no dpkg errors. Now: systemd 262, GNOME 50.5, `initramfs-tools` 0.151, kernel 7.2.9+deb14 installed (not yet booted). GRUB 2.12-9+deb13u2 and shim 16.1 unchanged and held.
+
+[scripts/gbgo-boot-verify](scripts/gbgo-boot-verify) (`/usr/local/sbin/`, run before any reboot) passed every check: GRUB/shim versions and holds, **all 9 ESP files hash-identical to the pre-upgrade backup**, `grub.cfg` syntax and default entry (DTB, `clk_ignore_unused pd_ignore_unused`, kernel, initrd), DTB/initrd/`grub.cfg` identical on the raw disk, known-good copies intact, every initramfs with storage/keyboard/display modules and 3/3 GPU firmware.
+
+**`initramfs-tools` 0.151 rebuilt the initramfs of every installed kernel** (13:57), including the default 6.12.111. Compared with the known-good copy: 0 modules or firmware files gone, 17 new; the GPU firmware is in, thanks to the hook. Its first two runs had false FAILs from my own bugs (a `+` in the kernel version used as an awk regex; `pinctrl-sc7180` is built in, `=y`, and the regulator module is `qcom-rpmh-regulator`); confirmed by hand, then fixed.
+
+First boot under sid (14:06, 6.12.111): `running`, no failed units; modem DSP up, Wi-Fi associated, Bluetooth `02:33:FD:7E:34:33` powered, venus, GPU `FD618`, keyboard (`keyboard pointer`, 0 flood lines), touchpad, power key, lid.
+
+Changes sid brought:
+
+- **Wi-Fi is now `wld0`**, not `wlan0` (systemd naming scheme v261, `ID_NET_NAME_ONBOARD`). `gbgo-wifi-kick` checked `/sys/class/net/wlan0` and only caught it by luck before the rename; it now checks for any netdev under `/sys/class/ieee80211/phy*/device/net/`.
+- **`sudo` no longer has `/usr/local/sbin` in its path**: call the gbgo scripts by full path.
+- While `openssh-server` was being upgraded, SSH connections were reset during key exchange for a few minutes; GNOME and its terminal were "wonky" until the run ended (old and new libraries mixed). Both expected; the upgrade itself kept going.
+
+Not done yet: a one-time boot of 7.2.9.
+
 ## What protects the boot (C630 lessons, [../c630/INCIDENT-2026-10-10.md](../c630/INCIDENT-2026-10-10.md))
 
 | C630 failure | Here |

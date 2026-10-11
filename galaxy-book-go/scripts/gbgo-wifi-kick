@@ -1,13 +1,18 @@
 #!/bin/sh
 # Bring up the Galaxy Book Go's Wi-Fi at boot. The modem DSP (which hosts the
 # WCN3990 Wi-Fi firmware) boots a few ms after rmtfs/tqftpserv start, asks
-# tqftpserv for wlanmdsp.mbn before it answers, and never retries: no wlan0.
+# tqftpserv for wlanmdsp.mbn before it answers, and stalls: no Wi-Fi netdev until
+# its watchdog crashes and the kernel restarts it, ~40 s later.
 # Restarting the modem once the services are up fixes it (tested 2026-10-11).
-# Run by gbgo-wifi-kick.service; does nothing if wlan0 already exists.
+# Run by gbgo-wifi-kick.service; does nothing if the Wi-Fi netdev already exists.
+# Checked by device, not by name: sid's systemd (naming scheme v261) renames
+# wlan0 to wld0 a few seconds into boot.
 set -e
+wifi_up() { ls /sys/class/ieee80211/phy*/device/net/* >/dev/null 2>&1; }
+wifi_name() { basename "$(ls -d /sys/class/ieee80211/phy*/device/net/* 2>/dev/null | head -1)"; }
 NAME=4080000.remoteproc
 for _ in 1 2 3 4 5 6 7 8 9 10; do
-  [ -e /sys/class/net/wlan0 ] && { echo "wlan0 present"; exit 0; }
+  wifi_up && { echo "Wi-Fi present ($(wifi_name))"; exit 0; }
   sleep 1
 done
 R=
@@ -15,13 +20,13 @@ for r in /sys/class/remoteproc/remoteproc*; do
   [ "$(cat "$r/name")" = "$NAME" ] && R=$r
 done
 [ -n "$R" ] || { echo "no remoteproc $NAME" >&2; exit 1; }
-echo "no wlan0 after 10 s; restarting $NAME ($R)"
+echo "no Wi-Fi netdev after 10 s; restarting $NAME ($R)"
 [ "$(cat "$R/state")" = running ] && echo stop > "$R/state"
 sleep 2
 echo start > "$R/state"
 for _ in $(seq 1 30); do
-  [ -e /sys/class/net/wlan0 ] && { echo "wlan0 up after restart"; exit 0; }
+  wifi_up && { echo "Wi-Fi up after restart ($(wifi_name))"; exit 0; }
   sleep 1
 done
-echo "wlan0 still missing after restart" >&2
+echo "Wi-Fi netdev still missing after restart" >&2
 exit 1
