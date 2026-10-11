@@ -32,6 +32,7 @@ The installer wrote a **stock GRUB menu: no `devicetree`, no `clk_ignore_unused 
 | `gbgo-<kver>` | normal |
 | `gbgo-safe-<kver>` | SAFE: `modprobe.blacklist=msm,qcom_q6v5_pas,qcom_q6v5_mss` (EFI framebuffer only, no DSPs), verbose |
 | `gbgo-debug-<kver>` | `ignore_loglevel` |
+| `gbgo-fwtest-<kver>` | only while `/usr/lib/firmware-gbgo-test` exists: `firmware_class.path` points there, for one-time firmware tests |
 
 - `/etc/default/grub`: `GRUB_DEFAULT=gbgo-6.12.107+deb13-arm64`, `GRUB_TIMEOUT=10`, `GRUB_TIMEOUT_STYLE=menu`, no `quiet`, `GRUB_DISABLE_OS_PROBER=true`. The stock entries (no DTB) are still below ours; don't pick them.
 - `EFI/BOOT/fbaa64.efi` moved aside, so the disk's `EFI/BOOT` holds exactly what the stick's does (shim + GRUB, byte-identical). Otherwise shim runs the fallback loader, which tries to write EFI boot variables.
@@ -53,6 +54,11 @@ Fix: [system/61-gbgo-keyboard.rules](system/61-gbgo-keyboard.rules) → `/etc/ud
 A running GNOME keeps the old classification until it restarts (log out, or restart `gdm3` **only when nobody is logged in**: a restart on 11:07 closed a session that had just been opened).
 
 Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete report (11/33026)`, a burst at ~47 s after boot. The research notes ([README.md](README.md)) report this flood returning after idle and costing CPU.
+
+## Since then
+
+- 11:46: normal entries get `loglevel=3` (`GRUB_CMDLINE_LINUX_DEFAULT`). The keyboard's `incomplete report` errors were flooding the console; `quiet` alone (loglevel 4) still shows errors. SAFE and debug entries stay verbose.
+- 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 
 ## Recovery
 

@@ -1,0 +1,12 @@
+[Unit]
+Description=Galaxy Book Go: restart the modem DSP if Wi-Fi didn't come up
+After=rmtfs.service tqftpserv.service
+Wants=rmtfs.service tqftpserv.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/gbgo-wifi-kick
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

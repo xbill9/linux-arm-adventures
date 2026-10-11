@@ -1,0 +1,51 @@
+#!/bin/sh
+# Install the Galaxy Book Go's Samsung firmware (from a Windows DriverStore) so
+# it can't boot-loop the machine:
+#   tested files  -> /usr/lib/firmware/qcom/sc7180/samsung/galaxy-book-go/
+#   untested files -> /usr/lib/firmware-gbgo-test/... , used only by the
+#                     one-time GRUB entry gbgo-fwtest-<kver> (firmware_class.path)
+# Usage (root):
+#   gbgo-firmware install <src-dir>   src-dir holds the .mbn files + SHA256SUMS
+#   gbgo-firmware promote             move the test files into the real path
+#   gbgo-firmware rollback            move everything to /root/gbgo-fw-rollback-<time>/
+set -e
+REL=qcom/sc7180/samsung/galaxy-book-go
+LIVE=/usr/lib/firmware/$REL
+TEST=/usr/lib/firmware-gbgo-test
+# qcmpss7180_nm (modem DSP) + wlanmdsp.mbn (WLAN firmware the modem fetches
+# through tqftpserv; without it there is no wlan0) and
+# qcvss7180 (venus) were started live on 2026-10-11. The zap shader was not.
+TESTED="qcmpss7180_nm.mbn qcvss7180.mbn wlanmdsp.mbn"
+UNTESTED="qcdxkmsuc7180.mbn"
+# qcadsp7180.mbn is left out: the DTB's adsp reserved-memory region is wrong
+# ("segment outside memory range").
+
+regen() { update-grub >/dev/null 2>&1; grub-script-check /boot/grub/grub.cfg; }
+
+case "$1" in
+install)
+  S=$2; [ -f "$S/SHA256SUMS" ] || { echo "no $S/SHA256SUMS" >&2; exit 1; }
+  (cd "$S" && sha256sum -c --quiet SHA256SUMS)
+  mkdir -p $LIVE $TEST/$REL
+  for f in $TESTED; do install -m 644 "$S/$f" $LIVE/$f; done
+  for f in $UNTESTED; do install -m 644 "$S/$f" $TEST/$REL/$f; done
+  regen
+  ls -l $LIVE $TEST/$REL
+  ;;
+promote)
+  for f in $UNTESTED; do [ -f $TEST/$REL/$f ] && mv $TEST/$REL/$f $LIVE/$f; done
+  rm -rf $TEST
+  regen
+  ls -l $LIVE
+  ;;
+rollback)
+  B=/root/gbgo-fw-rollback-$(date +%Y%m%d-%H%M%S)
+  mkdir -p $B
+  [ -d $LIVE ] && mv $LIVE $B/live
+  [ -d $TEST ] && mv $TEST $B/test
+  regen
+  echo "moved to $B; reboot to unload"
+  ;;
+*) sed -n '2,10p' "$0"; exit 1 ;;
+esac
+sync

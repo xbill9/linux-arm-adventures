@@ -4,8 +4,13 @@
 # ACPI boot reboots this machine), plus a verbose entry for debugging.
 # Installed as /etc/grub.d/09_galaxy-book-go, so it runs before 10_linux and
 # re-runs on every update-grub (kernel upgrades).
-# Entry ids: gbgo-<kver>, gbgo-debug-<kver>. Pick the default with GRUB_DEFAULT
-# in /etc/default/grub (gbgo-safe-<kver>: no msm, no DSPs); boot one once with: grub-reboot gbgo-<kver>
+# Entry ids per kernel:
+#   gbgo-<kver>         normal
+#   gbgo-safe-<kver>    no msm, no DSPs
+#   gbgo-debug-<kver>   verbose
+#   gbgo-fwtest-<kver>  only while /usr/lib/firmware-gbgo-test exists
+# Pick the default with GRUB_DEFAULT in /etc/default/grub; boot one entry once
+# with: grub-reboot <id>
 set -e
 . /usr/share/grub/grub-mkconfig_lib  # sets grub_probe and the helpers below
 DTB=${GBGO_DTB:-/boot/dtb/sc7180-samsung-galaxy-book-go.dtb}
@@ -13,6 +18,9 @@ ARGS="clk_ignore_unused pd_ignore_unused"
 DBG="ignore_loglevel"
 # SAFE: no display driver (EFI framebuffer only) and no Qualcomm DSP/modem.
 SAFE="modprobe.blacklist=msm,qcom_q6v5_pas,qcom_q6v5_mss ignore_loglevel"
+# FWTEST: only while /usr/lib/firmware-gbgo-test exists. Firmware there is tried
+# before /usr/lib/firmware, for that boot only. Boot it once with grub-reboot.
+FWTEST_DIR=/usr/lib/firmware-gbgo-test
 [ -f "$DTB" ] || { echo "09_galaxy-book-go: $DTB missing, no Book Go entries" >&2; exit 0; }
 DEV=$(prepare_grub_to_access_device "$(${grub_probe} --target=device /boot)" | sed 's/^/	/')
 D=$(make_system_path_relative_to_its_root "$DTB")
@@ -21,9 +29,11 @@ for K in $(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V -r); do
   I=/boot/initrd.img-$V
   [ -f "$I" ] || continue
   echo "Found Galaxy Book Go entry: $V" >&2
-  for kind in normal safe debug; do
+  kinds="normal safe debug"; [ -d $FWTEST_DIR ] && kinds="$kinds fwtest"
+  for kind in $kinds; do
     if [ $kind = normal ]; then id=gbgo-$V; title="Debian $V (Galaxy Book Go DTB)"; extra="${GRUB_CMDLINE_LINUX_DEFAULT}"
     elif [ $kind = safe ]; then id=gbgo-safe-$V; title="Debian $V (Galaxy Book Go DTB) SAFE - no display driver, no DSPs"; extra=$SAFE
+    elif [ $kind = fwtest ]; then id=gbgo-fwtest-$V; title="Debian $V (Galaxy Book Go DTB) - TEST firmware ($FWTEST_DIR)"; extra="firmware_class.path=$FWTEST_DIR ignore_loglevel"
     else id=gbgo-debug-$V; title="Debian $V (Galaxy Book Go DTB) - verbose debug"; extra=$DBG; fi
     cat <<ENTRY
 menuentry '$title' --id $id {
