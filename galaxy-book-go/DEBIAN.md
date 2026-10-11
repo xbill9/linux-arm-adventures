@@ -60,6 +60,14 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:46: normal entries get `loglevel=3` (`GRUB_CMDLINE_LINUX_DEFAULT`). The keyboard's `incomplete report` errors were flooding the console; `quiet` alone (loglevel 4) still shows errors. SAFE and debug entries stay verbose.
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 
+## Suspend (tested 13:03)
+
+`s2idle` only. One cycle, from the GDM login screen, with `pm_debug_messages` on: `systemctl suspend` at 13:03:06, **woken by Shift on the built-in keyboard** after ~10 s (`PM: Triggering wakeup from IRQ 136` = `msmgpio 104`, the keyboard IRQ fixed above), devices resumed in 0.6 s. Wi-Fi reconnected, Bluetooth up, Ethernet stayed up.
+
+Resume warnings: `i2c_hid_of 6-0005: failed to change power setting` (keyboard; it had just delivered the wake key, typing after resume not yet re-checked) and `usb 1-1.2.5 … usb_dev_resume … -5` (the hub's VIA Billboard device `2109:8888`, no driver; it re-enumerates, harmless).
+
+Wake sources: keyboard (tested), touchpad and power key (marked, untested). **The lid is not a wake source yet** (no `wakeup-source` on `switch-lid`; GPIO 93 is PDC-capable, PDC pin 49), so lid close still only locks. Not measurable: battery drain while suspended (no battery driver).
+
 ## Power button and lid (fixed 13:01); RTC left off
 
 Both came from the DTB, built by [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch) together with the keyboard fix (`8012d6d42635b0e3…`, verified on the raw disk):
