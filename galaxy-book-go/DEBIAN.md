@@ -67,6 +67,8 @@ The rescue chroot has no `/dev/pts`, so `su` and root logins over SSH can't work
 
 ## Next
 
+- Audit 2026-10-11: [AUDIT-2026-10-11.md](AUDIT-2026-10-11.md) (missing firmware, Wi-Fi/BT packages, no battery/backlight/audio in the DT, keyboard IRQ flood).
+
 - Hold `grub*` and `shim*` (`apt-mark hold`) as on the C630, so an upgrade can't swap the boot loader. Not done yet.
 - Test 6.12.111 once with `grub-reboot gbgo-6.12.111+deb13-arm64`, then decide the default.
 - Change root's password (it was typed into a chat transcript).
