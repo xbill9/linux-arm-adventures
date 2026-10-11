@@ -1,5 +1,5 @@
 @echo off
-title Loading Galaxy Book Go drivers (minimal + USB, no SMMU/PEP)...
+title Loading Galaxy Book Go drivers (diagnostic: minimal + USB, no SMMU/PEP)...
 set LOG=X:\drvload-log.txt
 for %%d in (C D E F G H I J K L M N O P Q R S T U V W Y Z) do if exist %%d:\GBGo-Drivers set LOG=%%d:\drvload-log.txt
 echo ==== %DATE% %TIME% ====>>"%LOG%"
@@ -124,4 +124,16 @@ echo [pass 2] qcxhcifilter7180.inf_arm64_39faba6210deaa83
 echo [pass 2] START qcxhcifilter7180.inf_arm64_39faba6210deaa83>>"%LOG%"
 drvload X:\Drivers\qcxhcifilter7180.inf_arm64_39faba6210deaa83\qcxhcifilter7180.inf >>"%LOG%" 2>&1
 echo ALL DONE>>"%LOG%"
-ping -n 8 127.0.0.1 >nul
+rem ---- diagnostic: show the results on screen, since there is no input to read the log
+mode con: cols=200 lines=80
+cls
+echo ===== drvload: lines with fail/error (empty = none) =====
+findstr /i /c:"fail" /c:"error" "%LOG%"
+echo ===== drvload: lines with success =====
+find /c /i "success" "%LOG%"
+echo ===== devices with a problem =====
+pnputil /enum-devices /problem > X:\problem.txt 2>&1
+findstr /i /c:"Instance ID" /c:"Problem" /c:"not recognized" X:\problem.txt
+echo.
+echo ===== PHOTOGRAPH THIS SCREEN. Setup starts in 3 minutes. =====
+ping -n 181 127.0.0.1 >nul

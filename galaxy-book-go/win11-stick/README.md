@@ -18,7 +18,7 @@ PNY "USB 3.0 FD", 31.5 GiB, serial `AA61171F40013821`, one FAT32 partition label
 
 `X:\Drivers` leaves out the audio APOs (`dax3_*`), the printers and the VPN tap drivers.
 
-`sources/boot.wim` sha256: `7676045c6d8d81a6…` (current: USB, no SMMU/PEP), `b343dab7fca58753…` (USB + SMMU/PEP, crashed), `f340d2092271aafa…` (original, keyboard chain only).
+`sources/boot.wim` sha256: `6bc43f1a950f46a2…` (current: diagnostic screen), `7676045c6d8d81a6…` (USB, no SMMU/PEP: no input), `b343dab7fca58753…` (USB + SMMU/PEP, crashed), `f340d2092271aafa…` (original, keyboard chain only).
 
 The drivers are proprietary and are not in this repo.
 
@@ -26,7 +26,8 @@ The drivers are proprietary and are not in this repo.
 
 1. `winpeshl.ini` replaces WinPE's default shell. It runs `X:\Drivers\load.cmd`, then `X:\sources\setup.exe`.
 2. `load.cmd` runs `drvload` on 20 drivers, in two passes, so that a driver whose parent was not ready yet gets a second chance. It logs to `X:\drvload-log.txt`. If a drive with `GBGo-Drivers` is visible, the log goes there instead, i.e. onto the stick.
-3. Setup runs interactively. `autounattend.xml` handles the checks and the drivers for the installed system.
+3. The diagnostic version then prints the drvload failures and `pnputil /enum-devices /problem` on screen and waits 3 minutes for a photo.
+4. Setup runs interactively. `autounattend.xml` handles the checks and the drivers for the installed system.
 
 Load order (pass 1 = pass 2):
 
@@ -48,6 +49,7 @@ WinPE itself runs from RAM, but Setup reads `install.swm` from the stick over US
 | Date | `boot.wim` | Result |
 |---|---|---|
 | 2026-10-10 | `b343dab7fca58753…` | Crashed after about 2–3 drivers: `qcsmmu7180`, `qcpep.wd7180`, maybe `qcscm7180`. No `drvload-log.txt` on the stick, so USB never came up and the log was lost in RAM |
+| 2026-10-10 | `7676045c6d8d81a6…` | Booted without crashing, but no input at all: internal keyboard, touchpad, and an external keyboard whose lights stayed off (no USB port power). No `drvload-log.txt` on the stick |
 
 ## Hypotheses (not yet tested)
 
