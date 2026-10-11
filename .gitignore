@@ -9,3 +9,4 @@ c630/backups/**/.claude/
 
 # Lenovo/Qualcomm proprietary firmware: local only, never published
 c630/firmware-local/
+galaxy-book-go/firmware-local/
