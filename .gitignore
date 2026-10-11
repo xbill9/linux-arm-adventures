@@ -12,3 +12,4 @@ c630/firmware-local/
 galaxy-book-go/firmware-local/
 # Samsung ACPI tables: MSDM holds the Windows product key, so local only
 galaxy-book-go/acpi-local/
+__pycache__/

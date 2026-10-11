@@ -35,7 +35,7 @@ Qualcomm's `GIO0` (`QCOM080D`, TLMM) declares the TLMM summary interrupt three t
 | #9 | `0x232` | 50 | 3 |
 | #10 | `0x259` | 89 | (none) |
 
-A `GpioInt` pin number of `0x40·k` (k ≥ 3, beyond the 120 real pins) means **direct-connect interrupt #k**. Pins below 120 are plain TLMM GPIOs. Checked against two known pins: SD card detect `0xC0` → #3 → GPIO 69 (the usual SC7180 card-detect pin), touchpad `TCPD` `0x180` → #6 → GPIO 31 (the DTB's working touchpad IRQ), and the lid: `GIO0` reads it directly as GPIO `0x5D` = 93, and its own interrupt `0x1C0` → #7 → GPIO 93, the same pin both ways.
+A `GpioInt` pin number of `0x40·k` (k ≥ 3, beyond the 120 real pins) means **direct-connect interrupt #k**. Pins below 120 are plain TLMM GPIOs. Checked against three known pins: SD card detect `0xC0` → #3 → GPIO 69 (the usual SC7180 card-detect pin), touchpad `TCPD` `0x180` → #6 → GPIO 31 (the DTB's working touchpad IRQ), and the lid: `GIO0` reads it directly as GPIO `0x5D` = 93, and its own interrupt `0x1C0` → #7 → GPIO 93, the same pin both ways.
 
 [scripts/acpi-gpioint.py](scripts/acpi-gpioint.py) lists all of them:
 
