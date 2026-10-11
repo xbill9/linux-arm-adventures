@@ -4,7 +4,9 @@
 # Exits 1 if anything that would stop a boot is wrong; prints every check.
 # The optional file is `sha256sum` output for /boot/efi taken when it was known
 # to work (paths relative to /boot/efi).
-DEF_KVER=6.12.111+deb13-arm64
+# the default kernel, from GRUB_DEFAULT=gbgo-<kver> in /etc/default/grub
+DEF_KVER=$(sed -n "s/^GRUB_DEFAULT=gbgo-//p" /etc/default/grub)
+[ -n "$DEF_KVER" ] || { echo "FAIL  GRUB_DEFAULT is not a gbgo-<kver> entry"; exit 1; }
 DTB=/boot/dtb/sc7180-samsung-galaxy-book-go.dtb
 KG=/boot/gbgo-known-good
 bad=0

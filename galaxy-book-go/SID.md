@@ -18,7 +18,7 @@ Changes sid brought:
 - **`sudo` no longer has `/usr/local/sbin` in its path**: call the gbgo scripts by full path.
 - While `openssh-server` was being upgraded, SSH connections were reset during key exchange for a few minutes; GNOME and its terminal were "wonky" until the run ended (old and new libraries mixed). Both expected; the upgrade itself kept going.
 
-Not done yet: a one-time boot of 7.2.9.
+**Kernel 7.2.9 (14:10):** one-time boot passed everything; made the default. Its initramfs is saved as known-good. See [AUDIT-2026-10-11.md](AUDIT-2026-10-11.md#re-scan-1414-sid-kernel-729deb14).
 
 ## What protects the boot (C630 lessons, [../c630/INCIDENT-2026-10-10.md](../c630/INCIDENT-2026-10-10.md))
 
