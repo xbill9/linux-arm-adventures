@@ -33,6 +33,8 @@ Order of attack:
    - Add an `autounattend.xml` so setup needs no input at all.
 3. Third-party "pre-injected" ISOs only as a last resort, from a source whose hashes you can check.
 
+**Current attempt (2026-10-10, untested):** a stock Win11 ARM64 stick whose Setup `drvload`s the harvested drivers, now including the USB stack. See [`win11-stick/`](win11-stick/README.md).
+
 ## Linux state of the art
 
 **No upstream support.** There is no Galaxy Book Go DTS in mainline. Everything below comes from community work by hexdump0815, amcduffee, Vogtinator and others. hexdump0815, 2026-09-25: "the galaxy book go never reached a properly supported state … currently nobody is really working actively on bringing support for this system forward."

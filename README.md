@@ -32,6 +32,7 @@ articles/
   c630-debian/                the C630 write-up for dev.to, Medium and Substack: source markdown, cover, Medium HTML, evidence
 galaxy-book-go/
   README.md                   research: keyboard triage, Linux state of the art, boot tricks, sources
+  win11-stick/                Win11 ARM installer stick: load.cmd (drvload order), winpeshl.ini, autounattend.xml, update script
 ```
 
 Kernels and initramfs images inside `backups/` are not committed (see `.gitignore`); they are in the tarball and are reproducible from Debian packages.
