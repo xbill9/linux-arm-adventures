@@ -1,0 +1,32 @@
+#!/bin/sh
+# Build a patched Galaxy Book Go DTB from the installer stick's draft DTB.
+#   gbgo-dtb-patch <in.dtb> <out.dtb>
+# Fixes (each checked against Samsung's own ACPI tables, dumped 2026-10-11):
+#  - keyboard IRQ: the draft uses TLMM 48 ("this one is wrong" in its source),
+#    which idles low, so i2c-hid polls the keyboard ~1100x/s and floods the log.
+#    ACPI ECKB: GpioInt(Level, ActiveLow, PullUp) on GIO0 virtual pin 0x140
+#    = direct-connect IRQ #5 = PDC pin 67 = TLMM 104.
+# Prints the dts diff, so every change is visible.
+set -e
+IN=$1; OUT=$2
+[ -f "$IN" ] && [ -n "$OUT" ] || { sed -n '2,3p' "$0"; exit 1; }
+T=$(mktemp -d)
+dtc -q -I dtb -O dts -o "$T/in.dts" "$IN"
+cp "$T/in.dts" "$T/out.dts"
+TLMM=$(awk '/pinctrl@3500000 \{/{f=1} f&&/phandle = </{gsub(/.*<|>.*/,""); print; exit}' "$T/in.dts")
+[ -n "$TLMM" ] || { echo "TLMM phandle not found" >&2; exit 1; }
+# keyboard@5: interrupts-extended = <TLMM 48 LEVEL_LOW> -> <TLMM 104 LEVEL_LOW>
+awk -v t="$TLMM" '
+  /keyboard@5 \{/ {k=1}
+  k && /interrupts-extended = </ { sub("<" t " 0x30 0x08>", "<" t " 0x68 0x08>") }
+  k && /^\t*\};/ {k=0}
+  /hid-keyboard-default-state \{/ {p=1}
+  p && /pins = "gpio48";/ { sub("gpio48", "gpio104") }
+  p && /bias-disable;/ { sub("bias-disable", "bias-pull-up") }
+  p && /^\t*\};/ {p=0}
+  {print}' "$T/in.dts" > "$T/out.dts"
+diff -u "$T/in.dts" "$T/out.dts" || true
+[ "$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>')" = 3 ] || { echo "expected exactly 3 changed lines" >&2; rm -rf "$T"; exit 1; }
+dtc -q -I dts -O dtb -o "$OUT" "$T/out.dts"
+rm -rf "$T"
+echo "wrote $OUT"

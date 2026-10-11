@@ -9,6 +9,7 @@
 #   gbgo-safe-<kver>    no msm, no DSPs
 #   gbgo-debug-<kver>   verbose
 #   gbgo-fwtest-<kver>  only while /usr/lib/firmware-gbgo-test exists
+#   gbgo-dtbtest-<kver> only while <dtb>.test exists: that DTB instead
 # Pick the default with GRUB_DEFAULT in /etc/default/grub; boot one entry once
 # with: grub-reboot <id>
 set -e
@@ -30,18 +31,36 @@ for K in $(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V -r); do
   [ -f "$I" ] || continue
   echo "Found Galaxy Book Go entry: $V" >&2
   kinds="normal safe debug"; [ -d $FWTEST_DIR ] && kinds="$kinds fwtest"
+  [ -f "$DTB.test" ] && kinds="$kinds dtbtest"
   for kind in $kinds; do
     if [ $kind = normal ]; then id=gbgo-$V; title="Debian $V (Galaxy Book Go DTB)"; extra="${GRUB_CMDLINE_LINUX_DEFAULT}"
     elif [ $kind = safe ]; then id=gbgo-safe-$V; title="Debian $V (Galaxy Book Go DTB) SAFE - no display driver, no DSPs"; extra=$SAFE
     elif [ $kind = fwtest ]; then id=gbgo-fwtest-$V; title="Debian $V (Galaxy Book Go DTB) - TEST firmware ($FWTEST_DIR)"; extra="firmware_class.path=$FWTEST_DIR ignore_loglevel"
+    elif [ $kind = dtbtest ]; then id=gbgo-dtbtest-$V; title="Debian $V (Galaxy Book Go) - TEST device tree ($DTB.test)"; extra="${GRUB_CMDLINE_LINUX_DEFAULT}"
     else id=gbgo-debug-$V; title="Debian $V (Galaxy Book Go DTB) - verbose debug"; extra=$DBG; fi
     cat <<ENTRY
 menuentry '$title' --id $id {
 $DEV
 	linux	$(make_system_path_relative_to_its_root "$K") root=UUID=${GRUB_DEVICE_UUID} ro ${GRUB_CMDLINE_LINUX} $ARGS $extra
 	initrd	$(make_system_path_relative_to_its_root "$I")
-	devicetree	$D
+	devicetree	$(if [ $kind = dtbtest ]; then echo "$D.test"; else echo "$D"; fi)
 }
 ENTRY
   done
 done
+
+# One-time UEFI shell (dumps the ACPI tables via startup.nsh), only while it is
+# on the ESP. Boot it once with: grub-reboot gbgo-efishell
+SHELL_EFI=/boot/efi/EFI/gbgo-shell/shellaa64.efi
+if [ -f $SHELL_EFI ]; then
+  ESP_UUID=$(${grub_probe} --target=fs_uuid /boot/efi)
+  cat <<ENTRY
+menuentry 'UEFI Shell: dump ACPI tables (gbgo-shell)' --id gbgo-efishell {
+	insmod part_gpt
+	insmod fat
+	insmod chain
+	search --no-floppy --fs-uuid --set=root $ESP_UUID
+	chainloader /EFI/gbgo-shell/shellaa64.efi
+}
+ENTRY
+fi

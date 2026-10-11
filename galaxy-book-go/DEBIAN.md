@@ -60,6 +60,20 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:46: normal entries get `loglevel=3` (`GRUB_CMDLINE_LINUX_DEFAULT`). The keyboard's `incomplete report` errors were flooding the console; `quiet` alone (loglevel 4) still shows errors. SAFE and debug entries stay verbose.
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 
+## Keyboard IRQ flood (fixed 12:47)
+
+The draft DTB gives the keyboard `interrupts-extended = <&tlmm 48 IRQ_TYPE_LEVEL_LOW>`, with the comment "this one is wrong, the proper one has not been found yet". GPIO 48 sits low permanently, so the level interrupt never clears: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete report (11/65535)` (or `11/33026`) about **1100 times a second**, 785,000 lines in 14 minutes, ~7 % CPU. Keys only worked because of that constant polling.
+
+What didn't find it: GPIO 48 stays low with the driver unbound and after reading the device; GPIO 32 (amcduffee's DTS) is the touchpad power enable; edge-watching all 73 free input GPIOs while typing showed nothing (73 and 109 toggle ~20 Hz on their own).
+
+What did: Samsung's ACPI tables ([ACPI.md](ACPI.md)). `ECKB` uses `GpioInt(Level, ActiveLow, PullUp)` on virtual pin `0x140` = direct-connect interrupt #5 = PDC 67 = **TLMM 104**. GPIO 104 was left as an **output, low** by the boot firmware (no Linux driver claimed it). As an input with pull-up it idles high, and a HID `RESET` to the keyboard pulls it low: the spec's reset interrupt.
+
+Fix: [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch) (`/usr/local/sbin/`) builds the DTB from the stick's draft with exactly three changed lines: the keyboard IRQ `0x30` → `0x68`, and its pin config `gpio48` → `gpio104`, `bias-disable` → `bias-pull-up`. Tested with a one-time `gbgo-dtbtest-<kver>` entry (the generator lists it while `<dtb>.test` exists): **0 flood lines**, IRQ 104 at 1 after boot and 13 after a few key presses, keys seen by `evtest`. Then installed as `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` (`08381461ecc64922…`, verified on the raw disk); the stick's original is `….dtb.orig` (`67603128d1cc5952…`).
+
+Reinstalling from the stick (`gbgo-fix-boot.sh`) copies the stick's original DTB, so run `gbgo-dtb-patch /boot/dtb/sc7180-samsung-galaxy-book-go.dtb.orig /boot/dtb/sc7180-samsung-galaxy-book-go.dtb` afterwards.
+
+`loglevel=3` (11:46) is no longer needed for the flood; left in place.
+
 ## Bluetooth (fixed 12:03)
 
 The WCN3991 loads its firmware from `firmware-atheros` (`qca/crbtfw32.tlv`, `crnv32u.bin`, `QCA setup on UART is completed`) and then stays **unconfigured**: `hciconfig` shows `DOWN RAW` with a junk address (`00:00:00:00:5A:AD` or `39:98:00:00:5A:AD`), `btmgmt config` shows `missing options: public-address`, and BlueZ lists no adapter. Nothing supplies a public address (none in the DT). Same situation as the C630.
@@ -77,6 +91,7 @@ Verified across a reboot: address set at 10.3 s on the first try, `hci0` `UP RUN
 | Default entry hangs or goes black | Hold power 10 s, power on; at the GRUB menu (10 s) pick `… SAFE` or `… verbose debug` |
 | No GRUB menu | Stick on the hub, F10 → stick → **Galaxy Book Go: Rescue mode (with DTB)** → `sda3` → Execute a shell → `mkdir /run/sshd; /usr/sbin/sshd`. Host keys, the SSH key and `/etc/sudoers.d/90-xbill` are already in place |
 | Undo the boot fix | From `/root/gbgo-backup-20261011-104919/`: restore `grub` → `/etc/default/grub`, remove `/etc/grub.d/09_galaxy-book-go`, move `fbaa64.efi.from-EFI-BOOT` back to `/boot/efi/EFI/BOOT/fbaa64.efi`, `update-grub` |
+| Undo the keyboard DTB fix | `cp /boot/dtb/sc7180-samsung-galaxy-book-go.dtb.orig /boot/dtb/sc7180-samsung-galaxy-book-go.dtb` |
 | Undo Bluetooth address | `systemctl disable gbgo-bt-addr` |
 | Undo the keyboard rule | `rm /etc/udev/rules.d/61-gbgo-keyboard.rules`, reboot |
 
