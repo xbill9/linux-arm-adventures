@@ -1,0 +1,36 @@
+#!/bin/sh
+# The Galaxy Book Go's WCN3991 Bluetooth loads its firmware but stays
+# "unconfigured" (hciconfig: DOWN RAW; btmgmt config: missing public-address),
+# because nothing gives it a public address (none in the DT). Give it a stable,
+# locally administered one derived from /etc/machine-id.
+# hci0 appears before the chip finishes loading its firmware, so retry until
+# the controller accepts the address, for at most ~30 s.
+# Only send public-addr while the option is missing, so a re-run (e.g. when
+# bluetooth.service restarts) is a no-op.
+# btmgmt (bluez 5.82) hangs when stdin is /dev/null, which is what systemd gives
+# a service (tested 2026-10-11); an empty pipe on stdin fixes it. Every call is
+# time-limited as well.
+set -e
+bm() { echo | timeout 3 btmgmt -i hci0 "$@" 2>&1; }
+h=$(sha256sum /etc/machine-id | cut -c1-10 | sed "s/../&:/g; s/:$//")
+end=$(( $(date +%s) + 30 ))
+i=0
+while [ "$(date +%s)" -lt $end ]; do
+  i=$((i + 1))
+  cfg=$(bm config) || true
+  missing=$(printf '%s\n' "$cfg" | sed -n 's/^[[:space:]]*missing options:[[:space:]]*//p')
+  if [ $((i % 10)) = 1 ]; then echo "try $i: config: $(printf '%s' "$cfg" | tr '\n\t' '| ')"; fi
+  case "$missing" in
+    *public-address*)
+      out=$(bm public-addr "02:$h") || true
+      case "$out" in *complete*) echo "hci0 public address 02:$h set after $i tries"; exit 0 ;; esac
+      if [ $((i % 10)) = 1 ]; then echo "try $i: public-addr: $(printf '%s' "$out" | tr '\n' '|')"; fi ;;
+    "")
+      # empty line = configured; no line at all = controller not ready yet
+      if bm config | grep -q "missing options:"; then
+        echo "hci0 already configured ($(hciconfig hci0 | sed -n 's/.*BD Address: \([^ ]*\).*/\1/p'))"; exit 0
+      fi ;;
+  esac
+  sleep 0.5
+done
+echo "hci0 never accepted a public address" >&2; exit 1

@@ -1,6 +1,6 @@
 # Galaxy Book Go firmware
 
-Status 2026-10-11 11:50: **Wi-Fi, GPU acceleration and video decode/encode work** with Samsung's own firmware. The audio DSP doesn't (wrong reserved memory in the DTB). Bluetooth: not yet.
+Status 2026-10-11 11:50: **Wi-Fi, GPU acceleration and video decode/encode work** with Samsung's own firmware. The audio DSP doesn't (wrong reserved memory in the DTB). Bluetooth works with `firmware-atheros` plus an address service, see [DEBIAN.md](DEBIAN.md#bluetooth-fixed-1203).
 
 ## Source
 

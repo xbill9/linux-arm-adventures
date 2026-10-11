@@ -60,6 +60,16 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:46: normal entries get `loglevel=3` (`GRUB_CMDLINE_LINUX_DEFAULT`). The keyboard's `incomplete report` errors were flooding the console; `quiet` alone (loglevel 4) still shows errors. SAFE and debug entries stay verbose.
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 
+## Bluetooth (fixed 12:03)
+
+The WCN3991 loads its firmware from `firmware-atheros` (`qca/crbtfw32.tlv`, `crnv32u.bin`, `QCA setup on UART is completed`) and then stays **unconfigured**: `hciconfig` shows `DOWN RAW` with a junk address (`00:00:00:00:5A:AD` or `39:98:00:00:5A:AD`), `btmgmt config` shows `missing options: public-address`, and BlueZ lists no adapter. Nothing supplies a public address (none in the DT). Same situation as the C630.
+
+Fix: [scripts/gbgo-bt-addr](scripts/gbgo-bt-addr) (`/usr/local/sbin/`) + [system/gbgo-bt-addr.service](system/gbgo-bt-addr.service) (`Before=bluetooth.service`). It sets a stable, locally administered address from `/etc/machine-id` (this unit: `02:33:FD:7E:34:33`), only while `public-address` is missing, retrying for up to 30 s.
+
+**Trap: `btmgmt` (bluez 5.82, trixie) hangs forever when stdin is `/dev/null`**, which is what systemd gives a service. Over SSH (stdin a pipe) the same call answers at once, so the script worked by hand and failed at every boot (`try 1: config:` empty, each call hitting its timeout). `echo | timeout 3 btmgmt …` fixes it. The C630's `c630-bt-addr` calls `btmgmt` without this and works there (sid's bluez); not checked why.
+
+Verified across a reboot: address set at 10.3 s on the first try, `hci0` `UP RUNNING`, `bluetoothctl show` → `Powered: yes`; a 12 s scan (before the reboot) saw 6 devices. **Not yet tested:** pairing and audio to a headset.
+
 ## Recovery
 
 | Problem | Do |
@@ -67,6 +77,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 | Default entry hangs or goes black | Hold power 10 s, power on; at the GRUB menu (10 s) pick `… SAFE` or `… verbose debug` |
 | No GRUB menu | Stick on the hub, F10 → stick → **Galaxy Book Go: Rescue mode (with DTB)** → `sda3` → Execute a shell → `mkdir /run/sshd; /usr/sbin/sshd`. Host keys, the SSH key and `/etc/sudoers.d/90-xbill` are already in place |
 | Undo the boot fix | From `/root/gbgo-backup-20261011-104919/`: restore `grub` → `/etc/default/grub`, remove `/etc/grub.d/09_galaxy-book-go`, move `fbaa64.efi.from-EFI-BOOT` back to `/boot/efi/EFI/BOOT/fbaa64.efi`, `update-grub` |
+| Undo Bluetooth address | `systemctl disable gbgo-bt-addr` |
 | Undo the keyboard rule | `rm /etc/udev/rules.d/61-gbgo-keyboard.rules`, reboot |
 
 The rescue chroot has no `/dev/pts`, so `su` and root logins over SSH can't work from it; that is why `90-xbill` (passwordless sudo) exists.
