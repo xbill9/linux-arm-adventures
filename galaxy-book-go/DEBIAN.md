@@ -60,6 +60,16 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:46: normal entries get `loglevel=3` (`GRUB_CMDLINE_LINUX_DEFAULT`). The keyboard's `incomplete report` errors were flooding the console; `quiet` alone (loglevel 4) still shows errors. SAFE and debug entries stay verbose.
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 
+## Brightness (in progress, 13:20)
+
+No `/sys/class/backlight`. Findings:
+
+- The panel (`edp-panel` behind the SN65DSI86 bridge) has **no AUX backlight**: DPCD `0x701 = 0x18` (self-test caps only), `0x702 = 0`.
+- Samsung's panel config (`GPU0._ROM`, XML, local in `acpi-local/panelcfg.xml`): `BacklightType 1`, `BacklightPmicControlType 3`, `BacklightPmicNum 2`, `BacklightPMICBankSelect 0`, 9-bit PWM at 6250 Hz, default 80 %. Its `DSIInitSequence` also programs the bridge's PWM (`0x5F = 0x80`, `0xA5 = 0x02`).
+- **Bridge PWM: tested live, no effect.** `pwmchip0` is `ti_sn65dsi86.pwm`; driving it at 100/20/100/50/100 % and 100/10/100 % (registers then match Windows' sequence) left the screen unchanged.
+- **PMIC LPG: the likely one.** PM6150L `gpio6` is the only PM6150L pin the firmware leaves in a special function (`out func1`), and of the PM6150L LPG channels only **LPG3** (`0xb300`) is running: enable `0x86` (output on, PWM source), value `0x1FF` = 100 % of 9 bits. The draft DTB disables the LPG (`qcom,pm6150l-lpg`), so Linux can't change it.
+- Next: `GBGO_BACKLIGHT=1 gbgo-dtb-patch` enables the LPG and adds `pwm-backlight` on channel index 2 (LPG3) at 160000 ns, not linked to the panel. **Untested**; a one-time test boot was armed and then disarmed for the sid upgrade.
+
 ## Suspend (tested 13:03)
 
 `s2idle` only. One cycle, from the GDM login screen, with `pm_debug_messages` on: `systemctl suspend` at 13:03:06, **woken by Shift on the built-in keyboard** after ~10 s (`PM: Triggering wakeup from IRQ 136` = `msmgpio 104`, the keyboard IRQ fixed above), devices resumed in 0.6 s. Wi-Fi reconnected, Bluetooth up, Ethernet stayed up.

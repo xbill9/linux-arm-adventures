@@ -1,0 +1,56 @@
+#!/bin/sh
+# Move the Galaxy Book Go from trixie to sid without touching the boot loader.
+# Lessons from the C630 (c630/INCIDENT-2026-10-10.md): sid's GRUB 2.14 blacked
+# out every kernel there, and sid's initramfs-tools stopped copying qcom/
+# firmware. So: GRUB + shim stay held at 2.12, the trixie kernel stays installed
+# and is still the GRUB default, and the gbgo-firmware initramfs hook must be in
+# place. Run as root, detached (it survives a dropped SSH session):
+#   systemd-run --unit=gbgo-sid-upgrade --collect /usr/local/sbin/gbgo-sid-upgrade
+# Logs to /var/log/gbgo-sid-upgrade.log. Does not reboot.
+set -e
+LOG=/var/log/gbgo-sid-upgrade.log
+exec >> "$LOG" 2>&1
+echo "=== $(date '+%F %T') start"
+KEEP=linux-image-6.12.111+deb13-arm64
+[ -x /etc/initramfs-tools/hooks/gbgo-firmware ] || { echo "FAILED: gbgo-firmware hook missing"; exit 1; }
+[ -f /boot/gbgo-known-good/initrd.img-6.12.111+deb13-arm64 ] || { echo "FAILED: no known-good initramfs"; exit 1; }
+
+# 1. holds
+HOLD=$(dpkg-query -W -f '${Package}\n' 'grub*' 'shim*' 2>/dev/null | while read -r p; do
+  dpkg-query -W -f '${Status}' "$p" 2>/dev/null | grep -q 'install ok installed' && echo "$p"; done)
+# shellcheck disable=SC2086
+apt-mark hold $HOLD $KEEP
+for p in $HOLD $KEEP; do apt-mark showhold | grep -qx "$p" || { echo "FAILED: $p not held"; exit 1; }; done
+echo "held: $(apt-mark showhold | tr '\n' ' ')"
+
+# 2. sources
+if ! grep -q '^deb .* sid ' /etc/apt/sources.list; then
+  cp -a /etc/apt/sources.list /etc/apt/sources.list.trixie
+  cat > /etc/apt/sources.list <<'SRC'
+deb http://deb.debian.org/debian/ sid main non-free-firmware
+deb-src http://deb.debian.org/debian/ sid main non-free-firmware
+SRC
+fi
+cat /etc/apt/sources.list
+
+# 3. upgrade
+export DEBIAN_FRONTEND=noninteractive APT_LISTBUGS_FRONTEND=none NEEDRESTART_MODE=l
+apt-get update
+apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold full-upgrade
+echo "=== $(date '+%F %T') upgrade finished"
+
+# 4. checks (report, don't fail: the system is already upgraded)
+dpkg-query -W -f '${Package} ${Version}\n' grub-efi-arm64 grub-common shim-signed initramfs-tools systemd gnome-shell
+dpkg -l 'linux-image-*' | awk '/^ii/ {print $2, $3}'
+apt-mark showhold
+ls -l /boot
+for i in /boot/initrd.img-*; do
+  [ -L "$i" ] && continue
+  echo "$i: zap=$(lsinitramfs "$i" | grep -c qcdxkmsuc7180) a630=$(lsinitramfs "$i" | grep -c -E 'a630_(sqe|gmu)')"
+done
+update-grub
+grub-script-check /boot/grub/grub.cfg && echo "grub.cfg OK"
+grep 'set default="gbgo' /boot/grub/grub.cfg
+grep -E '^menuentry' /boot/grub/grub.cfg | cut -d"'" -f2
+sync
+echo "=== $(date '+%F %T') done"

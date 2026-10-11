@@ -12,6 +12,14 @@
 #   counter reads 1970-01-03 (Samsung's firmware keeps the offset elsewhere), so
 #   the kernel set the system clock to 1970 at every boot until NTP. Off is
 #   better than wrong; the clock comes from systemd-timesyncd.)
+#  4. backlight: Samsung's panel config (GPU0._ROM XML: BacklightType 1,
+#     PmicControlType 3, PmicNum 2, 6250 Hz) = PWM from the PM6150L LPG. The
+#     firmware leaves LPG3 running at 100% and routes it out on PM6150L gpio6
+#     (func1); the draft DTB disables the LPG, so there is no brightness control.
+#     Enable the LPG and add pwm-backlight on channel index 2 (LPG3), not linked
+#     to the panel node (a failed backlight probe must not hold back the panel).
+#     UNTESTED: only applied with GBGO_BACKLIGHT=1. The bridge PWM (pwmchip0,
+#     ti_sn65dsi86.pwm) was tested live 2026-10-11 and does not change brightness.
 #  3. lid: no node at all. ACPI LID0 returns the raw level of GPIO 93
 #     (1 = open), so SW_LID on TLMM 93, active low.
 set -e
@@ -22,7 +30,10 @@ trap 'rm -rf "$T"' EXIT
 dtc -q -I dtb -O dts -o "$T/in.dts" "$IN"
 TLMM=$(awk '/pinctrl@3500000 \{/{f=1} f&&/phandle = </{gsub(/.*<|>.*/,""); print; exit}' "$T/in.dts")
 [ -n "$TLMM" ] || { echo "TLMM phandle not found" >&2; exit 1; }
-awk -v t="$TLMM" '
+# a phandle no node uses yet, for the LPG
+LPGPH=$(printf '0x%x' $(( $(grep -o 'phandle = <0x[0-9a-f]*>' "$T/in.dts" | sed 's/.*<\(0x[0-9a-f]*\)>/\1/' | sort -u | while read -r h; do printf '%d\n' "$h"; done | sort -n | tail -1) + 1 )))
+BL=${GBGO_BACKLIGHT:-0}
+awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" '
   # 3. lid switch: a new top-level node, just before the root node closes
   #    (dtc wants a node'"'"'s properties before its subnodes)
   /^\};$/ && !lid { lid=1
@@ -36,7 +47,19 @@ awk -v t="$TLMM" '
     print "\t\t\tlinux,code = <0x00>;"
     print "\t\t};"
     print "\t};"
+    if (bl == 1) {
+      print ""
+      print "\tbacklight {"
+      print "\t\tcompatible = \"pwm-backlight\";"
+      print "\t\tpwms = <" lpgph " 0x02 0x27100>;"
+      print "\t};"
+    }
     print; next }
+  # 4. backlight: enable the PM6150L LPG and give it a phandle
+  /^\t*pwm \{$/ {pwmn=1; pwmd=""}
+  pwmn && /compatible = "qcom,pm6150l-lpg"/ {pwmd=1}
+  bl == 1 && pwmn && pwmd && /status = "disabled";/ { sub("\"disabled\"", "\"okay\""); print; print "\t\t\t\t\tphandle = <" lpgph ">;"; pwmn=0; next }
+  pwmn && /^\t*\};/ {pwmn=0}
   # 1. keyboard IRQ + its pin config
   /keyboard@5 \{/ {k=1}
   k && /interrupts-extended = </ { sub("<" t " 0x30 0x08>", "<" t " 0x68 0x08>") }
@@ -51,10 +74,11 @@ awk -v t="$TLMM" '
   pon && /status = "disabled";/ { next }
   {print}' "$T/in.dts" > "$T/out.dts"
 diff -u "$T/in.dts" "$T/out.dts" || true
-# exactly the expected edits: +13 (3 keyboard, 10 lid lines)
-#                              -4 (3 keyboard, pon status)
+# exactly the expected edits: +13 (3 keyboard, 10 lid) -4 (3 keyboard, pon status),
+# plus +7 -1 with GBGO_BACKLIGHT=1 (2 lpg, 5 backlight; lpg status)
 add=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>' || true)
 del=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^<' || true)
-[ "$add" = 13 ] && [ "$del" = 4 ] || { echo "unexpected diff: +$add -$del (want +13 -4)" >&2; exit 1; }
+want_add=13; want_del=4; [ "$BL" = 1 ] && want_add=20 && want_del=5
+[ "$add" = "$want_add" ] && [ "$del" = "$want_del" ] || { echo "unexpected diff: +$add -$del (want +$want_add -$want_del)" >&2; exit 1; }
 dtc -q -I dts -O dtb -o "$OUT" "$T/out.dts"
 echo "wrote $OUT"

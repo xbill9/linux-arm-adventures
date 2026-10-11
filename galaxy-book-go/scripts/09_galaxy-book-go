@@ -6,7 +6,8 @@
 # re-runs on every update-grub (kernel upgrades).
 # Entry ids per kernel:
 #   gbgo-<kver>         normal
-#   gbgo-safe-<kver>    no msm, no DSPs
+#   gbgo-safe-<kver>    no msm, no DSPs, and the saved known-good initramfs
+#                       (/boot/gbgo-known-good/initrd.img-<kver>) when there is one
 #   gbgo-debug-<kver>   verbose
 #   gbgo-fwtest-<kver>  only while /usr/lib/firmware-gbgo-test exists
 #   gbgo-dtbtest-<kver> only while <dtb>.test exists: that DTB instead
@@ -29,6 +30,9 @@ for K in $(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V -r); do
   V=${K#/boot/vmlinuz-}
   I=/boot/initrd.img-$V
   [ -f "$I" ] || continue
+  # SAFE boots the saved known-good initramfs when there is one
+  KG=/boot/gbgo-known-good/initrd.img-$V
+  SI=$I; [ -f "$KG" ] && SI=$KG
   echo "Found Galaxy Book Go entry: $V" >&2
   kinds="normal safe debug"; [ -d $FWTEST_DIR ] && kinds="$kinds fwtest"
   [ -f "$DTB.test" ] && kinds="$kinds dtbtest"
@@ -42,7 +46,7 @@ for K in $(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V -r); do
 menuentry '$title' --id $id {
 $DEV
 	linux	$(make_system_path_relative_to_its_root "$K") root=UUID=${GRUB_DEVICE_UUID} ro ${GRUB_CMDLINE_LINUX} $ARGS $extra
-	initrd	$(make_system_path_relative_to_its_root "$I")
+	initrd	$(if [ $kind = safe ]; then make_system_path_relative_to_its_root "$SI"; else make_system_path_relative_to_its_root "$I"; fi)
 	devicetree	$(if [ $kind = dtbtest ]; then echo "$D.test"; else echo "$D"; fi)
 }
 ENTRY
