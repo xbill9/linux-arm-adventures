@@ -1,6 +1,7 @@
 ---
-title: "Debian sid on a Samsung Galaxy Book Go, Written on the Galaxy Book Go"
+title: "Debian on a Samsung Galaxy Book Go, Written on the Galaxy Book Go"
 published: false
+series: Linux
 description: "A step by step guide to Debian sid with kernel 7.2 and GNOME on the Snapdragon 7c Gen 2 Galaxy Book Go, a laptop with no upstream device tree. Firmware from the Windows driver store, a keyboard interrupt read out of Samsung's ACPI tables, and an article written, checked and built on the machine it describes."
 tags: linux, debian, arm64, laptop
 cover_image: https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/cover.32c31be5.jpg
