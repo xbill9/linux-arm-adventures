@@ -13,8 +13,12 @@ Run on the DTB gbgo-dtb-patch produced. Prints the dts diff. Sources:
     20 as outputs. 20 is the display bridge regulator in this tree, so the amp
     enable is taken to be 21. Modelled as a MAX98357A, as on the Aspire 1.
   * I2S: primary MI2S for the codec, tertiary for the amp. The kernel's
-    qcom,sc7180-qdsp6-sndcard driver handles exactly these two (Aspire 1 layout).
-    UNVERIFIED on this machine: Samsung's driver config was not available.
+    qcom,sc7180-qdsp6-sndcard driver handles exactly these two. Samsung's ACDB
+    (Speaker_cal.acdb, Headset_cal.acdb in the qcacsp_ss7180 driver) confirms the
+    ports: SPEAKER_OUT on 0x1004 (TERTIARY_MI2S_RX), HEADSET_SPKR_STEREO on
+    0x1000 (PRIMARY_MI2S_RX), with identical I2S fields. Primary RX uses sd line 1
+    (TLMM 56, measured), so tertiary RX uses sd line 1 too (TLMM 66); the Aspire
+    1's sd line 0 on tertiary gave data on TLMM 65 and a silent speaker.
 """
 import re, subprocess, sys, tempfile, os, shutil, atexit
 
@@ -129,7 +133,7 @@ for name, node, block in [
 # 3. MI2S ports on the ADSP: primary RX/TX, tertiary RX
 add_child(AFE, "dai@16 {\n\treg = <0x10>;\n\tqcom,sd-lines = <0x01>;\n};")
 add_child(AFE, "dai@17 {\n\treg = <0x11>;\n\tqcom,sd-lines = <0x00>;\n};")
-add_child(AFE, "dai@20 {\n\treg = <0x14>;\n\tqcom,sd-lines = <0x00>;\n};")
+add_child(AFE, "dai@20 {\n\treg = <0x14>;\n\tqcom,sd-lines = <0x01>;\n};")
 
 # 3b. front ends on the ADSP: one dai@N per MultiMedia link below. Without
 #     children q6asm-dai fails ("No dais found in DT") and the card never binds.

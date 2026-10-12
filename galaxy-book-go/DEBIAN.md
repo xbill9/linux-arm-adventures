@@ -61,7 +61,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 - 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
 
-## Audio (card works, speakers silent, 2026-10-12 14:10)
+## Audio (third test boot armed, 2026-10-12 14:28)
 
 User report: no sound at all. `aplay -l`: no soundcards; `adsp` remoteproc offline.
 
@@ -121,6 +121,30 @@ What it isn't, from an I2C scan (`i2cdetect -r`) checked against the DSDT's deco
 - Samsung's Windows audio packages (the `SAMM0811`/`SAMM0813` children of `AUDD`, and the Qualcomm audio driver) record the port layout. They are in `GBGo-Drivers/` on the PNY `WIN11ARM` stick ([win11-stick/README.md](win11-stick/README.md)), not on this machine.
 
 The DSDT was rebuilt into `acpi-local/` from `/root/gbgo-efishell-20261011-124435/gbgo-shell/acpi/mem.txt` (the earlier copy had been lost).
+
+### Samsung's Windows audio config (14:25)
+
+From the drivers harvested onto the PNY stick (`GBGo-Drivers/`, copied to the git-ignored `firmware-local/win-audio/`):
+
+- `qcauddev_sec7180.inf` (`ADCM\VEN_SAMM&DEV_0812&SUBSYS_C199144D`): `ExternalSpeakerCodec = 0` for speaker device `0x45` (a plain I2S amp, no codec), `ExternalHeadsetCodec = 1` for `0x0A`/`0x08` (the RT5682). The speaker's power sequence enables PEP component `0x0B`, then sets **both** `AUDD` GPIOs (index 0 = TLMM 21, index 1 = TLMM 20). Both read high here already.
+- `qcacsp_ss7180` holds the ACDB (`Speaker_cal.acdb`, `Headset_cal.acdb`, …, `QCMSNDDB` chunk files; `workspaceFile.qwsp` is encrypted). `DPROPLUT` maps device, property and `DATAPOOL` offset; property `0x113b7` is the device's port record:
+
+| Device | Name | Port | Fields after the port |
+|---|---|---|---|
+| `0x45` | `SPEAKER_OUT` | `0x1004` TERTIARY_MI2S_RX | `2 1 1 3 2 0 100 1 0` |
+| `0x0a` | `HEADSET_SPKR_STEREO` | `0x1000` PRIMARY_MI2S_RX | `2 1 1 3 2 0 500 1 0` |
+| `0x09` | `HEADSET_SPKR_MONO` | `0x1000` PRIMARY_MI2S_RX | `1 0 1 1 1 0 100 1 0` |
+| `0x08` | `HEADSET_MIC` | `0x1007` **QUATERNARY_MI2S_TX** | `1 1 1 1 1 0 100 2 0` |
+
+The ports in the audio DTB are right for playback. The speaker's I2S fields equal the headset's, while the DTB had primary RX on sd line 1 and tertiary RX on sd line 0 (the Aspire 1's). The field meanings are not decoded; the inference is "same config as primary", i.e. sd line 1. The headset mic is on quaternary MI2S, not primary TX as in the DTB.
+
+### Third test boot armed (14:28)
+
+- [scripts/gbgo-dtb-audio.py](scripts/gbgo-dtb-audio.py): `dai@20` (tertiary RX) `qcom,sd-lines` `<0>` → `<1>`. The rebuilt DTB differs from the second test DTB by that one line.
+- `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `dcec14ea0cd6c37b…`, same on the raw disk. The previous one is `….test.sd0` (`e69a154a6b31eb65…`). `gbgo-boot-verify`: all checks pass.
+- `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
+
+Expected: speaker data on TLMM 66 and sound from the speakers. After boot: `wpctl set-profile <card> 1` (Pro Audio), then `sudo /usr/local/sbin/gbgo-audio-check play`. Untested.
 
 ## Brightness (in progress, 13:20)
 
