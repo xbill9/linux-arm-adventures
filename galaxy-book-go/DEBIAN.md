@@ -261,6 +261,13 @@ Fix 7 in [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch): a `gpio-hog` under th
 
 Expected: `/sys/class/power_supply/sbs-4-000b`, the camera on `1-1.4`, `/sys/class/backlight/backlight` with the screen still lit. Untested. If the backlight takes the wrong channel the screen can go dark; the next power cycle boots the default.
 
+### Test boot (17:49): battery, camera and backlight devices all present
+
+- Battery: `battery@b` in `/proc/device-tree`, `sbs-4-000b` registered, capacity 30 % (27 % at 17:45), UPower `pending-charge`. 3 `driver failed to report 'charge_full'/'energy_full' property: -6` in the first minute, none in the next 20 s. **Charge state is wrong**: `CURRENT_NOW` (SBS `0x0a`) reads 0 on every read and `BatteryStatus` reads `0x00c0` (initialized, discharging), so the status is `Not charging` while the charge rose from 27 % to 30 %. `AverageCurrent` (`0x0b`) reads `0x0029`…`0x0024` (41…36 mA). No AC adapter device.
+- Camera: `1-1.4` Chicony `04f2:b72f` enumerated at boot, `uvcvideo` bound, runtime-suspended while idle.
+- Backlight: `/sys/class/backlight/backlight`, `max_brightness` 4095, brightness 2048. The screen is lit. Whether brightness changes the screen: not yet checked by eye.
+- 31 kernel warnings at `-p warning` (26 on the default DTB). `running`, no failed units.
+
 ## Brightness (in progress, 13:20)
 
 No `/sys/class/backlight`. Findings:
