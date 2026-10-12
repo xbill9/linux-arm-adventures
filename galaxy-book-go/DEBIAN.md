@@ -61,6 +61,30 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 - 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
 
+## Audio (test boot armed, 2026-10-12 12:51)
+
+User report: no sound at all. `aplay -l`: no soundcards; `adsp` remoteproc offline.
+
+What the hardware is, from Samsung's ACPI tables (`acpi-local/tables/dsdt.dsl`) and the Aspire 1 device tree (same SoC, upstream audio):
+
+| Part | Galaxy Book Go (ACPI) | Acer Aspire 1 (upstream DT) |
+|---|---|---|
+| Headset codec | `RTK0` = `10EC5682` on `IC10` (`0xa8c000`) at `0x1a`, 400 kHz, `GpioInt` edge on virtual pin `0x100` = TLMM 43, supply `LDO15_A` 1.8 V (PEP) | `realtek,rt5682i` on `i2c@a8c000` at `0x1a`, IRQ TLMM 28, `ldo15` |
+| Speaker amp | `WSAR` = `SAM0609`, no bus address; `AUDD` drives TLMM 21 and 20 as outputs | `maxim,max98357a`, sdmode TLMM 23 |
+| I2S | not determinable: the boot firmware leaves every MI2S pin in `func0` | primary MI2S → codec, tertiary MI2S → amp |
+
+The draft DTB has `i2c@a8c000` disabled, no codec, no amp, no sound card, and the ADSP region of the Aspire 1. TLMM 20 is the display bridge regulator in this DTB, so the amp enable is taken to be TLMM 21.
+
+[scripts/gbgo-dtb-audio.py](scripts/gbgo-dtb-audio.py) builds the audio DTB from the installed one (+125 −2 lines): ADSP region `0x8e400000` grown to `0x5500000` (ends at `wlan@93900000`, covers Samsung's `0x90b00000`–`0x93900000`), `i2c@a8c000` on with the RT5682, a MAX98357A on TLMM 21, MI2S ports 16/17/20 on `q6afe`, and a `qcom,sc7180-qdsp6-sndcard` with the Aspire 1's links. That driver handles exactly primary + tertiary MI2S, which is why the Aspire 1 layout is the first guess. **The port mapping is unverified.**
+
+Armed (12:51), nothing booted yet:
+
+- `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = the audio DTB (`df6fe4baff4d43aa…`, same on the raw disk). The 2026-10-11 backlight test DTB is kept as `….dtb.test.backlight`.
+- `qcadsp7180.mbn` (`d795ab4f25f3e477…`) installed in `/usr/lib/firmware/qcom/sc7180/samsung/galaxy-book-go/`. On the default DTB the ADSP now fails at boot with `segment outside memory range` (tested harmless 2026-10-11).
+- `update-grub`: `gbgo-dtbtest-7.2.9+deb14-arm64` uses the `.test` DTB. `grub-script-check` and `gbgo-boot-verify` pass.
+
+Test: `sudo grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64`, flush, reboot. Then `sudo gbgo-audio-check play` ([scripts/gbgo-audio-check](scripts/gbgo-audio-check)): ADSP state, codec and card probe, routes MultiMedia1 to both MI2S ports, plays a tone. A hang or a reset falls back to the default entry on the next power cycle.
+
 ## Brightness (in progress, 13:20)
 
 No `/sys/class/backlight`. Findings:

@@ -47,6 +47,8 @@ The modem powers up a few ms after `rmtfs`/`tqftpserv` start. When it asks for `
 
 ## Audio DSP: wrong reserved memory
 
+2026-10-12: a DTB with the region grown to cover Samsung's layout is armed for a one-time boot; `qcadsp7180.mbn` is now installed. See [DEBIAN.md](DEBIAN.md#audio-test-boot-armed-2026-10-12-1251).
+
 | | Firmware loads at | DTB reserves |
 |---|---|---|
 | ADSP | `0x90b00000`–`0x93900000` | `adsp@8e400000`, size `0x2800000` (to `0x90c00000`) |
