@@ -61,7 +61,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 - 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
 
-## Audio (speakers work on the test DTB, 2026-10-12 16:59)
+## Audio (speakers work; audio DTB is the default, 2026-10-12 17:12)
 
 User report: no sound at all. `aplay -l`: no soundcards; `adsp` remoteproc offline.
 
@@ -187,6 +187,8 @@ Fix, 16:59:
 - [system/wireplumber/51-gbgo-audio.conf](system/wireplumber/51-gbgo-audio.conf) → `/etc/wireplumber/wireplumber.conf.d/`: card profile `pro-audio`, and the output node opened as `S16LE`, 2 channels, `FL FR`, named `Speakers`. After restarting PipeWire and WirePlumber, `hw_params` reads `S16_LE`, 2 channels, and a tone through the default sink plays from the speakers (user).
 - `TERT_MI2S_RX Audio Mixer MultiMedia1` on, saved with `alsactl store` (`alsa-restore.service` restores it). **Not yet verified across a reboot.**
 - Audio works on the test DTB only; the default DTB has no sound card.
+
+Default, 17:12: `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` = the audio DTB (`d5ce6f87d7a1058d…`), same on the raw disk; the previous default is `….dtb.noaudio` (`8012d6d42635b0e3…`). `gbgo-boot-verify`: all checks pass. The 6.12 entries use the same DTB, and their initrds have no ADSP firmware, so the ADSP stays offline there. **Booting the audio DTB as the default and on 6.12 is not yet verified.** Recovery: pick a 6.12 entry or edit the entry's `devicetree` line to `….dtb.noaudio` in GRUB.
 
 ## Brightness (in progress, 13:20)
 
