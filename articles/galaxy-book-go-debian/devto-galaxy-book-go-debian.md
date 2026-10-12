@@ -324,4 +324,4 @@ The strategy for bringing up Debian on the Galaxy Book Go was validated with an 
 - Debian on the Yoga C630, the companion article: [c630-debian](https://github.com/xbill9/linux-arm-adventures/tree/main/articles/c630-debian)
 - Bring-up history: [aarch64-laptops/debian-cdimage#21](https://github.com/aarch64-laptops/debian-cdimage/issues/21)
 - Current community status: [velvet-os/imagebuilder#136](https://github.com/velvet-os/imagebuilder/issues/136)
-- Draft device tree: [hexdump0815/linux-mainline-qcom-kernel](https://github.com/hexdump0815/linux-mainline-qcom-kernel/blob/main/readme.qc7)
+- Draft device tree and kernel notes (`readme.qc7`): [hexdump0815/linux-mainline-qcom-kernel](https://github.com/hexdump0815/linux-mainline-qcom-kernel)
