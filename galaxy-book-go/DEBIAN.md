@@ -191,7 +191,7 @@ Default, 17:12: `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` = the audio DTB (`
 
 ### First default boot (17:13)
 
-Kernel 7.2.9 on the audio DTB as the default entry: `adsp` up at 7.8 s from the initramfs, BOB `enabled` at 3320 mV (`use 1`), card 0 `SamsungGalaxyBo`, `TERT_MI2S_RX Audio Mixer MultiMedia1` restored `on`, PipeWire's default sink `Speakers`. Sound from the speakers after this reboot not yet confirmed by ear.
+Kernel 7.2.9 on the audio DTB as the default entry: `adsp` up at 7.8 s from the initramfs, BOB `enabled` at 3320 mV (`use 1`), card 0 `SamsungGalaxyBo`, `TERT_MI2S_RX Audio Mixer MultiMedia1` restored `on`, PipeWire's default sink `Speakers`. Sound from the speakers after the reboot (user, 17:30).
 
 Still open: headphones (RT5682 on primary MI2S, `HPOL`/`HPOR` muted by default), the internal mic (quaternary MI2S TX per Samsung's ACDB; the DTB has primary TX), and whether BOB is needed.
 
@@ -222,12 +222,21 @@ So YouTube in a browser decodes in software: the Chrome renderer at 47–81 % CP
 
 | Driver | Seen | State |
 |---|---|---|
-| `ti_sn65dsi86` (display bridge) | `irq 147: nobody cared`, IRQ on TLMM 11 disabled after 100,001 interrupts; `Failed to read IRQ status: -6`; `geni_i2c 880000.i2c: Bus arbitration lost` on its bus | Every boot. The panel works; only bridge hotplug interrupts are lost. Probably another wrong IRQ pin, like the keyboard's. Not yet looked up in the DSDT |
+| `ti_sn65dsi86` (display bridge) | `irq 147: nobody cared`, IRQ on TLMM 11 disabled after 100,001 interrupts; `Failed to read IRQ status: -6`; `geni_i2c 880000.i2c: Bus arbitration lost` on its bus | Every boot. The panel works. Fix under test: see "Display bridge IRQ" |
 | `ath10k_snoc` | `chan info: invalid frequency 0 (idx 41 out of bounds)`, twice per boot; `invalid MAC address; choosing random` | Wi-Fi works. The MAC changes every boot |
 | `qcom-qmp-combo-phy` | `unable to determine orientation & mode from data-lanes` | USB-C needs the device plugged at boot (no UCSI node) |
 | `rt5682` | `supply VBAT/MICVDD not found, using dummy regulator` | Probes; headphones untested |
 
 Missing entirely (no node in the DTB): battery and charger, brightness (no backlight device), camera.
+
+## Display bridge IRQ (test boot armed, 17:34)
+
+The draft keeps the Aspire 1's bridge interrupt: `ti,sn65dsi86` on `tlmm 11`, `IRQ_TYPE_LEVEL_HIGH`, with pin config `edp-bridge-irq-default-state` (pull-down). On this board GPIO 11 reads `in high` with that pull-down, so the level interrupt never clears and the kernel disables it at every boot (`irq 147: nobody cared`, 100,001 counts). Samsung's DSDT has no GPIO interrupt for the bridge: the only GPIO descriptors near the display are `MON0` `GpioIo` 36 (`acpi-gpioint.py`). The panel has run with the IRQ disabled since the first boot.
+
+Fix 5 in [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch): the bridge node loses `interrupt-parent`, `interrupts` and the IRQ pin config from `pinctrl-0`. The rebuilt default chain (`gbgo-dtb-patch` on `.dtb.orig`, then `gbgo-dtb-audio.py`) reproduces the current default byte for byte without fix 5 (`d5ce6f87d7a1058d…`); with it, the DTB differs by those three lines only.
+
+- `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `a547e6a4bf115e62…`, same on the raw disk. `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
+- Expected: no `nobody cared`, no `0-002c` line in `/proc/interrupts`, no `Failed to read IRQ status`, display as before. Untested. A black screen falls back to the default entry on the next power cycle.
 
 ## Brightness (in progress, 13:20)
 

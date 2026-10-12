@@ -22,18 +22,27 @@
 #     ti_sn65dsi86.pwm) was tested live 2026-10-11 and does not change brightness.
 #  3. lid: no node at all. ACPI LID0 returns the raw level of GPIO 93
 #     (1 = open), so SW_LID on TLMM 93, active low.
+#  5. display bridge IRQ: the draft keeps the Aspire 1's ti,sn65dsi86 interrupt
+#     on TLMM 11, level-high. Here GPIO 11 reads high with its pull-down, so the
+#     IRQ never clears ("irq N: nobody cared", disabled after 100,001 at every
+#     boot). Samsung's ACPI declares no GPIO interrupt for the bridge (the eDP
+#     panel needs none), so the bridge loses interrupts-parent/interrupts and
+#     the irq pin config from pinctrl-0; the driver then runs without an IRQ.
 set -e
 IN=$1; OUT=$2
 [ -f "$IN" ] && [ -n "$OUT" ] || { sed -n '2,3p' "$0"; exit 1; }
 T=$(mktemp -d)
 trap 'rm -rf "$T"' EXIT
 dtc -q -I dtb -O dts -o "$T/in.dts" "$IN"
+# the bridge IRQ pin config's phandle (fix 5)
+BIRQ=$(awk '/edp-bridge-irq-default-state \{/{f=1} f&&/phandle = </{gsub(/.*<|>.*/,""); print; exit}' "$T/in.dts")
+[ -n "$BIRQ" ] || { echo "bridge irq pin config not found" >&2; exit 1; }
 TLMM=$(awk '/pinctrl@3500000 \{/{f=1} f&&/phandle = </{gsub(/.*<|>.*/,""); print; exit}' "$T/in.dts")
 [ -n "$TLMM" ] || { echo "TLMM phandle not found" >&2; exit 1; }
 # a phandle no node uses yet, for the LPG
 LPGPH=$(printf '0x%x' $(( $(grep -o 'phandle = <0x[0-9a-f]*>' "$T/in.dts" | sed 's/.*<\(0x[0-9a-f]*\)>/\1/' | sort -u | while read -r h; do printf '%d\n' "$h"; done | sort -n | tail -1) + 1 )))
 BL=${GBGO_BACKLIGHT:-0}
-awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" '
+awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" -v birq="$BIRQ" '
   # 3. lid switch: a new top-level node, just before the root node closes
   #    (dtc wants a node'"'"'s properties before its subnodes)
   /^\};$/ && !lid { lid=1
@@ -68,17 +77,25 @@ awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" '
   p && /pins = "gpio48";/ { sub("gpio48", "gpio104") }
   p && /bias-disable;/ { sub("bias-disable", "bias-pull-up") }
   p && /^\t*\};/ {p=0}
+  # 5. display bridge: no IRQ
+  /bridge@2c \{/ {br=1}
+  br && /^\t*interrupt-parent = </ { next }
+  br && /^\t*interrupts = </ { next }
+  br && /pinctrl-0 = </ { sub(" " birq " ", " "); sub("<" birq " ", "<"); sub(" " birq ">", ">") }
+  br && /^\t*(aux-bus|ports) \{/ {br=0}
+  br && /^\t*\};/ {br=0}
   # 2. power button: drop pon@800 status = "disabled" (resin keeps its own)
   /pon@800 \{/ {pon=1}
   pon && /^\t*(pwrkey|resin) \{/ {pon=0}
   pon && /status = "disabled";/ { next }
   {print}' "$T/in.dts" > "$T/out.dts"
 diff -u "$T/in.dts" "$T/out.dts" || true
-# exactly the expected edits: +13 (3 keyboard, 10 lid) -4 (3 keyboard, pon status),
+# exactly the expected edits: +14 (3 keyboard, 10 lid, 1 bridge pinctrl)
+# -7 (3 keyboard, pon status, 3 bridge),
 # plus +7 -1 with GBGO_BACKLIGHT=1 (2 lpg, 5 backlight; lpg status)
 add=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>' || true)
 del=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^<' || true)
-want_add=13; want_del=4; [ "$BL" = 1 ] && want_add=20 && want_del=5
+want_add=14; want_del=7; [ "$BL" = 1 ] && want_add=21 && want_del=8
 [ "$add" = "$want_add" ] && [ "$del" = "$want_del" ] || { echo "unexpected diff: +$add -$del (want +$want_add -$want_del)" >&2; exit 1; }
 dtc -q -I dts -O dtb -o "$OUT" "$T/out.dts"
 echo "wrote $OUT"
