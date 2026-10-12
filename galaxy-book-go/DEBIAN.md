@@ -297,7 +297,9 @@ Not yet tested: the stop path, unplugging and replugging the adapter, charging t
 
 On the test DTB, `pwm-backlight` drives LPG3 (index 2): the slider changes `/sys/class/backlight/backlight` and LPG3's registers follow (`0xb341` `0x13`, `0xb342` `0x21` = 19.2 MHz, 9-bit, pre-divider 3, exponent 1 = 160 µs; `0xb344` duty `0x5e`), and the screen does not change (user). `/sys/kernel/debug/pwm` misreports LPG3's actual state as `19688/19688 ns`.
 
-LPG4 (index 3, not requested by Linux) is running from the boot firmware: `enabled, 80000/159688 ns`, 50 %. Exported through `/sys/class/pwm/pwmchip1` and set to 40000 ns (25 %) at 18:11. Whether the screen dimmed: waiting on the user.
+LPG4 (index 3, not requested by Linux) is running from the boot firmware: `enabled, 80000/159688 ns`, 50 %. Exported through `/sys/class/pwm/pwmchip1`. At 25 % the user could not tell. Switched between 8000 ns (5 %) and 159688 ns (100 %) every 2 s for 80 s: **the screen got brighter and darker** (user, 18:13). LPG4 is the backlight.
+
+Test boot armed (18:14): `gbgo-dtb-patch` fix 4 now puts `pwm-backlight` on index 3 (LPG4). `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `5c08a26797f4c591…`, same on the raw disk; it differs from the 17:49 test DTB (now `….test.lpg3`, `edbc2a9eeae7e0e4…`) by `pwms = <… 0x02 …>` → `0x03` only. `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set. Expected: the GNOME slider changes the screen. Untested.
 
 Since the camera hog, the camera probes first: it is `/dev/video0` and `video1`, Venus `video2` and `video3`.
 
