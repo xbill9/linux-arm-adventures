@@ -41,7 +41,7 @@ galaxy-book-go/
   FIRMWARE.md                 Samsung firmware from the Windows DriverStore: tested staging, one-time GRUB test, Wi-Fi boot race, ADSP memory
   AUDIT-2026-10-11.md         drivers / firmware / hardware / system-tools audit of the Debian install
   scripts/                    09_galaxy-book-go (GRUB generator with the DTB), gbgo-fix-boot.sh (applies it from rescue), gbgo-firmware, gbgo-wifi-kick, gbgo-bt-addr, gbgo-dtb-patch, gbgo-sid-upgrade, gbgo-boot-verify, acpi-*.py
-  system/                     61-gbgo-keyboard.rules (keyboard tagged as a tablet pad), gbgo-wifi-kick.service, gbgo-bt-addr.service,
+  system/                     61-gbgo-keyboard.rules (keyboard tagged as a tablet pad), gbgo-wifi-kick.service, gbgo-bt-addr.service, zram-generator.conf,
                               logind/ (lid locks until suspend is tested), gschema/ (power button shows the dialog)
   efi-shell/                  startup.nsh: ACPI dump from the UEFI shell
   initramfs/                  gbgo-firmware hook (GPU firmware into the initramfs)
