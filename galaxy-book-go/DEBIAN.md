@@ -222,21 +222,22 @@ So YouTube in a browser decodes in software: the Chrome renderer at 47–81 % CP
 
 | Driver | Seen | State |
 |---|---|---|
-| `ti_sn65dsi86` (display bridge) | `irq 147: nobody cared`, IRQ on TLMM 11 disabled after 100,001 interrupts; `Failed to read IRQ status: -6`; `geni_i2c 880000.i2c: Bus arbitration lost` on its bus | Every boot. The panel works. Fix under test: see "Display bridge IRQ" |
+| `ti_sn65dsi86` (display bridge) | `irq 147: nobody cared`, IRQ on TLMM 11 disabled after 100,001 interrupts; `Failed to read IRQ status: -6`; `geni_i2c 880000.i2c: Bus arbitration lost` on its bus | Fixed 17:41: see "Display bridge IRQ" |
 | `ath10k_snoc` | `chan info: invalid frequency 0 (idx 41 out of bounds)`, twice per boot; `invalid MAC address; choosing random` | Wi-Fi works. The MAC changes every boot |
 | `qcom-qmp-combo-phy` | `unable to determine orientation & mode from data-lanes` | USB-C needs the device plugged at boot (no UCSI node) |
 | `rt5682` | `supply VBAT/MICVDD not found, using dummy regulator` | Probes; headphones untested |
 
 Missing entirely (no node in the DTB): battery and charger, brightness (no backlight device), camera.
 
-## Display bridge IRQ (test boot armed, 17:34)
+## Display bridge IRQ (fixed, default 17:41)
 
 The draft keeps the Aspire 1's bridge interrupt: `ti,sn65dsi86` on `tlmm 11`, `IRQ_TYPE_LEVEL_HIGH`, with pin config `edp-bridge-irq-default-state` (pull-down). On this board GPIO 11 reads `in high` with that pull-down, so the level interrupt never clears and the kernel disables it at every boot (`irq 147: nobody cared`, 100,001 counts). Samsung's DSDT has no GPIO interrupt for the bridge: the only GPIO descriptors near the display are `MON0` `GpioIo` 36 (`acpi-gpioint.py`). The panel has run with the IRQ disabled since the first boot.
 
 Fix 5 in [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch): the bridge node loses `interrupt-parent`, `interrupts` and the IRQ pin config from `pinctrl-0`. The rebuilt default chain (`gbgo-dtb-patch` on `.dtb.orig`, then `gbgo-dtb-audio.py`) reproduces the current default byte for byte without fix 5 (`d5ce6f87d7a1058d…`); with it, the DTB differs by those three lines only.
 
 - `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `a547e6a4bf115e62…`, same on the raw disk. `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
-- Expected: no `nobody cared`, no `0-002c` line in `/proc/interrupts`, no `Failed to read IRQ status`, display as before. Untested. A black screen falls back to the default entry on the next power cycle.
+- Test boot (17:35): no `interrupts` in the bridge node (`/proc/device-tree`), no `0-002c` line in `/proc/interrupts`, 0 `nobody cared`, 0 `Failed to read IRQ status`, 0 `geni_i2c 880000.i2c` lines. The panel probes (`AUO B140HTN02.0`), eDP `connected`, `running`. Kernel warnings at `-p warning`: 62 on the previous boot, 26 on this one. ADSP `running`, `Speakers` sink present.
+- Default, 17:41: `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` = `a547e6a4bf115e62…`, same on the raw disk; the previous default is `….dtb.bridgeirq` (`d5ce6f87d7a1058d…`). `gbgo-boot-verify`: all checks pass. Not yet booted as the default.
 
 ## Brightness (in progress, 13:20)
 

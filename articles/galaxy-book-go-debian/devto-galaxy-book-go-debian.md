@@ -213,12 +213,13 @@ The shell dump was run first in `qemu-system-aarch64 -M virt` with AAVMF, the la
 
 ---
 
-#### Step 7 — Add the Power Button and the Lid
+#### Step 7 — Add the Power Button and the Lid, Quiet the Display Bridge
 
-The same patch script adds two more devices to the tree:
+The same patch script adds two more devices to the tree and removes one wrong interrupt:
 
 - **Power button.** The draft disables `pon@800`, so `pm8941-pwrkey` never binds. Enabling it gives `KEY_POWER` and GNOME's power-off dialog.
 - **Lid.** The draft has no node. ACPI `LID0` returns the raw level of GPIO 93, `1` for open, so a `gpio-keys` node reports `SW_LID` on TLMM 93, active low.
+- **Display bridge interrupt.** The draft gives the SN65DSI86 eDP bridge the Aspire 1's level-high interrupt on TLMM 11. GPIO 11 reads high here, so the kernel disabled it at every boot after 100,001 interrupts (`irq 147: nobody cared`), with I2C errors on the bridge's bus. Samsung's ACPI tables declare no interrupt for the bridge, so the patch removes it. Kernel warnings per boot fell from 62 to 26, and the panel works as before.
 
 Suspend is `s2idle` only. One cycle from the login screen resumed in 0.6 s, woken by Shift on the built-in keyboard, with Wi-Fi, Bluetooth and Ethernet back. Wake by lid is still missing, so closing the lid locks the screen.
 
@@ -414,7 +415,7 @@ The goal of this article was to run a current Debian with a full desktop on a la
 - 🟢 Debian sid, kernel 7.2.9 and GNOME Shell 50.5 on Wayland, with GPU acceleration, Wi-Fi, Bluetooth, keyboard, touchpad, power button and lid.
 - 🟢 The speakers play, configured from Samsung's Windows calibration: tertiary MI2S, `bob` at 3.296 V, 16-bit stereo.
 - ⚠️ The video decoder works in mpv at about a twenty-fifth of the CPU, and browsers decode in software.
-- 🟢 The keyboard interrupt flood is gone: 0 `incomplete report` lines per boot.
+- 🟢 The keyboard interrupt flood is gone: 0 `incomplete report` lines per boot. The display bridge interrupt storm is gone too.
 - 🟢 The sid upgrade left the boot path byte-identical, checked by script before each reboot.
 - 🟢 This article was written, fact-checked and built on the machine.
 - ❌ Battery, brightness and the camera need device tree work that has not started.

@@ -420,9 +420,11 @@ script searches by a marker file.</li>
 with <code>&gt;</code> redirection works.</li>
 </ul>
 <hr />
-<h4 id="step-7--add-the-power-button-and-the-lid">Step 7 — Add the Power
-Button and the Lid</h4>
-<p>The same patch script adds two more devices to the tree:</p>
+<h4
+id="step-7--add-the-power-button-and-the-lid-quiet-the-display-bridge">Step
+7 — Add the Power Button and the Lid, Quiet the Display Bridge</h4>
+<p>The same patch script adds two more devices to the tree and removes
+one wrong interrupt:</p>
 <ul>
 <li><strong>Power button.</strong> The draft disables
 <code>pon@800</code>, so <code>pm8941-pwrkey</code> never binds.
@@ -432,6 +434,13 @@ dialog.</li>
 returns the raw level of GPIO 93, <code>1</code> for open, so a
 <code>gpio-keys</code> node reports <code>SW_LID</code> on TLMM 93,
 active low.</li>
+<li><strong>Display bridge interrupt.</strong> The draft gives the
+SN65DSI86 eDP bridge the Aspire 1's level-high interrupt on TLMM 11.
+GPIO 11 reads high here, so the kernel disabled it at every boot after
+100,001 interrupts (<code>irq 147: nobody cared</code>), with I2C errors
+on the bridge's bus. Samsung's ACPI tables declare no interrupt for the
+bridge, so the patch removes it. Kernel warnings per boot fell from 62
+to 26, and the panel works as before.</li>
 </ul>
 <p>Suspend is <code>s2idle</code> only. One cycle from the login screen
 resumed in 0.6 s, woken by Shift on the built-in keyboard, with Wi-Fi,
@@ -597,7 +606,8 @@ tertiary MI2S, <code>bob</code> at 3.296 V, 16-bit stereo.</li>
 <li>⚠️ The video decoder works in mpv at about a twenty-fifth of the
 CPU, and browsers decode in software.</li>
 <li>🟢 The keyboard interrupt flood is gone: 0
-<code>incomplete report</code> lines per boot.</li>
+<code>incomplete report</code> lines per boot. The display bridge
+interrupt storm is gone too.</li>
 <li>🟢 The sid upgrade left the boot path byte-identical, checked by
 script before each reboot.</li>
 <li>🟢 This article was written, fact-checked and built on the
