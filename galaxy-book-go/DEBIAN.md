@@ -59,7 +59,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 
 - 11:46: normal entries get `loglevel=3` (`GRUB_CMDLINE_LINUX_DEFAULT`). The keyboard's `incomplete report` errors were flooding the console; `quiet` alone (loglevel 4) still shows errors. SAFE and debug entries stay verbose.
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
-- 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
+- 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. Verified across a reboot (17:13: `/dev/zram0` 3.4G, prio 100, 2.1G in use).
 
 ## Audio (speakers work; audio DTB is the default, 2026-10-12 17:12)
 
@@ -185,10 +185,49 @@ So the amp plays 16-bit stereo and stays silent on the 8-channel 24-bit stream. 
 Fix, 16:59:
 
 - [system/wireplumber/51-gbgo-audio.conf](system/wireplumber/51-gbgo-audio.conf) → `/etc/wireplumber/wireplumber.conf.d/`: card profile `pro-audio`, and the output node opened as `S16LE`, 2 channels, `FL FR`, named `Speakers`. After restarting PipeWire and WirePlumber, `hw_params` reads `S16_LE`, 2 channels, and a tone through the default sink plays from the speakers (user).
-- `TERT_MI2S_RX Audio Mixer MultiMedia1` on, saved with `alsactl store` (`alsa-restore.service` restores it). **Not yet verified across a reboot.**
-- Audio works on the test DTB only; the default DTB has no sound card.
+- `TERT_MI2S_RX Audio Mixer MultiMedia1` on, saved with `alsactl store` (`alsa-restore.service` restores it). Verified across a reboot (17:13).
 
-Default, 17:12: `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` = the audio DTB (`d5ce6f87d7a1058d…`), same on the raw disk; the previous default is `….dtb.noaudio` (`8012d6d42635b0e3…`). `gbgo-boot-verify`: all checks pass. The 6.12 entries use the same DTB, and their initrds have no ADSP firmware, so the ADSP stays offline there. **Booting the audio DTB as the default and on 6.12 is not yet verified.** Recovery: pick a 6.12 entry or edit the entry's `devicetree` line to `….dtb.noaudio` in GRUB.
+Default, 17:12: `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` = the audio DTB (`d5ce6f87d7a1058d…`), same on the raw disk; the previous default is `….dtb.noaudio` (`8012d6d42635b0e3…`). `gbgo-boot-verify`: all checks pass. The 6.12 entries use the same DTB, and their initrds have no ADSP firmware, so the ADSP stays offline there. **Booting the audio DTB on 6.12 is not yet verified.** Recovery: pick a 6.12 entry or edit the entry's `devicetree` line to `….dtb.noaudio` in GRUB.
+
+### First default boot (17:13)
+
+Kernel 7.2.9 on the audio DTB as the default entry: `adsp` up at 7.8 s from the initramfs, BOB `enabled` at 3320 mV (`use 1`), card 0 `SamsungGalaxyBo`, `TERT_MI2S_RX Audio Mixer MultiMedia1` restored `on`, PipeWire's default sink `Speakers`. Sound from the speakers after this reboot not yet confirmed by ear.
+
+Still open: headphones (RT5682 on primary MI2S, `HPOL`/`HPOR` muted by default), the internal mic (quaternary MI2S TX per Samsung's ACDB; the DTB has primary TX), and whether BOB is needed.
+
+## Video decode (17:20)
+
+Venus decodes H.264, VP8, VP9, HEVC and MPEG-2 (`v4l2-ctl --list-formats-out` on `/dev/video0`) and encodes H.264, VP8 and HEVC. No VA-API driver exists for it: `vainfo` tries `msm_drv_video.so` and fails (`vaInitialize failed`).
+
+ffmpeg 9.0.2, 20 s of 1080p30 test pattern (600 frames), Chrome running alongside:
+
+| Clip | Decoder | Wall | User CPU |
+|---|---|---|---|
+| H.264 6 Mb/s | `h264` (software) | 2.42 s | 11.62 s |
+| H.264 6 Mb/s | `h264_v4l2m2m` (Venus) | 7.42 s | 0.43 s |
+| VP9 4 Mb/s | `vp9` (software) | 2.92 s | 10.85 s |
+| VP9 4 Mb/s | `vp9_v4l2m2m` (Venus) | 7.56 s | 0.45 s |
+
+Venus runs at about 80 frames a second here, at about 1/25 of the CPU.
+
+| Player | Uses Venus? | Seen |
+|---|---|---|
+| mpv 0.41 `--hwdec=v4l2m2m-copy` + yt-dlp | **yes** | `Using hardware decoding (v4l2m2m-copy)`. YouTube 1080p60 H.264, 720p60 H.264 and 1080p60 VP9, 20 s each, `--vo=null`: 0 dropped frames, about 5.2 s user + 2.2–2.5 s sys per run including yt-dlp. On screen not yet measured |
+| Google Chrome 155, Chromium 154 | no | Neither opens `/dev/video0` (`fuser`), with or without `--enable-features=AcceleratedVideoDecodeLinuxGL,VaapiVideoDecoder,UseChromeOSDirectVideoDecoder,V4L2FlatStatefulVideoDecoder`. Linux Chrome's hardware path is VA-API, which has no driver here |
+| Firefox ESR 153, `media.hardware-video-decoding.force-enabled` | starts, then falls back | `MOZ_LOG`: `V4L2 FFmpeg init successful` with `h264_v4l2m2m`, one frame out with `pts=-9223372036854775808` (no timestamp), then `FFmpeg decoder rejects requested type 'video/avc'` and the software decoder. Cause not investigated |
+
+So YouTube in a browser decodes in software: the Chrome renderer at 47–81 % CPU, with 854 MiB available and 2.1 GiB in zram during the test. Smoothest route measured: `mpv --hwdec=v4l2m2m-copy <youtube url>`. In a browser, H.264 costs the software decoder less than VP9 or AV1 (not measured here).
+
+## Other drivers that misbehave (17:17 boot)
+
+| Driver | Seen | State |
+|---|---|---|
+| `ti_sn65dsi86` (display bridge) | `irq 147: nobody cared`, IRQ on TLMM 11 disabled after 100,001 interrupts; `Failed to read IRQ status: -6`; `geni_i2c 880000.i2c: Bus arbitration lost` on its bus | Every boot. The panel works; only bridge hotplug interrupts are lost. Probably another wrong IRQ pin, like the keyboard's. Not yet looked up in the DSDT |
+| `ath10k_snoc` | `chan info: invalid frequency 0 (idx 41 out of bounds)`, twice per boot; `invalid MAC address; choosing random` | Wi-Fi works. The MAC changes every boot |
+| `qcom-qmp-combo-phy` | `unable to determine orientation & mode from data-lanes` | USB-C needs the device plugged at boot (no UCSI node) |
+| `rt5682` | `supply VBAT/MICVDD not found, using dummy regulator` | Probes; headphones untested |
+
+Missing entirely (no node in the DTB): battery and charger, brightness (no backlight device), camera.
 
 ## Brightness (in progress, 13:20)
 

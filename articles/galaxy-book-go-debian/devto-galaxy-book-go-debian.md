@@ -2,7 +2,7 @@
 title: "Debian on a Samsung Galaxy Book Go, Written on the Galaxy Book Go"
 published: false
 series: Linux
-description: "A step by step guide to Debian sid with kernel 7.2 and GNOME on the Snapdragon 7c Gen 2 Galaxy Book Go, a laptop with no upstream device tree. Firmware from the Windows driver store, a keyboard interrupt read out of Samsung's ACPI tables, and an article written, checked and built on the machine it describes."
+description: "A step by step guide to Debian sid with kernel 7.2 and GNOME on the Snapdragon 7c Gen 2 Galaxy Book Go, a laptop with no upstream device tree. Firmware from the Windows driver store, a keyboard interrupt read out of Samsung's ACPI tables, speakers configured from Samsung's Windows audio calibration, and an article written, checked and built on the machine it describes."
 tags: linux, debian, arm64, laptop
 cover_image: https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/cover.32c31be5.jpg
 ---
@@ -11,7 +11,7 @@ This article provides a step by step guide to running Debian sid on a Samsung Ga
 
 https://github.com/xbill9/linux-arm-adventures
 
-**Kernel 7.2.9, GNOME 50.5 on Wayland, GPU acceleration, video decode, Wi-Fi, Bluetooth, the keyboard, touchpad, power button, lid and suspend all work. Audio, battery reporting and brightness do not. This article was written, fact-checked and built on the laptop it describes.**
+**Kernel 7.2.9, GNOME 50.5 on Wayland, GPU acceleration, Wi-Fi, Bluetooth, the speakers, the keyboard, touchpad, power button, lid and suspend all work. The hardware video decoder works in mpv, and browsers decode in software. Battery reporting, brightness and the camera do not work. This article was written, fact-checked and built on the laptop it describes.**
 
 ---
 
@@ -112,7 +112,7 @@ The device tree asks for four Samsung-signed files under `qcom/sc7180/samsung/ga
 | `qcmpss7180_nm.mbn` | modem DSP, which hosts Wi-Fi | 1.0.0800.8 |
 | `wlanmdsp.mbn` | Wi-Fi firmware, served to the modem | 1.0.0970 |
 | `qcvss7180.mbn` | video decode and encode | 27.20.0910 |
-| `qcadsp7180.mbn` | audio DSP | 1.0.0750.3, held back |
+| `qcadsp7180.mbn` | audio DSP | 1.0.0750.3 |
 
 A bad firmware file can reset a Qualcomm SoC on every boot. So nothing went into `/usr/lib/firmware` before it had run once:
 
@@ -124,7 +124,7 @@ A bad firmware file can reset a Qualcomm SoC on every boot. So nothing went into
 
 The modem came up and `ath10k_snoc` reported `WLAN.HL.3.2.2.c10-00767`. Venus bound its decoder and encoder. The GPU came up as `FD618` and gnome-shell left software rendering.
 
-The audio DSP failed safely: `segment outside memory range`, `Boot failed: -22`. Samsung's image loads at `0x90b00000`, and the draft tree reserves the Aspire 1's region at `0x8e400000`. It stays out of `/usr/lib/firmware` until the tree is fixed.
+The audio DSP failed safely: `segment outside memory range`, `Boot failed: -22`. Samsung's image loads at `0x90b00000`, and the draft tree reserves the Aspire 1's region at `0x8e400000`. Step 9 fixes the region.
 
 ---
 
@@ -261,19 +261,123 @@ Kernel 7.2.9 passed a one-time boot and became the default. On 7.2.9 the GPU loa
 
 ---
 
+#### Step 9 — Bring Up the Speakers
+
+The draft tree has no sound card, no codec and the Aspire 1's audio DSP region. Samsung's ACPI tables name the headset codec, a Realtek RT5682 on `i2c@a8c000`, and declare no speaker amplifier on any I2C bus. The audio device `AUDD` drives two GPIOs, TLMM 21 and 20, so the amplifier is a plain I2S amplifier with enable pins.
+
+`gbgo-dtb-audio.py` adds the audio parts to the tree:
+
+| Change | Why |
+| :--- | :--- |
+| DSP region `0x8e400000`, grown to `0x5500000` | covers Samsung's `0x90b00000`–`0x93900000` |
+| RT5682 on `i2c@a8c000` | from the ACPI tables |
+| amplifier enable on TLMM 21 | `AUDD`'s first GPIO |
+| `qcom,sc7180-qdsp6-sndcard` with four front ends | the driver for this SoC's DSP audio |
+| speaker on tertiary MI2S, data line 1 | Samsung's Windows calibration |
+| PM6150L `bob` always on at 3.296 V | Samsung's power settings for `AUDD` |
+
+The port comes from Samsung's Windows audio package. Its calibration database maps each audio device to a port record: `SPEAKER_OUT` sits on `TERTIARY_MI2S_RX`, with the same I2S fields as the headset on `PRIMARY_MI2S_RX`. The supply comes from Samsung's power tables: `AUDD` votes the PM6150L buck-boost regulator `bob` on at `0x324B00` µV, 3.296 V. Linux gives `bob` no user, so nothing turns it on without the tree change.
+
+With all of that in place the card comes up, and the speakers still stay silent under PipeWire. The amplifier plays 16-bit stereo, and PipeWire opens the port as 8 channels of 24-bit audio:
+
+| Stream to tertiary MI2S | Speakers |
+| :--- | :--- |
+| PipeWire default, 8 channels `S24_LE` | silent |
+| `speaker-test -D hw:0,1 -c 2 -F S16_LE` | tone |
+
+A WirePlumber rule opens the speakers as 16-bit stereo:
+
+```
+monitor.alsa.rules = [
+  {
+    matches = [ { device.name = "alsa_card.platform-sound" } ]
+    actions = { update-props = { device.profile = "pro-audio" } }
+  }
+  {
+    matches = [ { node.name = "alsa_output.platform-sound.pro-output-0" } ]
+    actions = {
+      update-props = {
+        node.description = "Speakers"
+        audio.format = "S16LE"
+        audio.channels = 2
+        audio.position = [ FL, FR ]
+      }
+    }
+  }
+]
+```
+
+The mixer route `TERT_MI2S_RX Audio Mixer MultiMedia1` is saved with `alsactl store`. After a reboot on the audio tree:
+
+```
+$ cat /sys/class/remoteproc/remoteproc1/name /sys/class/remoteproc/remoteproc1/state
+adsp
+running
+
+$ amixer -c0 cget name='TERT_MI2S_RX Audio Mixer MultiMedia1' | tail -1
+  : values=on
+
+$ wpctl status | grep -A1 Sinks
+ ├─ Sinks:
+ │  *   53. Speakers                            [vol: 0.80]
+```
+
+The headphone jack and the internal microphone are untested. The RT5682's headphone switches start muted, and Samsung's calibration puts the microphone on quaternary MI2S, which the tree does not wire yet.
+
+---
+
+#### Step 10 — Use the Video Decoder
+
+The Venus video block decodes H.264, VP8, VP9, HEVC and MPEG-2 through V4L2. Debian's ffmpeg reaches it as `h264_v4l2m2m` and `vp9_v4l2m2m`. Twenty seconds of 1080p30 test pattern, 600 frames:
+
+| Clip | Decoder | Wall | CPU |
+| :--- | :--- | :--- | :--- |
+| H.264 | software | 2.42 s | 11.62 s |
+| H.264 | Venus | 7.42 s | 0.43 s |
+| VP9 | software | 2.92 s | 10.85 s |
+| VP9 | Venus | 7.56 s | 0.45 s |
+
+Venus decodes about 80 frames a second at about a twenty-fifth of the CPU.
+
+The browsers decode in software. Chrome on Linux reaches hardware decoders through VA-API, and no VA-API driver exists for this chip:
+
+```
+$ vainfo
+libva info: Trying to open /usr/lib/aarch64-linux-gnu/dri/msm_drv_video.so
+libva info: va_openDriver() returns -1
+vaInitialize failed with error code -1 (unknown libva error),exit
+```
+
+Chrome 155 and Chromium 154 never opened `/dev/video0` while playing a video, with or without the V4L2 and VA-API feature flags. Firefox ESR 153 with `media.hardware-video-decoding.force-enabled` opens the V4L2 decoder, gets one frame back with no timestamp, and falls back to software. YouTube in Chrome runs its renderer at 47 to 81 % of a core, on a laptop with 3.4 GiB of memory.
+
+---
+
+#### 🔎 Tip: Watch YouTube in mpv
+
+mpv with yt-dlp uses the decoder:
+
+```
+mpv --hwdec=v4l2m2m-copy 'https://www.youtube.com/watch?v=aqz-KE-bpKQ'
+```
+
+It prints `Using hardware decoding (v4l2m2m-copy)`. Twenty seconds each of 1080p60 H.264, 720p60 H.264 and 1080p60 VP9 decoded with 0 dropped frames, at about 7.5 s of CPU per run including yt-dlp. Those runs discarded the video output, so playback on the screen is not yet measured.
+
+---
+
 #### What Works?
 
 | Hardware | State |
 | :--- | :--- |
 | GPU | 🟢 Adreno 618, `FD618`, `simple_ondemand` |
-| Video | 🟢 venus decoder and encoder |
+| Video | ⚠️ venus decoder in mpv and ffmpeg. Browsers decode in software |
 | Wi-Fi | 🟢 5 GHz, 80 MHz, with Samsung's modem firmware |
 | Bluetooth | 🟢 with `gbgo-bt-addr`. ⚠️ Pairing and audio untested |
 | Keyboard, touchpad | 🟢 keyboard on GPIO 104, touchpad on GPIO 31 |
 | Power button, lid | 🟢 lid locks the screen |
 | Suspend | ⚠️ `s2idle`, one cycle tested, the lid does not wake it |
 | USB-C | ⚠️ works if plugged at boot. No UCSI node |
-| Audio | ❌ ADSP memory region wrong, no sound node |
+| Speakers | 🟢 16-bit stereo through PipeWire |
+| Headphones, mic | ⚠️ untested. Mic not wired in the tree |
 | Battery | ❌ no `power_supply`, nothing in the tree |
 | Brightness | ❌ no backlight device. PM6150L LPG3 is the likely PWM, untested |
 | Camera | ❌ no camera in the tree |
@@ -287,7 +391,9 @@ Kernel 7.2.9 passed a one-time boot and became the default. On 7.2.9 the GPU loa
 | SoC | Snapdragon 850 (SDM850) | Snapdragon 7c Gen 2 (SC7180) |
 | Device tree | 🥇 upstream, in Debian's kernel | 🥈 community draft, patched |
 | Firmware source | Lenovo package mirrors | Windows driver store |
-| Audio, battery | 🥇 work | ❌ missing |
+| Audio | 🥇 works | 🥈 speakers work, headphones and mic untested |
+| Battery | 🥇 works | ❌ missing |
+| Browser video decode | ❌ software | ❌ software |
 | Blocking driver | `ipa` resets the SoC | none found |
 | Boot loader | GRUB 2.12 held | GRUB 2.12 held |
 
@@ -297,7 +403,7 @@ Kernel 7.2.9 passed a one-time boot and became the default. On 7.2.9 the GPU loa
 
 For writing, terminals, a browser and SSH, yes. This article is the test: the keyboard, the Wayland desktop, Wi-Fi and the assistant ran together for the whole session without a fault.
 
-Three gaps decide where it stops. With no battery reading, nothing warns before the laptop dies. With no brightness control, the screen stays at the firmware's level. With no audio, calls and video need a Bluetooth headset, which is untested. And 3.4 GiB of memory pushes a browser plus a desktop into swap.
+Three gaps decide where it stops. With no battery reading, nothing warns before the laptop dies. With no brightness control, the screen stays at the firmware's level. With software video decode in the browser and 3.4 GiB of memory, YouTube stutters in Chrome, and plays through the hardware decoder in mpv. The speakers work, and the camera does not.
 
 ---
 
@@ -305,14 +411,16 @@ Three gaps decide where it stops. With no battery reading, nothing warns before 
 
 The goal of this article was to run a current Debian with a full desktop on a laptop that has no upstream support, and then use it. The key to the solution was treating Samsung's Windows install as the reference: its driver store supplied the firmware, and its ACPI tables supplied the keyboard interrupt the community tree had guessed. The results were:
 
-- 🟢 Debian sid, kernel 7.2.9 and GNOME Shell 50.5 on Wayland, with GPU acceleration, video, Wi-Fi, Bluetooth, keyboard, touchpad, power button and lid.
+- 🟢 Debian sid, kernel 7.2.9 and GNOME Shell 50.5 on Wayland, with GPU acceleration, Wi-Fi, Bluetooth, keyboard, touchpad, power button and lid.
+- 🟢 The speakers play, configured from Samsung's Windows calibration: tertiary MI2S, `bob` at 3.296 V, 16-bit stereo.
+- ⚠️ The video decoder works in mpv at about a twenty-fifth of the CPU, and browsers decode in software.
 - 🟢 The keyboard interrupt flood is gone: 0 `incomplete report` lines per boot.
 - 🟢 The sid upgrade left the boot path byte-identical, checked by script before each reboot.
 - 🟢 This article was written, fact-checked and built on the machine.
-- ❌ Audio, battery and brightness need device tree work that has not started.
+- ❌ Battery, brightness and the camera need device tree work that has not started.
 - ⚠️ Suspend has one tested cycle, and the Wi-Fi restart service has not yet fired on a real boot.
 
-Scope: one Galaxy Book Go (NP340XLA-KA3CA, Wi-Fi model, BIOS `P00AJW.036`), Debian sid as of 2026-10-11, Samsung firmware from the Windows driver store, brought up over two days, with the dog food session on 2026-10-12.
+Scope: one Galaxy Book Go (NP340XLA-KA3CA, Wi-Fi model, BIOS `P00AJW.036`), Debian sid as of 2026-10-11, Samsung firmware from the Windows driver store, brought up over two days, with the dog food session and the audio and video tests on 2026-10-12.
 
 The strategy for bringing up Debian on the Galaxy Book Go was validated with an incremental step by step approach.
 

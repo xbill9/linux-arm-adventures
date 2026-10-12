@@ -55,7 +55,8 @@ Order of attack:
 | USB-C | works only if connected **at boot**, alongside USB-A | |
 | Wi-Fi | works with Windows firmware (+ pd-mapper) | |
 | Bluetooth | works with a MAC workaround | systemd oneshot `Before=bluetooth.service` running `echo \| btmgmt -i hci0 public-addr <real MAC from Windows ipconfig /all>` |
-| Audio | sound card works on the test DTB (ADSP, RT5682, I2S data on both ports); **speakers silent**, headphones untested | See DEBIAN.md "Audio" |
+| Audio | **speakers work** (audio DTB is the default; 16-bit stereo on tertiary MI2S); headphones and mic untested | See DEBIAN.md "Audio" |
+| Video decode | Venus (H.264, VP8, VP9, HEVC, MPEG-2) works in mpv/ffmpeg via V4L2; **browsers decode in software** (no VA-API driver) | See DEBIAN.md "Video decode" |
 | UFS | works | keep Windows on it (firmware source); run Linux from USB/SD |
 
 ### Booting it reliably

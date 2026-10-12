@@ -1,0 +1,125 @@
+# Live capture, Galaxy Book Go, 2026-10-12T17:28:27-04:00, audio and video
+
+$ uname -r
+7.2.9+deb14-arm64
+
+$ cat /sys/class/remoteproc/remoteproc1/name /sys/class/remoteproc/remoteproc1/state
+adsp
+running
+
+$ amixer -c0 cget name='TERT_MI2S_RX Audio Mixer MultiMedia1'
+numid=147,iface=MIXER,name='TERT_MI2S_RX Audio Mixer MultiMedia1'
+  ; type=BOOLEAN,access=rw------,values=1
+  : values=on
+
+$ wpctl status
+PipeWire 'pipewire-0' [1.6.9, xbill@debian, cookie:246517069]
+ └─ Clients:
+        33. pipewire                            [1.6.9, xbill@debian, pid:2081]
+        34. WirePlumber                         [1.6.9, xbill@debian, pid:2079]
+        48. WirePlumber [client]                [1.6.9, xbill@debian, pid:2079]
+        58. GNOME Volume Control Media Keys     [1.6.9, xbill@debian, pid:2341]
+        59. gnome-shell                         [1.6.9, xbill@debian, pid:2221]
+        60. GNOME Shell Volume Control          [1.6.9, xbill@debian, pid:2221]
+        61. xdg-desktop-portal                  [1.6.9, xbill@debian, pid:2491]
+        62. Google Chrome input                 [1.6.9, xbill@debian, pid:4250]
+        63. wpctl                               [1.6.9, xbill@debian, pid:11190]
+
+Audio
+ ├─ Devices:
+ │      49. Built-in Audio                      [alsa]
+ │  
+ ├─ Sinks:
+ │  *   53. Speakers                            [vol: 0.80]
+ │  
+ ├─ Sources:
+ │  
+ ├─ Filters:
+ │  
+ └─ Streams:
+
+Video
+ ├─ Devices:
+ │      45. Qualcomm Venus video encoder        [v4l2]
+ │      54. Qualcomm Venus video decoder        [v4l2]
+ │  
+ ├─ Sinks:
+ │  
+ ├─ Sources:
+ │  
+ ├─ Filters:
+ │  
+ └─ Streams:
+
+Settings
+ └─ Default Configured Devices:
+
+$ aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 0: SamsungGalaxyBo [Samsung-Galaxy-Book-Go], device 0: MultiMedia1 (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: SamsungGalaxyBo [Samsung-Galaxy-Book-Go], device 1: MultiMedia2 (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: SamsungGalaxyBo [Samsung-Galaxy-Book-Go], device 2: MultiMedia3 (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: SamsungGalaxyBo [Samsung-Galaxy-Book-Go], device 3: MultiMedia4 (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+
+$ v4l2-ctl -d /dev/video0 --list-formats-out
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Output Multiplanar
+
+	[0]: 'H264' (H.264, compressed, dyn-resolution)
+	[1]: 'VP80' (VP8, compressed, dyn-resolution)
+	[2]: 'VP90' (VP9, compressed, dyn-resolution)
+	[3]: 'HEVC' (HEVC, compressed, dyn-resolution)
+	[4]: 'MPG2' (MPEG-2 ES, compressed, dyn-resolution)
+
+$ v4l2-ctl -d /dev/video1 --list-formats
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Capture Multiplanar
+
+	[0]: 'H264' (H.264, compressed)
+	[1]: 'VP80' (VP8, compressed)
+	[2]: 'HEVC' (HEVC, compressed)
+
+$ vainfo
+libva info: VA-API version 1.24.0
+libva info: Trying to open /usr/lib/aarch64-linux-gnu/dri/msm_drv_video.so
+libva info: va_openDriver() returns -1
+vaInitialize failed with error code -1 (unknown libva error),exit
+Trying display: wayland
+
+$ swapon --show
+NAME       TYPE      SIZE USED PRIO
+/dev/zram0 partition 3.4G   2G  100
+/dev/sda4  partition 3.3G   0B   -1
+
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:            3465        2424         540         313         974        1040
+Swap:           6856        2087        4769
+
+$ dpkg-query -W google-chrome-stable chromium firefox-esr mpv ffmpeg yt-dlp
+chromium	154.0.8037.92-1
+ffmpeg	7:9.0.2-3
+firefox-esr	153.4.0esr-1
+google-chrome-stable	155.0.8059.39-1
+mpv	0.41.0-2+b4
+yt-dlp	2026.08.19-1
+
+$ grep -E "sn65|0-002c" /proc/interrupts
+ 147:     100001          0          0          0          0          0          0          0  msmgpio    11 Level     0-002c
+
+# ffmpeg decode timings, 20 s 1080p30 testsrc2 (600 frames), from /usr/bin/time -f '%e s wall, %U s user, %S s sys':
+h264: 2.42 s wall, 11.62 s user, 0.33 s sys
+h264_v4l2m2m: 7.42 s wall, 0.43 s user, 0.70 s sys
+vp9: 2.92 s wall, 10.85 s user, 0.46 s sys
+vp9_v4l2m2m: 7.56 s wall, 0.45 s user, 0.62 s sys
+# mpv youtube aqz-KE-bpKQ --start=60 --length=20 --vo=null --hwdec=v4l2m2m-copy: avc1 1080p60 drop=0 5.24 user 2.45 sys; avc1 720p60 drop=0 5.20 user 2.20 sys; vp09 1080p60 drop=0 5.17 user 2.14 sys
+# browser test: fuser /dev/video0 empty for chrome 155 and chromium 154, with and without flags; firefox log lines in gbgo-DEBIAN.md
+# chrome renderer pcpu 47.0 (ps at 17:18)
