@@ -21,9 +21,13 @@ CARD=$(awk '/Samsung-Galaxy-Book-Go|SamsungGalaxyBo/{print $1; exit}' /proc/asou
 echo "== MI2S routing controls on card $CARD"
 amixer -c "$CARD" controls | grep -E 'MI2S_RX Audio Mixer MultiMedia1' || true
 [ "$1" = play ] || exit 0
-amixer -c "$CARD" controls | grep -E 'MI2S_RX Audio Mixer MultiMedia1' \
-  | sed "s/.*name='\([^']*\)'.*/\1/" | while read -r c; do
-    amixer -c "$CARD" cset name="$c" on >/dev/null && echo "on: $c"
+amixer -c "$CARD" cset name='HPOL Playback Switch' on >/dev/null
+amixer -c "$CARD" cset name='HPOR Playback Switch' on >/dev/null
+for port in PRI TERT; do
+  for p in PRI SEC TERT QUAT QUIN; do
+    amixer -c "$CARD" cset name="${p}_MI2S_RX Audio Mixer MultiMedia1" off >/dev/null
   done
-echo "== tone on hw:$CARD,0 (speakers and headphone jack)"
-timeout 15 speaker-test -D "hw:$CARD,0" -c 2 -r 48000 -F S16_LE -t sine -f 440 -l 1 -P 4 2>&1 | tail -8
+  amixer -c "$CARD" cset name="${port}_MI2S_RX Audio Mixer MultiMedia1" on >/dev/null
+  echo "== tone on hw:$CARD,0 via ${port}_MI2S_RX"
+  timeout 15 speaker-test -D "hw:$CARD,0" -c 2 -r 48000 -F S16_LE -t sine -f 440 -l 1 -P 4 2>&1 | tail -3
+done

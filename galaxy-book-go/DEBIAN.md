@@ -61,7 +61,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 - 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
 
-## Audio (second test boot armed, 2026-10-12 13:11)
+## Audio (card works, speakers silent, 2026-10-12 14:10)
 
 User report: no sound at all. `aplay -l`: no soundcards; `adsp` remoteproc offline.
 
@@ -95,6 +95,32 @@ Samsung's `qcadsp7180.mbn` boots in the grown region: this is the first time the
 - On the default DTB the ADSP will now find its firmware in the initramfs and fail with `segment outside memory range`, as it did from the root filesystem (tested harmless 2026-10-11). Not yet verified from the initramfs.
 
 Test: `sudo grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64`, flush, reboot. Then `sudo gbgo-audio-check play` ([scripts/gbgo-audio-check](scripts/gbgo-audio-check)): ADSP state, codec and card probe, routes MultiMedia1 to both MI2S ports, plays a tone. **The port mapping is still unverified**: the card may bind and stay silent. A hang or a reset falls back to the default entry on the next power cycle.
+
+### Second test boot (13:15): card up, no sound yet
+
+The audio DTB plus the new initramfs: `adsp running` from the initramfs at 7.7 s, APR services 3, 4, 7, 8, the RT5682 on `9-001a`, and card 0 `SamsungGalaxyBo` with `MultiMedia1`…`4`. No errors.
+
+| Check | Result |
+|---|---|
+| PipeWire | Saw the card as `Built-in Audio` with only `off` and `pro-audio` (no UCM), stayed on `off`, so the browsers played into `Dummy Output`. `wpctl set-profile <card> 1` gives the sink `Built-in Audio Pro` on `hw:0,0`, and the streams moved to it. Whether WirePlumber keeps the profile across a reboot is not yet verified |
+| RT5682 headphone output | `HPOL` and `HPOR Playback Switch` start **off** (muted). Switched on by hand; headphones not yet tested |
+| DMA | `hw_ptr` advances 48000 frames per second while playing |
+| Pin mux | TLMM 53–56 `mi2s_0`, 57 `lpass_ext` (MCLK), 63–66 `mi2s_2`, 21 `gpio` out high (amp enable), 20 out high |
+| Pin levels, one port routed at a time (200 reads of the pad each) | Primary: clock 53, word select 54, MCLK 57 toggle; data on **56** (sd line 1) with a tone, flat with `/dev/zero`. Tertiary: 63, 64 toggle; data on **65** (sd line 0) with a tone, flat with silence |
+| Both ports routed together | Only tertiary carried data; primary data stayed flat. `gbgo-audio-check` now plays each port on its own |
+| Speakers, tertiary only, 440 Hz for 10 s, 30 s and 2 min | **Silent** (user) |
+
+So the SoC side delivers audio to both I2S ports, and the speaker amp doesn't play what tertiary MI2S sends it.
+
+What it isn't, from an I2C scan (`i2cdetect -r`) checked against the DSDT's decoded `I2cSerialBus` resources (most are raw `Buffer`s): no amplifier is declared on any bus. The unclaimed devices that answer are the EC (`EMEC` at `0x14`, `0x33` on `888000` and `a84000`, `0x09`/`0x0b` battery and charger on `890000`) and the EC touchpad (`ECTC`, `0x62` on `a84000`). `0x60` and `0x63` on `a84000` are not in the DSDT. So the amp is driven by GPIO enables plus I2S, as modelled, and the open question is its port, data line and enable.
+
+#### Hypotheses (not yet tested)
+
+- The amp listens on another data line or port: tertiary sd line 1 (TLMM 66), or primary sd line 0 (TLMM 55). Each needs a DTB change and a test boot.
+- The two `AUDD` enables (TLMM 20 and 21) are left and right amps. Both already read high, so the enable alone doesn't explain the silence.
+- Samsung's Windows audio packages (the `SAMM0811`/`SAMM0813` children of `AUDD`, and the Qualcomm audio driver) record the port layout. They are in `GBGo-Drivers/` on the PNY `WIN11ARM` stick ([win11-stick/README.md](win11-stick/README.md)), not on this machine.
+
+The DSDT was rebuilt into `acpi-local/` from `/root/gbgo-efishell-20261011-124435/gbgo-shell/acpi/mem.txt` (the earlier copy had been lost).
 
 ## Brightness (in progress, 13:20)
 
