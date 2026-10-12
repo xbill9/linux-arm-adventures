@@ -30,7 +30,7 @@ c630/
   backups/                    boot partitions, configs and logs pulled from the laptop
 articles/
   c630-debian/                the C630 write-up for dev.to, Medium and Substack: source markdown, cover, Medium HTML, evidence
-  galaxy-book-go-debian/       the Galaxy Book Go write-up (dev.to draft 4838962, Medium HTML), written on the machine; cover, evidence
+  galaxy-book-go-debian/       the Galaxy Book Go write-up (dev.to draft 4840579, Medium HTML), written on the machine; cover, evidence
 setup/
   new-machine.sh              pull Claude Code config, memories, publishing kit, dev.to key and git identity from an older install
 galaxy-book-go/
