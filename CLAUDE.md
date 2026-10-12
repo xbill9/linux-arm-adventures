@@ -30,7 +30,7 @@ Notes and scripts for running Debian on Windows-on-ARM laptops. **This repo live
 ## Scripts
 
 - POSIX `#!/bin/sh` with `set -e`, and a header comment saying what the script does and how to run it.
-- The repo is the source of truth. **Edit only the repo copy**, then tell the user which file to install where (`/usr/local/sbin/`, `/etc/initramfs-tools/hooks/`, `/etc/systemd/system/`, `/etc/modprobe.d/`). Don't copy it to the live path yourself.
+- The repo is the source of truth. **Edit the repo copy first, then install it to the live path yourself** (`/usr/local/sbin/`, `/etc/initramfs-tools/hooks/`, `/etc/systemd/system/`, `/etc/modprobe.d/`) and verify it took effect. Don't hand the user commands to run. Anything the boot depends on still follows "Don't break the boot": verify first, and reboot only after the user confirms.
 
 ## Git
 
