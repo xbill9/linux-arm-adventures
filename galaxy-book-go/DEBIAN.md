@@ -61,7 +61,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 - 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
 
-## Audio (third test boot armed, 2026-10-12 14:28)
+## Audio (fourth test boot armed, 2026-10-12 15:27)
 
 User report: no sound at all. `aplay -l`: no soundcards; `adsp` remoteproc offline.
 
@@ -70,7 +70,7 @@ What the hardware is, from Samsung's ACPI tables (`acpi-local/tables/dsdt.dsl`) 
 | Part | Galaxy Book Go (ACPI) | Acer Aspire 1 (upstream DT) |
 |---|---|---|
 | Headset codec | `RTK0` = `10EC5682` on `IC10` (`0xa8c000`) at `0x1a`, 400 kHz, `GpioInt` edge on virtual pin `0x100` = TLMM 43, supply `LDO15_A` 1.8 V (PEP) | `realtek,rt5682i` on `i2c@a8c000` at `0x1a`, IRQ TLMM 28, `ldo15` |
-| Speaker amp | `WSAR` = `SAM0609`, no bus address; `AUDD` drives TLMM 21 and 20 as outputs | `maxim,max98357a`, sdmode TLMM 23 |
+| Speaker amp | not declared (`WSAR` = `SAM0609` is the Wi-Fi SAR device: `_DEP` on `QWLN`); `AUDD` drives TLMM 21 and 20 as outputs | `maxim,max98357a`, sdmode TLMM 23 |
 | I2S | not determinable: the boot firmware leaves every MI2S pin in `func0` | primary MI2S → codec, tertiary MI2S → amp |
 
 The draft DTB has `i2c@a8c000` disabled, no codec, no amp, no sound card, and the ADSP region of the Aspire 1. TLMM 20 is the display bridge regulator in this DTB, so the amp enable is taken to be TLMM 21.
@@ -145,6 +145,30 @@ The ports in the audio DTB are right for playback. The speaker's I2S fields equa
 - `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
 
 Expected: speaker data on TLMM 66 and sound from the speakers. After boot: `wpctl set-profile <card> 1` (Pro Audio), then `sudo /usr/local/sbin/gbgo-audio-check play`. Untested.
+
+### Third test boot (14:39): data on TLMM 66, still silent
+
+The DTB with tertiary RX on sd line 1 is booted (`dai@20` `qcom,sd-lines = <0x01>` in `/proc/device-tree`). Card 0 up, PipeWire on `Built-in Audio Pro`, Chrome playing YouTube into it with `TERT_MI2S_RX Audio Mixer MultiMedia1` on.
+
+| Pin (tertiary MI2S) | High, of 200 reads |
+|---|---|
+| 63 clock | 107 |
+| 64 word select | 109 |
+| 65 sd line 0 | 0 |
+| 66 sd line 1 | 86 |
+
+So the speaker data now goes out on the line Samsung's config implies, and the speakers stay silent (user).
+
+The supply: of `AUDD`'s PEP components (`\_SB.PEP0.APCC`), only two carry power resources: component 1 votes `PPP_RESOURCE_ID_BUCK_BOOST1_C` (PM6150L BOB) on at `0x324B00` = 3.296 V, component 2 votes `LDO15_A` 1.8 V (the RT5682's). Component `0x0B`, which the speaker's power sequence enables, has no resources. In Linux `bob` has no consumer (`use 0`, 3032 mV, state `unknown`), so the AP never votes it on. The amp running off BOB is the hypothesis.
+
+PipeWire opens `hw:0,0` as 8 channels `S24_LE`, quantum 1024 at 48 kHz, no errors in the user journal. YouTube stutter in the same session: the Chrome renderer at 81 % CPU (software video decode), 528 MiB available, 1.4 GiB in swap. Not audio.
+
+### Fourth test boot armed (15:27)
+
+- [scripts/gbgo-dtb-audio.py](scripts/gbgo-dtb-audio.py): `bob` gets `regulator-always-on`, `regulator-boot-on` and `regulator-min-microvolt` 3296000 (max stays 3960000). The DTB differs from the third test DTB by those three properties.
+- `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `d5ce6f87d7a1058d…`, same on the raw disk. The third one is `….test.sd1` (`dcec14ea0cd6c37b…`). `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
+
+Expected: `bob` state `enabled` at 3296 mV, sound from the speakers with tertiary routed. Untested.
 
 ## Brightness (in progress, 13:20)
 

@@ -9,7 +9,7 @@ Run on the DTB gbgo-dtb-patch produced. Prints the dts diff. Sources:
     handed back to Linux.
   * Headset codec: ACPI RTK0 = 10EC5682 on IC10 (0xa8c000) at 0x1a, 400 kHz,
     GpioInt edge on virtual pin 0x100 = TLMM 43, supply LDO15_A 1.8 V (PEP).
-  * Speaker amp: ACPI WSAR (SAM0609) has no bus address; AUDD drives TLMM 21 and
+  * Speaker amp: not declared in ACPI (no I2C device); AUDD drives TLMM 21 and
     20 as outputs. 20 is the display bridge regulator in this tree, so the amp
     enable is taken to be 21. Modelled as a MAX98357A, as on the Aspire 1.
   * I2S: primary MI2S for the codec, tertiary for the amp. The kernel's
@@ -19,6 +19,10 @@ Run on the DTB gbgo-dtb-patch produced. Prints the dts diff. Sources:
     0x1000 (PRIMARY_MI2S_RX), with identical I2S fields. Primary RX uses sd line 1
     (TLMM 56, measured), so tertiary RX uses sd line 1 too (TLMM 66); the Aspire
     1's sd line 0 on tertiary gave data on TLMM 65 and a silent speaker.
+  * Speaker supply: AUDD's PEP component 1 votes PPP_RESOURCE_ID_BUCK_BOOST1_C
+    (PM6150L BOB) on at 3.296 V; nothing in the Linux tree consumes BOB, so
+    Linux never votes it. It is set always-on at 3.296 V. (WSAR/SAM0609 is the
+    Wi-Fi SAR device, it depends on QWLN; it is not the amp.)
 """
 import re, subprocess, sys, tempfile, os, shutil, atexit
 
@@ -93,6 +97,7 @@ I2C = "/soc@0/geniqup@ac0000/i2c@a8c000"
 APR = "/soc@0/remoteproc@62400000/glink-edge/apr"
 AFE, ASM, ADM = APR + "/service@4/dais", APR + "/service@7/dais", APR + "/service@8/routing"
 L15A = "/soc@0/rsc@18200000/regulators-0/ldo15"
+BOB = "/soc@0/rsc@18200000/regulators-1/bob"
 
 # sanity: the nodes are what this script assumes
 for path, needle in [(AFE, "qcom,q6afe-dais"), (ASM, "qcom,q6asm-dais"),
@@ -199,6 +204,13 @@ add_child("/", f"""audio-codec {{
 \tphandle = <{amp}>;
 }};""")
 add_child("/", "\n".join(sound.split("\n")))
+
+# 6. BOB on at 3.296 V, as Windows votes it before the speaker plays
+i = prop(BOB, "regulator-max-microvolt")
+assert i is not None and int(re.search(r"<(0x[0-9a-f]+)>", lines[i]).group(1), 16) >= 3296000, "bob max"
+set_prop(BOB, "regulator-min-microvolt", "<0x324b00>")
+set_prop(BOB, "regulator-always-on", None)
+set_prop(BOB, "regulator-boot-on", None)
 
 dts_out = os.path.join(tmp, "out.dts")
 open(dts_out, "w").write("\n".join(lines))
