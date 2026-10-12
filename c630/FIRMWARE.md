@@ -66,7 +66,7 @@ Earlier references: [aarch64-laptops/build#62](https://github.com/aarch64-laptop
 | Piece | Done |
 |---|---|
 | Firmware files | `/usr/lib/firmware/qcom/sdm850/LENOVO/81JL/` (the nine files above, checksums verified) |
-| GPU firmware in the initramfs | `/etc/initramfs-tools/hooks/c630-firmware` ([initramfs/c630-firmware](initramfs/c630-firmware)) adds `qcom/a630_sqe.fw`, `qcom/a630_gmu.bin`, `…/81JL/qcdxkmsuc850.mbn` |
+| GPU firmware in the initramfs | `/etc/initramfs-tools/hooks/c630-firmware` ([initramfs/c630-firmware](initramfs/c630-firmware)) adds `qcom/a630_sqe.fw`, `qcom/a630_gmu.bin`, `…/81JL/qcdxkmsuc850.mbn`, and (since 2026-10-11) the DSP blobs `qcadsp850.mbn`, `qccdsp850.mbn`, `qcslpi850.mbn`. Without them `qcom_q6v5_pas` can probe from the initramfs, fail with `-2` and leave the DSPs offline (no sound card) |
 | Userspace pd-mapper | masked. The in-kernel `qcom_pd_mapper` handles it (audio works) |
 | **IPA** | **blocked on every boot** (`modprobe.blacklist=ipa`, in `c630-menu`'s `P`). **Loading `ipa_fws.elf` resets the whole SoC** about 6 s into boot. IPA is only the modem's cellular data path, so Wi-Fi doesn't need it |
 

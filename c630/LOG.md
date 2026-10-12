@@ -58,8 +58,15 @@ Newest last. Times are local (EDT).
 - 16:56: **camera captures**: 1280×720 MJPEG at about 29 fps, clean frame. PipeWire and libcamera both list it. See [HARDWARE.md](HARDWARE.md).
 - 16:58: kernel log sweep of the current boot. Nothing new needs fixing. Four harmless warnings were added to the known-noise list in [HARDWARE.md](HARDWARE.md#known-noise-in-the-logs). `iio-sensor-proxy` failed again this boot.
 
+## 2026-10-11
+
+- 23:30 boot: **no audio** (YouTube in Chrome went to PipeWire's "Dummy Output", `aplay -l`: no soundcards). adsp, cdsp and slpi were `offline`. `qcom_q6v5_pas` had probed from the initramfs, before `/` was mounted: `firmware: failed to load qcom/sdm850/LENOVO/81JL/qcadsp850.mbn (-2)`. It never retries. Trigger: the initramfs was rebuilt at 19:07 by `apt-get install firmware-realtek`. Only the modem (`qcom_q6v5_mss`, which boots later) came up. The sound card then waits on the missing DSP: `msm-snd-sdm845: MultiMedia1: error getting cpu dai name`.
+- 23:59: live fix: `echo start > /sys/class/remoteproc/remoteproc{0,1,3}/state`. All four remoteprocs `running`, card `Lenovo-YOGA-C630-13Q50` back, and Chrome's stream moved to Speaker playback.
+- 00:00 (10-12): **permanent fix**: [initramfs/c630-firmware](initramfs/c630-firmware) now also adds `qcadsp850.mbn`, `qccdsp850.mbn` and `qcslpi850.mbn`. Installed to `/etc/initramfs-tools/hooks/`, then `update-initramfs -u -k 7.2.9+deb14-arm64` (only this kernel; the 6.12 fallback initramfs wasn't touched). `lsinitramfs` lists all four 81JL blobs. The initrd grew from 44.8 MB to 53.2 MB. Not yet verified across a reboot.
+
 ## Next
 
+- Reboot and confirm adsp/cdsp/slpi come up `running` from the initramfs and `aplay -l` shows the card with no manual start.
 - Fix the resolv.conf fight for good: let NetworkManager manage the USB Ethernet (see AUDIT).
 - Built-in mic: voice test on DMIC2/DMIC3, then mic bias/gain, then a UCM `Mic (internal)` device.
 - Screen dim: confirm it stays off on `balanced` over a longer idle and across a reboot.
