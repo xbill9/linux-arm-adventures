@@ -63,17 +63,18 @@ Newest last. Times are local (EDT).
 - 23:30 boot: **no audio** (YouTube in Chrome went to PipeWire's "Dummy Output", `aplay -l`: no soundcards). adsp, cdsp and slpi were `offline`. `qcom_q6v5_pas` had probed from the initramfs, before `/` was mounted: `firmware: failed to load qcom/sdm850/LENOVO/81JL/qcadsp850.mbn (-2)`. It never retries. Trigger: the initramfs was rebuilt at 19:07 by `apt-get install firmware-realtek`. Only the modem (`qcom_q6v5_mss`, which boots later) came up. The sound card then waits on the missing DSP: `msm-snd-sdm845: MultiMedia1: error getting cpu dai name`.
 - 23:59: live fix: `echo start > /sys/class/remoteproc/remoteproc{0,1,3}/state`. All four remoteprocs `running`, card `Lenovo-YOGA-C630-13Q50` back, and Chrome's stream moved to Speaker playback.
 - 00:00 (10-12): **permanent fix**: [initramfs/c630-firmware](initramfs/c630-firmware) now also adds `qcadsp850.mbn`, `qccdsp850.mbn` and `qcslpi850.mbn`. Installed to `/etc/initramfs-tools/hooks/`, then `update-initramfs -u -k 7.2.9+deb14-arm64` (only this kernel; the 6.12 fallback initramfs wasn't touched). `lsinitramfs` lists all four 81JL blobs. The initrd grew from 44.8 MB to 53.2 MB. Not yet verified across a reboot.
+- (10-12, after reboot): **DSP fix verified**: adsp/cdsp/slpi `running` and the sound card present with no manual start. **But still no speaker sound** (YouTube silent). Chrome → PipeWire Speaker sink → MultiMedia1 → SLIMBUS_0_RX → WCD934x RX INT7/8 → SoundWire → both WSA881x amps were all DAPM-powered and streaming (S24_LE). Nothing muted, sane gains.
+- (10-12): **Speakers fixed** with [yoga-alarm](https://github.com/rigoorozco/yoga-alarm)'s two changes, applied together: (1) WirePlumber pins the Speaker/Headphones sinks to S16LE/48 kHz/2 ch ([system/audio/51-yoga-c630-audio.conf](system/audio/51-yoga-c630-audio.conf), installed per-user in `~/.config/wireplumber/wireplumber.conf.d/`); (2) the UCM Speaker sequence also routes `RX INT0_1`/`RX INT1_1`, and Headphones gains the `RX INT1_1`/`RX INT2_1 INTERP` routes ([system/audio/HiFi-MM1.conf](system/audio/HiFi-MM1.conf)). Installed with `dpkg-divert --package c630-local --rename` (stock file kept as `HiFi-MM1.conf.dist`). **Confirmed audible by the user (YouTube).** Which of the two changes is the essential one was not isolated. Not yet verified across a reboot.
 
 ## Next
 
-- Reboot and confirm adsp/cdsp/slpi come up `running` from the initramfs and `aplay -l` shows the card with no manual start.
 - Fix the resolv.conf fight for good: let NetworkManager manage the USB Ethernet (see AUDIT).
 - Built-in mic: voice test on DMIC2/DMIC3, then mic bias/gain, then a UCM `Mic (internal)` device.
 - Screen dim: confirm it stays off on `balanced` over a longer idle and across a reboot.
 - Wi-Fi: reboot and confirm regdomain `US` at boot. Retry 5 GHz (non-DFS BSS). Test throughput.
 - Suspend: decide on GNOME/GDM idle auto-suspend, then a deliberate `systemctl suspend` test (EC, Wi-Fi, audio after resume). See [QUIRKS.md](QUIRKS.md#suspend-s2idle-and-the-resume-lockup-storm).
 - Confirm the keyboard-lockup cause: a one-time boot without `regulator_ignore_unused`, then without `usbcore.autosuspend=-1`, with SSH open.
-- Speakers: `speaker-test -c2 -t wav`, and check both WSA881x amps play. If silent, try yoga-alarm's UCM routing (see [HARDWARE.md](HARDWARE.md)) with `dpkg-divert` on `HiFi-MM1.conf` so an `alsa-ucm-conf` upgrade doesn't silently undo it.
+- Audio: reboot and confirm speakers play with no manual step. Left/right check (`speaker-test -c2 -t wav`), since amp `:00:4` has logged read errors. Test headphones (the new routes are untested).
 - `iio-sensor-proxy`: make it survive boot (restart on failure, or install `hexagonrpcd`).
 - Test mic, headphone jack, sensors, and external display over USB-C.
 - IPA/LTE data: test the hypotheses in [MODEM.md](MODEM.md) (firmware build, `gsi-loader = "modem"`, interconnect votes). A SIM is needed for an end-to-end test.
