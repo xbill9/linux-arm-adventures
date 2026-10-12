@@ -71,7 +71,8 @@ for i in /boot/initrd.img-*; do
   # built into the kernel (=y) on Debian's arm64 config, so never in the initramfs as a module
   grep -q '^CONFIG_PINCTRL_SC7180=y' "/boot/config-$v" || echo "$L" | grep -q '/pinctrl-sc7180\.ko' || miss="$miss pinctrl-sc7180"
   fw=$(echo "$L" | grep -c -E 'qcdxkmsuc7180|a630_sqe|a630_gmu')
-  [ -z "$miss" ] && ok "$v initrd: storage/keyboard/display modules present, $fw/3 GPU firmware" || fail "$v initrd missing:$miss"
+  adsp=$(echo "$L" | grep -c 'qcadsp7180')
+  [ -z "$miss" ] && ok "$v initrd: storage/keyboard/display modules present, $fw/3 GPU firmware, $adsp/1 ADSP firmware" || fail "$v initrd missing:$miss"
   [ -f "/boot/vmlinuz-$v" ] || fail "$v has an initrd but no kernel"
 done
 # shellcheck disable=SC2015

@@ -131,6 +131,11 @@ add_child(AFE, "dai@16 {\n\treg = <0x10>;\n\tqcom,sd-lines = <0x01>;\n};")
 add_child(AFE, "dai@17 {\n\treg = <0x11>;\n\tqcom,sd-lines = <0x00>;\n};")
 add_child(AFE, "dai@20 {\n\treg = <0x14>;\n\tqcom,sd-lines = <0x00>;\n};")
 
+# 3b. front ends on the ADSP: one dai@N per MultiMedia link below. Without
+#     children q6asm-dai fails ("No dais found in DT") and the card never binds.
+for k in range(4):
+    add_child(ASM, f"dai@{k} {{\n\treg = <0x{k:02x}>;\n}};")
+
 # 4. headset codec on i2c@a8c000
 set_prop(I2C, "status", '"okay"')
 set_prop(I2C, "clock-frequency", "<0x61a80>")

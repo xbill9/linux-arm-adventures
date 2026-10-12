@@ -61,7 +61,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 - 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
 
-## Audio (test boot armed, 2026-10-12 12:51)
+## Audio (second test boot armed, 2026-10-12 13:11)
 
 User report: no sound at all. `aplay -l`: no soundcards; `adsp` remoteproc offline.
 
@@ -77,13 +77,24 @@ The draft DTB has `i2c@a8c000` disabled, no codec, no amp, no sound card, and th
 
 [scripts/gbgo-dtb-audio.py](scripts/gbgo-dtb-audio.py) builds the audio DTB from the installed one (+125 −2 lines): ADSP region `0x8e400000` grown to `0x5500000` (ends at `wlan@93900000`, covers Samsung's `0x90b00000`–`0x93900000`), `i2c@a8c000` on with the RT5682, a MAX98357A on TLMM 21, MI2S ports 16/17/20 on `q6afe`, and a `qcom,sc7180-qdsp6-sndcard` with the Aspire 1's links. That driver handles exactly primary + tertiary MI2S, which is why the Aspire 1 layout is the first guess. **The port mapping is unverified.**
 
-Armed (12:51), nothing booted yet:
+### First test boot (12:56)
 
-- `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = the audio DTB (`df6fe4baff4d43aa…`, same on the raw disk). The 2026-10-11 backlight test DTB is kept as `….dtb.test.backlight`.
-- `qcadsp7180.mbn` (`d795ab4f25f3e477…`) installed in `/usr/lib/firmware/qcom/sc7180/samsung/galaxy-book-go/`. On the default DTB the ADSP now fails at boot with `segment outside memory range` (tested harmless 2026-10-11).
-- `update-grub`: `gbgo-dtbtest-7.2.9+deb14-arm64` uses the `.test` DTB. `grub-script-check` and `gbgo-boot-verify` pass.
+The audio DTB boots. The ADSP region is `0x8e400000..0x938fffff`, the RT5682 probes as `9-001a`, and nothing hangs. No sound card, for two reasons:
 
-Test: `sudo grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64`, flush, reboot. Then `sudo gbgo-audio-check play` ([scripts/gbgo-audio-check](scripts/gbgo-audio-check)): ADSP state, codec and card probe, routes MultiMedia1 to both MI2S ports, plays a tone. A hang or a reset falls back to the default entry on the next power cycle.
+| Problem | Seen | Fix |
+|---|---|---|
+| ADSP firmware missing from the initramfs | The remoteproc starts at 2.8 s, from the initramfs: `request_firmware failed: -2`, `adsp offline`. It does not retry once the root filesystem is mounted | [initramfs/gbgo-firmware](initramfs/gbgo-firmware) adds `qcadsp7180.mbn`. `gbgo-boot-verify` now reports it (`1/1 ADSP firmware`) |
+| No front ends on `q6asm` | After `echo start > /sys/class/remoteproc/remoteproc1/state` by hand: `remote processor adsp is now up`, APR services 3, 4, 7 and 8 appear, then `q6asm-dai …: No dais found in DT`. The card stays deferred (`MultiMedia1: error getting cpu dai name`) | `gbgo-dtb-audio.py` adds `dai@0`…`dai@3` under `service@7/dais`, one per MultiMedia link |
+
+Samsung's `qcadsp7180.mbn` boots in the grown region: this is the first time the ADSP has run on this machine.
+
+### Armed (13:11)
+
+- `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = the rebuilt audio DTB (`e69a154a6b31eb65…`, same on the raw disk). It differs from the first one by the four `dai@N` nodes only.
+- `/boot/initrd.img-7.2.9+deb14-arm64` rebuilt with `qcadsp7180.mbn`. `gbgo-boot-verify` passes (raw disk matches, rebuilt initrd keeps every module and firmware, `1 new`). The 6.12 initrds are unchanged.
+- On the default DTB the ADSP will now find its firmware in the initramfs and fail with `segment outside memory range`, as it did from the root filesystem (tested harmless 2026-10-11). Not yet verified from the initramfs.
+
+Test: `sudo grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64`, flush, reboot. Then `sudo gbgo-audio-check play` ([scripts/gbgo-audio-check](scripts/gbgo-audio-check)): ADSP state, codec and card probe, routes MultiMedia1 to both MI2S ports, plays a tone. **The port mapping is still unverified**: the card may bind and stay silent. A hang or a reset falls back to the default entry on the next power cycle.
 
 ## Brightness (in progress, 13:20)
 
