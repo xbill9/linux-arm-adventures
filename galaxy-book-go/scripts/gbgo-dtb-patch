@@ -28,6 +28,16 @@
 #     boot). Samsung's ACPI declares no GPIO interrupt for the bridge (the eDP
 #     panel needs none), so the bridge loses interrupts-parent/interrupts and
 #     the irq pin config from pinctrl-0; the driver then runs without an IRQ.
+#  6. battery: the EC's smart battery gauge answers at 0x0b on i2c@890000
+#     (ACPI EMEC, I2C to 0x09 and 0x0b there). Read live 2026-10-12 with
+#     sbs-battery bound by hand: SDI 4432D53, 7720 mV design, 5320 mAh design.
+#     Added as an sbs,sbs-battery node. The charger at 0x09 answers 0xffff to
+#     the SBS charger registers and is left out.
+#  7. camera: a Chicony 720p UVC camera (04f2:b72f) on port 4 of the internal
+#     USB hub (ACPI EHUB.PRT1.ICAM, _ADR 4). EHUB._PS0 sets GIO0.CAME, a GpioIo
+#     output on TLMM 13; the boot firmware leaves it low, so the camera never
+#     enumerates. Driven high by hand 2026-10-12: it enumerated and uvcvideo
+#     captured 1280x720. A gpio-hog holds TLMM 13 high from boot.
 set -e
 IN=$1; OUT=$2
 [ -f "$IN" ] && [ -n "$OUT" ] || { sed -n '2,3p' "$0"; exit 1; }
@@ -77,6 +87,16 @@ awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" -v birq="$BIRQ" '
   p && /pins = "gpio48";/ { sub("gpio48", "gpio104") }
   p && /bias-disable;/ { sub("bias-disable", "bias-pull-up") }
   p && /^\t*\};/ {p=0}
+  # 7. camera power: gpio-hog on TLMM 13, before the first TLMM subnode
+  /pinctrl@3500000 \{/ {tl=1; next_sub=1; print; next}
+  tl && next_sub && /^\t+[a-z0-9_-]+(@[0-9a-f]+)? \{$/ { ind=$0; sub(/[^\t].*$/, "", ind)
+    print ind "camera-power-hog {"; print ind "\tgpio-hog;"; print ind "\tgpios = <0x0d 0x00>;"; print ind "\toutput-high;"; print ind "\tline-name = \"camera-power\";"; print ind "};"; print ""
+    next_sub=0; tl=0 }
+  # 6. battery on i2c@890000, before the bus node closes
+  /i2c@890000 \{/ {bat=1}
+  bat && /^\t*\};$/ { ind=$0; sub(/\};$/, "", ind)
+    print ind "\tbattery@b {"; print ind "\t\tcompatible = \"sbs,sbs-battery\";"; print ind "\t\treg = <0x0b>;"; print ind "\t};"
+    bat=0 }
   # 5. display bridge: no IRQ
   /bridge@2c \{/ {br=1}
   br && /^\t*interrupt-parent = </ { next }
@@ -90,12 +110,13 @@ awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" -v birq="$BIRQ" '
   pon && /status = "disabled";/ { next }
   {print}' "$T/in.dts" > "$T/out.dts"
 diff -u "$T/in.dts" "$T/out.dts" || true
-# exactly the expected edits: +14 (3 keyboard, 10 lid, 1 bridge pinctrl)
+# exactly the expected edits: +25 (3 keyboard, 10 lid, 1 bridge pinctrl, 4 battery,
+# 7 camera hog)
 # -7 (3 keyboard, pon status, 3 bridge),
 # plus +7 -1 with GBGO_BACKLIGHT=1 (2 lpg, 5 backlight; lpg status)
 add=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>' || true)
 del=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^<' || true)
-want_add=14; want_del=7; [ "$BL" = 1 ] && want_add=21 && want_del=8
+want_add=25; want_del=7; [ "$BL" = 1 ] && want_add=32 && want_del=8
 [ "$add" = "$want_add" ] && [ "$del" = "$want_del" ] || { echo "unexpected diff: +$add -$del (want +$want_add -$want_del)" >&2; exit 1; }
 dtc -q -I dts -O dtb -o "$OUT" "$T/out.dts"
 echo "wrote $OUT"

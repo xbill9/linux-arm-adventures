@@ -227,7 +227,7 @@ So YouTube in a browser decodes in software: the Chrome renderer at 47–81 % CP
 | `qcom-qmp-combo-phy` | `unable to determine orientation & mode from data-lanes` | USB-C needs the device plugged at boot (no UCSI node) |
 | `rt5682` | `supply VBAT/MICVDD not found, using dummy regulator` | Probes; headphones untested |
 
-Missing entirely (no node in the DTB): battery and charger, brightness (no backlight device), camera.
+Missing from the draft DTB: battery and charger, brightness (no backlight device), camera. Battery and camera found 17:45; see below.
 
 ## Display bridge IRQ (fixed, default 17:41)
 
@@ -238,6 +238,28 @@ Fix 5 in [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch): the bridge node loses
 - `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `a547e6a4bf115e62…`, same on the raw disk. `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
 - Test boot (17:35): no `interrupts` in the bridge node (`/proc/device-tree`), no `0-002c` line in `/proc/interrupts`, 0 `nobody cared`, 0 `Failed to read IRQ status`, 0 `geni_i2c 880000.i2c` lines. The panel probes (`AUO B140HTN02.0`), eDP `connected`, `running`. Kernel warnings at `-p warning`: 62 on the previous boot, 26 on this one. ADSP `running`, `Speakers` sink present.
 - Default, 17:41: `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` = `a547e6a4bf115e62…`, same on the raw disk; the previous default is `….dtb.bridgeirq` (`d5ce6f87d7a1058d…`). `gbgo-boot-verify`: all checks pass. Not yet booted as the default.
+
+## Battery (found live 17:45)
+
+The EC's smart battery gauge answers at `0x0b` on `i2c@890000` (`i2c-4`); the DSDT's `EMEC` lists I2C resources to `0x09` and `0x0b` there. SBS word registers read with `i2cget -y 4 0x0b <reg> w`: temperature `0x0ba0` (24.5 °C), voltage `0x1da6` (7590 mV), current 0, relative charge `0x1b` (27 %), remaining `0x059b` (1435 mAh), full `0x1504` (5380 mAh), design `0x14c8` (5320 mAh), design voltage `0x1e28` (7720 mV), cycles 8. Block reads fail (`Adapter does not have SMBus block read capability`). `0x09` answers `0xffff` to the SBS charger registers.
+
+`echo sbs-battery 0x0b > /sys/bus/i2c/devices/i2c-4/new_device` binds `sbs-battery` (`I2C adapter does not support I2C_FUNC_SMBUS_READ_BLOCK_DATA`, then it falls back): `sbs-4-000b`, `CAPACITY=27`, `MANUFACTURER=SDI`, `MODEL_NAME=4432D53`, manufactured 2021-07-09, `STATUS=Not charging`. UPower lists `battery_sbs_4_000b`, `pending-charge`, 27 %. Whether the charger was connected at the time was not recorded. No AC adapter device exists.
+
+Fix 6 in [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch): `battery@b`, `sbs,sbs-battery`, under `i2c@890000`. In the test DTB armed at 17:49, untested from the DTB.
+
+## Camera (found live 17:47)
+
+The DSDT puts `ICAM` at `_ADR 4` under the internal USB hub `EHUB` (`USB0.RHUB.PRT1.EHUB`, the `0424:2514` hub). `EHUB._PS0` sets `\_SB.GIO0.CAME = One`, `_PS4` sets it to zero. `CAME` is a `GpioIo` field, output only, on `GIO0` pin `0x0D` = **TLMM 13**. The boot firmware leaves GPIO 13 `out low`, and hub port 4 reads `not attached`.
+
+`gpioset -c gpiochip0 13=1`: `usb 1-1.4: Product: 720p HD Camera`, `Manufacturer: Chicony`, `04f2:b72f`, `uvcvideo` binds, `/dev/video2` and `/dev/video3` (Venus keeps `video0` and `video1`). YUYV up to 1280x720, MJPG. ffmpeg captured a 1280x720 frame from `/dev/video2`.
+
+Fix 7 in [scripts/gbgo-dtb-patch](scripts/gbgo-dtb-patch): a `gpio-hog` under the TLMM node holds GPIO 13 high from boot (`camera-power`). The camera stays powered whenever the system is up; its draw is not measured. In the test DTB armed at 17:49, untested from the DTB.
+
+## Test boot armed (17:49): battery, camera, backlight
+
+`/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `GBGO_BACKLIGHT=1 gbgo-dtb-patch` on `.dtb.orig`, then `gbgo-dtb-audio.py`: `edbc2a9eeae7e0e4…`, same on the raw disk. It adds to the default: fix 6 (battery), fix 7 (camera hog), and the untested backlight (PM6150L LPG enabled, `pwm-backlight` on LPG3). `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
+
+Expected: `/sys/class/power_supply/sbs-4-000b`, the camera on `1-1.4`, `/sys/class/backlight/backlight` with the screen still lit. Untested. If the backlight takes the wrong channel the screen can go dark; the next power cycle boots the default.
 
 ## Brightness (in progress, 13:20)
 
