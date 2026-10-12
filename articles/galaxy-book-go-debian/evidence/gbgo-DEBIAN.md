@@ -1,0 +1,1 @@
+../../../galaxy-book-go/DEBIAN.md

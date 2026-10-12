@@ -1,0 +1,1 @@
+../../../galaxy-book-go/FIRMWARE.md

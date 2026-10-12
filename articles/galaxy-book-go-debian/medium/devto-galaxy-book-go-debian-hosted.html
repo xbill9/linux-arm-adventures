@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.11" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Debian sid on a Samsung Galaxy Book Go, Written on the Galaxy Book Go</title>
+  <meta name="description" content="A step by step guide to Debian sid with kernel 7.2 and GNOME on the Snapdragon 7c Gen 2 Galaxy Book Go, a laptop with no upstream device tree. Firmware from the Windows driver store, a keyboard interrupt read out of Samsung&#x27;s ACPI tables, and an article written, checked and built on the machine it describes." />
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <style>
+    body{font-family:-apple-system,'Segoe UI',Roboto,'Liberation Sans',Arial,sans-serif;
+         font-size:18px;line-height:1.58;max-width:42em;color:#242424;}
+    h1,h2,h3,h4{font-weight:700;line-height:1.25;margin-top:1.8em;}
+    h4{font-size:1.25em;}
+    img{max-width:100%;height:auto;display:block;margin:1.6em 0;}
+    pre{background:#f7f7f7;border:1px solid #e6e6e6;border-radius:4px;
+        padding:12px 14px;overflow-x:auto;font-size:14px;line-height:1.45;}
+    code{font-family:'Liberation Mono',Menlo,Consolas,monospace;}
+    :not(pre)>code{background:#f2f2f2;padding:1px 5px;border-radius:3px;font-size:.9em;}
+    blockquote{border-left:3px solid #ddd;margin-left:0;padding-left:1em;color:#555;}
+    hr{border:0;border-top:1px solid #e6e6e6;margin:2.4em 0;}
+  </style>
+</head>
+<body>
+<p>This article provides a step by step guide to running Debian sid on a
+Samsung Galaxy Book Go, the Snapdragon 7c Gen 2 Windows-on-ARM laptop. A
+small set of POSIX shell scripts and one device tree patch turn a
+community draft into a machine that runs a daily desktop.</p>
+<figure><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/cover.32c31be5.jpg" alt="Debian sid on a Samsung Galaxy Book Go, Written on the Galaxy Book Go" /></figure>
+<p><a
+href="https://github.com/xbill9/linux-arm-adventures">https://github.com/xbill9/linux-arm-adventures</a></p>
+<p><strong>Kernel 7.2.9, GNOME 50.5 on Wayland, GPU acceleration, video
+decode, Wi-Fi, Bluetooth, the keyboard, touchpad, power button, lid and
+suspend all work. Audio, battery reporting and brightness do not. This
+article was written, fact-checked and built on the laptop it
+describes.</strong></p>
+<hr />
+<h4 id="what-is-the-problem">What Is the Problem?</h4>
+<p>The Galaxy Book Go has no upstream support. Mainline Linux has no
+device tree for it, and Debian's kernel ships only the Acer Aspire 1
+tree for the same SoC (SC7180). The community device tree is a draft
+with Aspire 1 memory addresses and a keyboard interrupt its own comment
+calls wrong.</p>
+<p>ACPI is no way out. A generic ACPI kernel reboots the machine as soon
+as the SMMU driver loads, and without the SMMU there is no USB and no
+keyboard. So the laptop boots with a device tree, and every missing node
+in that tree is a missing device.</p>
+<p>Samsung publishes no driver pack for it either. The only copy of the
+signed firmware is the factory Windows install.</p>
+<hr />
+<h4 id="the-dog-food-test">The Dog Food Test</h4>
+<p>A port that boots to a login screen proves the boot path. A port that
+the author uses to write about it proves the keyboard, the desktop, the
+network and the toolchain all at once, for hours.</p>
+<p>This article was drafted in GNOME Terminal on the Galaxy Book Go, by
+a native arm64 Claude Code running in the local Wayland session, with
+the repository on the internal UFS disk. The capture below was taken
+from that session:</p>
+<pre><code>$ cat /sys/class/dmi/id/sys_vendor /sys/class/dmi/id/product_name
+SAMSUNG ELECTRONICS CO., LTD.
+Galaxy Book Go (Wi-Fi)
+ 
+$ uname -r
+7.2.9+deb14-arm64
+ 
+$ loginctl show-session 2 -p Type -p Remote
+Remote=no
+Type=wayland
+ 
+$ file -bL ~/.local/bin/claude | cut -d, -f1-2
+ELF 64-bit LSB executable, ARM aarch64
+ 
+$ systemctl is-system-running
+running</code></pre>
+<p>The same capture also shows where the laptop strains. It has 3.4 GiB
+of usable memory, and 1.3 GiB was in swap while this was written, with a
+browser, GNOME and the assistant open together.</p>
+<hr />
+<h4 id="at-this-point-you-should-have">At This Point You Should
+Have…</h4>
+<ul>
+<li>A Galaxy Book Go (NP340XLA or NP345XLA), Secure Boot off.</li>
+<li>A Debian 13 installer stick for the Book Go that carries the
+community device tree,
+<code>sc7180-samsung-galaxy-book-go.dtb</code>.</li>
+<li>A USB-C hub with a USB keyboard and a USB Ethernet adapter. USB boot
+is unreliable straight into the port and reliable through a hub.</li>
+<li>The Windows <code>DriverStore\FileRepository</code> from a Book Go,
+copied off before Windows was wiped.</li>
+<li>A second machine with SSH access, for the rescue path.</li>
+</ul>
+<hr />
+<h4 id="step-1--put-the-device-tree-in-the-boot-menu">Step 1 — Put the
+Device Tree in the Boot Menu</h4>
+<p>The installer writes a stock GRUB menu. It has no
+<code>devicetree</code> line and no
+<code>clk_ignore_unused pd_ignore_unused</code>, so the installed kernel
+boots through ACPI and the machine resets. The installed system had
+never booted: its journal was empty.</p>
+<p>The fix is a GRUB generator, <code>scripts/09_galaxy-book-go</code>,
+installed as <code>/etc/grub.d/09_galaxy-book-go</code> so it runs
+before <code>10_linux</code>. Per kernel it writes three entries, each
+with the device tree and the clock options:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-1.png"
+alt="Table: Entry id, What it is for" /></p>
+<p><code>GRUB_DEFAULT</code> names an entry id, never a position, and
+the menu waits 10 seconds. Every risky change after this is tried once
+with <code>grub-reboot &lt;id&gt;</code>, so a hang falls back to the
+default on the next power cycle.</p>
+<p>The first boot from the internal disk reached <code>running</code>
+and the GDM login.</p>
+<hr />
+<h4 id="step-2--make-gnome-see-the-keyboard">Step 2 — Make GNOME See the
+Keyboard</h4>
+<p>The text console took key presses, and GNOME took none. The internal
+keyboard (<code>hid-over-i2c 0CF2:9028</code>) reports a stray
+<code>ABS</code> axis, so udev tags it <code>ID_INPUT_TABLET_PAD</code>,
+and libinput hands it to GNOME as a tablet pad.</p>
+<p>A udev rule clears the tags:</p>
+<pre><code>ACTION!=&quot;remove&quot;, SUBSYSTEM==&quot;input&quot;, ATTRS{name}==&quot;hid-over-i2c 0CF2:9028 Keyboard&quot;, ENV{ID_INPUT_TABLET}=&quot;&quot;, ENV{ID_INPUT_TABLET_PAD}=&quot;&quot;, ENV{ID_INPUT_KEYBOARD}=&quot;1&quot;, ENV{ID_INPUT_KEY}=&quot;1&quot;</code></pre>
+<p>It must match the <code>input0</code> node as well as
+<code>event0</code>. libinput reads the parent's tags too, so a rule on
+<code>event*</code> alone leaves the device classified as a tablet pad.
+With both, <code>libinput list-devices</code> reports
+<code>Capabilities: keyboard pointer</code>.</p>
+<hr />
+<h4 id="mag_right-tip-do-not-restart-gdm-with-someone-logged-in">🔎 Tip:
+Do Not Restart GDM With Someone Logged In</h4>
+<p>A running GNOME keeps the old device classification until it
+restarts. Restarting <code>gdm3</code> closes every open session. Log
+out instead.</p>
+<hr />
+<h4 id="step-3--take-the-firmware-from-windows">Step 3 — Take the
+Firmware From Windows</h4>
+<p>The device tree asks for four Samsung-signed files under
+<code>qcom/sc7180/samsung/galaxy-book-go/</code>, and Wi-Fi needs a
+fifth. All five are in the Windows driver store. Where several driver
+versions sat side by side, the newest was taken:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-2.png"
+alt="Table: File, Runs, Version" /></p>
+<p>A bad firmware file can reset a Qualcomm SoC on every boot. So
+nothing went into <code>/usr/lib/firmware</code> before it had run
+once:</p>
+<ol type="1">
+<li>Stage the files in <code>/root/gbgo-fw-staging/</code>.</li>
+<li>Point <code>/sys/module/firmware_class/parameters/path</code> at the
+staging directory. That lasts for the running boot only.</li>
+<li>Start each remote processor by hand and read the log.</li>
+<li>For the GPU, which retries only at boot, use a one-time GRUB entry
+with <code>firmware_class.path</code> on the kernel command line.</li>
+<li>Install with <code>gbgo-firmware install</code>, which also has
+<code>promote</code> and <code>rollback</code>.</li>
+</ol>
+<p>The modem came up and <code>ath10k_snoc</code> reported
+<code>WLAN.HL.3.2.2.c10-00767</code>. Venus bound its decoder and
+encoder. The GPU came up as <code>FD618</code> and gnome-shell left
+software rendering.</p>
+<p>The audio DSP failed safely:
+<code>segment outside memory range</code>,
+<code>Boot failed: -22</code>. Samsung's image loads at
+<code>0x90b00000</code>, and the draft tree reserves the Aspire 1's
+region at <code>0x8e400000</code>. It stays out of
+<code>/usr/lib/firmware</code> until the tree is fixed.</p>
+<hr />
+<h4 id="step-4--win-the-wi-fi-boot-race">Step 4 — Win the Wi-Fi Boot
+Race</h4>
+<p>On some boots Wi-Fi took about 60 seconds, and on others 17. The
+modem asks <code>tqftpserv</code> for <code>wlanmdsp.mbn</code> a few
+milliseconds after the service starts. If it asks first, the WLAN start
+stalls, and the modem's watchdog crashes it after 40 seconds
+(<code>DOG detects stalled initialization</code>). The kernel restarts
+it, and the second try works.</p>
+<p><code>gbgo-wifi-kick</code> runs after <code>rmtfs</code> and
+<code>tqftpserv</code>. If no Wi-Fi interface exists 10 seconds later,
+it stops and starts the modem's remote processor:</p>
+<pre><code>for r in /sys/class/remoteproc/remoteproc*; do
+  [ &quot;$(cat &quot;$r/name&quot;)&quot; = &quot;$NAME&quot; ] &amp;&amp; R=$r
+done
+[ &quot;$(cat &quot;$R/state&quot;)&quot; = running ] &amp;&amp; echo stop &gt; &quot;$R/state&quot;
+sleep 2
+echo start &gt; &quot;$R/state&quot;</code></pre>
+<p>It checks for any interface under
+<code>/sys/class/ieee80211/phy*/device/net/</code>, never for a name.
+Under sid the interface is <code>wld0</code>. The restart was tested by
+hand. The service has not yet had to fire during a real boot.</p>
+<hr />
+<h4 id="step-5--give-bluetooth-an-address">Step 5 — Give Bluetooth an
+Address</h4>
+<p>The WCN3991 loads <code>qca/crbtfw32.tlv</code> from
+<code>firmware-atheros</code> and stays unconfigured, because nothing
+supplies a public address. <code>gbgo-bt-addr</code> sets a stable,
+locally administered one derived from <code>/etc/machine-id</code>,
+before <code>bluetooth.service</code> starts.</p>
+<p><code>btmgmt</code> from bluez 5.82 waits forever when its standard
+input is <code>/dev/null</code>, which is what systemd gives a service.
+Over SSH the same command returns at once. The script feeds it an empty
+pipe:</p>
+<pre><code>bm() { echo | timeout 3 btmgmt -i hci0 &quot;$@&quot; 2&gt;&amp;1; }
+$ bluetoothctl show | head -1
+Controller 02:33:FD:7E:34:33 (public)</code></pre>
+<hr />
+<h4
+id="step-6--read-the-keyboard-interrupt-from-samsungs-acpi-tables">Step
+6 — Read the Keyboard Interrupt From Samsung's ACPI Tables</h4>
+<p>The keyboard worked, at a price. The draft tree wires its interrupt
+to TLMM GPIO 48, level-low, and GPIO 48 sits low permanently. The
+interrupt never clears, so the driver polls the keyboard about 1100
+times a second:</p>
+<pre><code>i2c_hid_of 6-0005: i2c_hid_get_input: incomplete report (11/65535)</code></pre>
+<p>That was 785,000 log lines in 14 minutes and about 7 % of a CPU.
+Watching all 73 free input GPIOs while typing showed nothing.</p>
+<p>Samsung's ACPI tables describe the board for the Windows drivers.
+Linux boots with a device tree here, so
+<code>/sys/firmware/acpi/tables</code> is empty and
+<code>/dev/mem</code> refuses the page. The UEFI shell can read it. A
+one-time GRUB entry chainloads Debian's <code>shellaa64.efi</code>, and
+a <code>startup.nsh</code> at the root of the ESP dumps the EFI-reserved
+block holding the tables and resets:</p>
+<pre><code>dmem 0xFFF22000 0xDC000 &gt; mem.txt</code></pre>
+<p><code>acpi-from-dmem.py</code> rebuilds the bytes and follows RSDP →
+XSDT → DSDT. The keyboard device, <code>ECKB</code>, declares:</p>
+<pre><code>GpioInt(Level, ActiveLow, PullUp) pin 0x140</code></pre>
+<p>On Qualcomm's ACPI, a pin of <code>0x40·k</code> above the 120 real
+pins means direct-connect interrupt number <em>k</em>.
+<code>0x140</code> is interrupt 5, which is PDC pin 67, which is
+<strong>TLMM GPIO 104</strong>. The mapping checks out against three
+known pins: the SD card detect, the touchpad and the lid.</p>
+<p><code>gbgo-dtb-patch</code> builds the tree from the draft with three
+changed keyboard lines: interrupt <code>0x30</code> → <code>0x68</code>,
+pin <code>gpio48</code> → <code>gpio104</code>,
+<code>bias-disable</code> → <code>bias-pull-up</code>. After the
+change:</p>
+<pre><code>$ grep hid-over-i2c /proc/interrupts
+ 147:        799          0          0          0          0          0          0          0  msmgpio   104 Level     hid-over-i2c
+ 148:       4645          0          0          0          0          0          0          0  msmgpio    31 Level     hid-over-i2c
+ 
+$ journalctl -k -b | grep -c &quot;incomplete report&quot;
+0</code></pre>
+<p>The 799 interrupts on GPIO 104 are every key pressed since this boot,
+including the request that started this article.</p>
+<hr />
+<h4 id="mag_right-tip-rehearse-firmware-scripts-in-qemu">🔎 Tip:
+Rehearse Firmware Scripts in QEMU</h4>
+<p>The shell dump was run first in
+<code>qemu-system-aarch64 -M virt</code> with AAVMF, the laptop's own
+shim, GRUB and UEFI shell, and twelve extra FAT disks. That rehearsal
+showed three things before any reboot of the laptop:</p>
+<ul>
+<li>The shell runs <code>startup.nsh</code> only from the root of a
+filesystem.</li>
+<li>With many FAT partitions, the ESP sits past <code>fs9</code>, so the
+script searches by a marker file.</li>
+<li>Debian's UEFI shell has no <code>acpiview</code>. <code>dmem</code>
+with <code>&gt;</code> redirection works.</li>
+</ul>
+<hr />
+<h4 id="step-7--add-the-power-button-and-the-lid">Step 7 — Add the Power
+Button and the Lid</h4>
+<p>The same patch script adds two more devices to the tree:</p>
+<ul>
+<li><strong>Power button.</strong> The draft disables
+<code>pon@800</code>, so <code>pm8941-pwrkey</code> never binds.
+Enabling it gives <code>KEY_POWER</code> and GNOME's power-off
+dialog.</li>
+<li><strong>Lid.</strong> The draft has no node. ACPI <code>LID0</code>
+returns the raw level of GPIO 93, <code>1</code> for open, so a
+<code>gpio-keys</code> node reports <code>SW_LID</code> on TLMM 93,
+active low.</li>
+</ul>
+<p>Suspend is <code>s2idle</code> only. One cycle from the login screen
+resumed in 0.6 s, woken by Shift on the built-in keyboard, with Wi-Fi,
+Bluetooth and Ethernet back. Wake by lid is still missing, so closing
+the lid locks the screen.</p>
+<p>The PMIC clock was tested and left off. It reads 1970-01-03, because
+Samsung keeps the offset elsewhere, and it set the system clock to 1970
+at boot. systemd-timesyncd and NTP keep the time instead.</p>
+<hr />
+<h4 id="step-8--upgrade-to-sid-without-touching-the-boot">Step 8 —
+Upgrade to sid Without Touching the Boot</h4>
+<p>A Lenovo Yoga C630 running the same plan lost its boot when sid's
+GRUB 2.14 blacked out every kernel. The Book Go upgrade was built around
+that:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-3.png"
+alt="Table: Risk, Protection" /></p>
+<p><code>gbgo-boot-verify</code> runs before every reboot. It checks the
+holds, hashes all nine ESP files against the backup, runs
+<code>grub-script-check</code>, confirms the default entry carries the
+tree and the options, reads the tree, initramfs and
+<code>grub.cfg</code> off the raw disk, and lists the storage, keyboard
+and display modules and the GPU firmware inside every initramfs.</p>
+<p>The upgrade set up 1712 packages with no dpkg errors. GRUB stayed at
+2.12:</p>
+<pre><code>$ dpkg-query -W grub-efi-arm64-bin
+grub-efi-arm64-bin  2.12-9+deb13u2</code></pre>
+<p>Kernel 7.2.9 passed a one-time boot and became the default. On 7.2.9
+the GPU loads after the root mount, so the zap shader failure seen on
+6.12 is gone.</p>
+<hr />
+<h4 id="mag_right-tip-three-names-that-change-under-you">🔎 Tip: Three
+Names That Change Under You</h4>
+<ul>
+<li><strong>Disk.</strong> The root partition was <code>sda3</code> at
+install and is <code>sdc3</code> today. Every boot entry uses
+<code>UUID=</code>.</li>
+<li><strong>Wi-Fi.</strong> sid's systemd renames <code>wlan0</code> to
+<code>wld0</code> a few seconds into boot.</li>
+<li><strong>sudo path.</strong> sid's <code>sudo</code> no longer
+includes <code>/usr/local/sbin</code>. Call the scripts by full
+path.</li>
+</ul>
+<p><code>apt autoremove</code> after the upgrade would also have removed
+the fallback kernel and <code>mesa-va-drivers</code>. Both are now
+marked manual.</p>
+<hr />
+<h4 id="what-works">What Works?</h4>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-4.png"
+alt="Table: Hardware, State" /></p>
+<hr />
+<h4 id="compare-and-contrast">Compare and Contrast</h4>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-5.png"
+alt="Table: Yoga C630, Galaxy Book Go" /></p>
+<hr />
+<h4 id="so-is-it-a-daily-driver">So, Is It a Daily Driver?</h4>
+<p>For writing, terminals, a browser and SSH, yes. This article is the
+test: the keyboard, the Wayland desktop, Wi-Fi and the assistant ran
+together for the whole session without a fault.</p>
+<p>Three gaps decide where it stops. With no battery reading, nothing
+warns before the laptop dies. With no brightness control, the screen
+stays at the firmware's level. With no audio, calls and video need a
+Bluetooth headset, which is untested. And 3.4 GiB of memory pushes a
+browser plus a desktop into swap.</p>
+<hr />
+<h4 id="summary">Summary</h4>
+<p>The goal of this article was to run a current Debian with a full
+desktop on a laptop that has no upstream support, and then use it. The
+key to the solution was treating Samsung's Windows install as the
+reference: its driver store supplied the firmware, and its ACPI tables
+supplied the keyboard interrupt the community tree had guessed. The
+results were:</p>
+<ul>
+<li>🟢 Debian sid, kernel 7.2.9 and GNOME Shell 50.5 on Wayland, with
+GPU acceleration, video, Wi-Fi, Bluetooth, keyboard, touchpad, power
+button and lid.</li>
+<li>🟢 The keyboard interrupt flood is gone: 0
+<code>incomplete report</code> lines per boot.</li>
+<li>🟢 The sid upgrade left the boot path byte-identical, checked by
+script before each reboot.</li>
+<li>🟢 This article was written, fact-checked and built on the
+machine.</li>
+<li>❌ Audio, battery and brightness need device tree work that has not
+started.</li>
+<li>⚠️ Suspend has one tested cycle, and the Wi-Fi restart service has
+not yet fired on a real boot.</li>
+</ul>
+<p>Scope: one Galaxy Book Go (NP340XLA-KA3CA, Wi-Fi model, BIOS
+<code>P00AJW.036</code>), Debian sid as of 2026-10-11, Samsung firmware
+from the Windows driver store, brought up over two days, with the dog
+food session on 2026-10-12.</p>
+<p>The strategy for bringing up Debian on the Galaxy Book Go was
+validated with an incremental step by step approach.</p>
+<hr />
+<h4 id="references">References</h4>
+<ul>
+<li>Repository: <a
+href="https://github.com/xbill9/linux-arm-adventures">https://github.com/xbill9/linux-arm-adventures</a></li>
+<li>Galaxy Book Go notes: <a
+href="https://github.com/xbill9/linux-arm-adventures/tree/main/galaxy-book-go">galaxy-book-go/</a></li>
+<li>Debian on the Yoga C630, the companion article: <a
+href="https://github.com/xbill9/linux-arm-adventures/tree/main/articles/c630-debian">c630-debian</a></li>
+<li>Bring-up history: <a
+href="https://github.com/aarch64-laptops/debian-cdimage/issues/21">aarch64-laptops/debian-cdimage#21</a></li>
+<li>Current community status: <a
+href="https://github.com/velvet-os/imagebuilder/issues/136">velvet-os/imagebuilder#136</a></li>
+<li>Draft device tree: <a
+href="https://github.com/hexdump0815/linux-mainline-qcom-kernel/blob/main/readme.qc7">hexdump0815/linux-mainline-qcom-kernel</a></li>
+</ul>
+</body>
+</html>
