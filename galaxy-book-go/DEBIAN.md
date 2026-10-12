@@ -61,7 +61,7 @@ Still seen in the kernel log: `i2c_hid_of 6-0005: i2c_hid_get_input: incomplete 
 - 11:50: Samsung firmware: Wi-Fi, GPU, venus. See [FIRMWARE.md](FIRMWARE.md).
 - 2026-10-12 12:07: **zram swap.** At 11:59 Chrome (23 processes, 831 MB) and Chromium (11, 552 MB) ran together; 802 MiB of 3.4 GiB was available, 2.0 GiB sat in the disk swap (`sdc4`), and `vmstat` showed swap-ins every second. Installed `systemd-zram-generator` 1.2.1 with [system/zram-generator.conf](system/zram-generator.conf) → `/etc/systemd/zram-generator.conf`: `zram-size = ram`, `zstd`, priority 100, so it fills before the disk swap. Result: `/dev/zram0` 3.4G zstd, prio 100. After `systemctl restart systemd-zram-setup@zram0` the swap stays off until `systemctl start dev-zram0.swap`. **Not yet verified across a reboot.**
 
-## Audio (fourth test boot armed, 2026-10-12 15:27)
+## Audio (speakers work on the test DTB, 2026-10-12 16:59)
 
 User report: no sound at all. `aplay -l`: no soundcards; `adsp` remoteproc offline.
 
@@ -169,6 +169,24 @@ PipeWire opens `hw:0,0` as 8 channels `S24_LE`, quantum 1024 at 48 kHz, no error
 - `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `d5ce6f87d7a1058d…`, same on the raw disk. The third one is `….test.sd1` (`dcec14ea0cd6c37b…`). `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set.
 
 Expected: `bob` state `enabled` at 3296 mV, sound from the speakers with tertiary routed. Untested.
+
+### Fourth test boot (15:34): speakers play 16-bit audio
+
+`bob` is `enabled` at 3320 mV (the step above 3296 mV), `use 1`.
+
+| Stream to tertiary MI2S | Speakers (user) |
+|---|---|
+| PipeWire, `hw:0,0` 8 ch `S24_LE`, 440 Hz tone, 10 s and 30 s | silent |
+| `speaker-test -D hw:0,1 -c 2 -F S16_LE`, MultiMedia2 routed to tertiary | **tone heard** |
+| `-F S32_LE` | refused by the PCM (`Sample format not available`) |
+
+So the amp plays 16-bit stereo and stays silent on the 8-channel 24-bit stream. Whether BOB is needed as well is not tested: the 16-bit stream was never played with BOB off.
+
+Fix, 16:59:
+
+- [system/wireplumber/51-gbgo-audio.conf](system/wireplumber/51-gbgo-audio.conf) → `/etc/wireplumber/wireplumber.conf.d/`: card profile `pro-audio`, and the output node opened as `S16LE`, 2 channels, `FL FR`, named `Speakers`. After restarting PipeWire and WirePlumber, `hw_params` reads `S16_LE`, 2 channels, and a tone through the default sink plays from the speakers (user).
+- `TERT_MI2S_RX Audio Mixer MultiMedia1` on, saved with `alsactl store` (`alsa-restore.service` restores it). **Not yet verified across a reboot.**
+- Audio works on the test DTB only; the default DTB has no sound card.
 
 ## Brightness (in progress, 13:20)
 
