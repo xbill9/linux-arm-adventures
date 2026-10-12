@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc 3.11" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Debian on a Samsung Galaxy Book Go, Written on the Galaxy Book Go</title>
-  <meta name="description" content="A step by step guide to Debian sid with kernel 7.2 and GNOME on the Snapdragon 7c Gen 2 Galaxy Book Go, a laptop with no upstream device tree. Firmware from the Windows driver store, a keyboard interrupt read out of Samsung&#x27;s ACPI tables, speakers configured from Samsung&#x27;s Windows audio calibration, and an article written, checked and built on the machine it describes." />
+  <meta name="description" content="A step by step guide to Debian sid with kernel 7.2 and GNOME on the Snapdragon 7c Gen 2 Galaxy Book Go, a laptop with no upstream device tree. Firmware, interrupts, audio calibration and the charger protocol taken from Samsung&#x27;s Windows install, 26 boots over two days, and an article written, checked and built on the machine it describes." />
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -196,11 +196,11 @@ community draft into a machine that runs a daily desktop.</p>
 <p><a
 href="https://github.com/xbill9/linux-arm-adventures">https://github.com/xbill9/linux-arm-adventures</a></p>
 <p><strong>Kernel 7.2.9, GNOME 50.5 on Wayland, GPU acceleration, Wi-Fi,
-Bluetooth, the speakers, the keyboard, touchpad, power button, lid and
-suspend all work. The hardware video decoder works in mpv, and browsers
-decode in software. Battery reporting, brightness and the camera do not
-work. This article was written, fact-checked and built on the laptop it
-describes.</strong></p>
+Bluetooth, the speakers, the camera, the battery gauge and charging, the
+backlight, the keyboard, touchpad, power button, lid and suspend all
+work. The hardware video decoder works in mpv, and browsers decode in
+software. This article was written, fact-checked and built on the laptop
+it describes.</strong></p>
 <hr />
 <h4 id="what-is-the-problem">What Is the Problem?</h4>
 <p>The Galaxy Book Go has no upstream support. Mainline Linux has no
@@ -214,6 +214,26 @@ keyboard. So the laptop boots with a device tree, and every missing node
 in that tree is a missing device.</p>
 <p>Samsung publishes no driver pack for it either. The only copy of the
 signed firmware is the factory Windows install.</p>
+<hr />
+<h4 id="drivers-on-arm-take-boots">Drivers on ARM Take Boots</h4>
+<p>On a PC the kernel finds the hardware. On this laptop the kernel
+knows only what the device tree tells it, and each device needs three
+things before its driver binds: a node in the tree, Samsung's firmware,
+and a board fact read out of the Windows side, such as an interrupt pin
+or a power pin. A driver setup that runs on the Acer Aspire 1, with the
+same SoC, is a starting guess here. The draft tree's keyboard interrupt,
+display bridge interrupt and audio memory region came from the Aspire 1,
+and so did the first guess at the speaker data line. All four were wrong
+on this board.</p>
+<p>Every guess is tested with a reboot. The installed system logged 26
+boots over the two days of this bring-up, 16 on 2026-10-11 and 9 on
+2026-10-12, plus UEFI shell boots that leave no journal:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-1.png"
+alt="Table: Subsystem, Test boots, What the boots settled" /></p>
+<p>Each risky change goes in as a one-time boot with
+<code>grub-reboot</code>, so a black screen costs one power cycle. Plan
+for several boots per device, and check every file the boot reads before
+each one.</p>
 <hr />
 <h4 id="the-dog-food-test">The Dog Food Test</h4>
 <p>A port that boots to a login screen proves the boot path. A port that
@@ -268,7 +288,7 @@ never booted: its journal was empty.</p>
 installed as <code>/etc/grub.d/09_galaxy-book-go</code> so it runs
 before <code>10_linux</code>. Per kernel it writes three entries, each
 with the device tree and the clock options:</p>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-1.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-2.png"
 alt="Table: Entry id, What it is for" /></p>
 <p><code>GRUB_DEFAULT</code> names an entry id, never a position, and
 the menu waits 10 seconds. Every risky change after this is tried once
@@ -303,7 +323,7 @@ Firmware From Windows</h4>
 <code>qcom/sc7180/samsung/galaxy-book-go/</code>, and Wi-Fi needs a
 fifth. All five are in the Windows driver store. Where several driver
 versions sat side by side, the newest was taken:</p>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-2.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-3.png"
 alt="Table: File, Runs, Version" /></p>
 <p>A bad firmware file can reset a Qualcomm SoC on every boot. So
 nothing went into <code>/usr/lib/firmware</code> before it had run
@@ -327,6 +347,22 @@ software rendering.</p>
 <code>Boot failed: -22</code>. Samsung's image loads at
 <code>0x90b00000</code>, and the draft tree reserves the Aspire 1's
 region at <code>0x8e400000</code>. Step 9 fixes the region.</p>
+<hr />
+<h4 id="mag_right-tip-know-what-comes-from-windows">🔎 Tip: Know What
+Comes From Windows</h4>
+<p>Five signed binaries run this laptop's GPU, Wi-Fi, video and audio,
+and the only source for them is a Windows driver store. Debian's
+firmware packages ship none of them, and Samsung publishes no driver
+pack. They run on the modem, audio and video processors, outside what
+Linux can inspect. This repository keeps their hashes and source paths,
+and the files themselves stay out of it.</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-4.png"
+alt="Table: From Windows, Used for" /></p>
+<p>A Book Go whose Windows was wiped without a copy of its driver store
+has no source for the firmware. Copy
+<code>Windows\System32\DriverStore\FileRepository</code> off before
+installing Linux. The Yoga C630 has the same dependency: its firmware
+comes from Lenovo's Windows driver releases, mirrored on GitHub.</p>
 <hr />
 <h4 id="step-4--win-the-wi-fi-boot-race">Step 4 — Win the Wi-Fi Boot
 Race</h4>
@@ -455,7 +491,7 @@ Upgrade to sid Without Touching the Boot</h4>
 <p>A Lenovo Yoga C630 running the same plan lost its boot when sid's
 GRUB 2.14 blacked out every kernel. The Book Go upgrade was built around
 that:</p>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-3.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-5.png"
 alt="Table: Risk, Protection" /></p>
 <p><code>gbgo-boot-verify</code> runs before every reboot. It checks the
 holds, hashes all nine ESP files against the backup, runs
@@ -496,7 +532,7 @@ any I2C bus. The audio device <code>AUDD</code> drives two GPIOs, TLMM
 21 and 20, so the amplifier is a plain I2S amplifier with enable
 pins.</p>
 <p><code>gbgo-dtb-audio.py</code> adds the audio parts to the tree:</p>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-4.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-6.png"
 alt="Table: Change, Why" /></p>
 <p>The port comes from Samsung's Windows audio package. Its calibration
 database maps each audio device to a port record:
@@ -509,7 +545,7 @@ so nothing turns it on without the tree change.</p>
 <p>With all of that in place the card comes up, and the speakers still
 stay silent under PipeWire. The amplifier plays 16-bit stereo, and
 PipeWire opens the port as 8 channels of 24-bit audio:</p>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-5.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-7.png"
 alt="Table: Stream to tertiary MI2S, Speakers" /></p>
 <p>A WirePlumber rule opens the speakers as 16-bit stereo:</p>
 <pre><code>monitor.alsa.rules = [
@@ -544,7 +580,7 @@ Decoder</h4>
 through V4L2. Debian's ffmpeg reaches it as <code>h264_v4l2m2m</code>
 and <code>vp9_v4l2m2m</code>. Twenty seconds of 1080p30 test pattern,
 600 frames:</p>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-6.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-8.png"
 alt="Table: Clip, Decoder, Wall, CPU" /></p>
 <p>Venus decodes about 80 frames a second at about a twenty-fifth of the
 CPU.</p>
@@ -572,31 +608,112 @@ seconds each of 1080p60 H.264, 720p60 H.264 and 1080p60 VP9 decoded with
 runs discarded the video output, so playback on the screen is not yet
 measured.</p>
 <hr />
+<h4 id="step-11--charge-the-battery">Step 11 — Charge the Battery</h4>
+<p>Samsung's ACPI tables give the embedded controller I2C resources at
+<code>0x09</code> and <code>0x0b</code> on <code>i2c@890000</code>.
+<code>0x0b</code> answers the Smart Battery word commands, and Linux's
+<code>sbs-battery</code> driver reads it once the tree has a node:</p>
+<pre><code>battery@b {
+    compatible = &quot;sbs,sbs-battery&quot;;
+    reg = &lt;0x0b&gt;;
+};
+POWER_SUPPLY_MANUFACTURER=SDI
+POWER_SUPPLY_MODEL_NAME=4432D53
+POWER_SUPPLY_CHARGE_FULL_DESIGN=5320000
+POWER_SUPPLY_CYCLE_COUNT=8</code></pre>
+<p>The battery then reported <code>Not charging</code> with the adapter
+in, and it was right: zero current, constant charge. <code>0x09</code>
+is a TI BQ25710 charger (manufacturer ID <code>0x0040</code>, device ID
+<code>0x0089</code>). Its readings after a one-shot conversion:</p>
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-9.png"
+alt="Table: Register, Reading" /></p>
+<p>The BQ25710 datasheet explains the zero: the charger "terminate[s]
+charging if the charger does not receive a write MaxChargeVoltage() or
+write ChargeCurrent() command within 175 s". The charge voltage of 8760
+mV is set before Linux starts, and nothing in Linux writes the charger,
+so charging stops within 175 s of Linux taking over.</p>
+<p><code>gbgo-charge</code> plays the host. Every 60 s it reads the
+battery's own requests and passes them to the charger, capped at 8760 mV
+and 2048 mA, and it writes 0 when the battery reports full, asks for 0,
+or reads outside 0–45 °C. If the service stops, the charger's timer ends
+charging within 175 s.</p>
+<pre><code>$ journalctl -u gbgo-charge | tail -1
+gbgo-charge[827]: charge: 8760 mV, 2048 mA (gauge asks 8860 mV 6916 mA; battery 7993 mV, 26 C, charger status 0x8400)
+ 
+$ upower -i /org/freedesktop/UPower/devices/battery_sbs_4_000b | grep -E &quot;state|time to&quot;
+    state:               charging
+    time to full:        3.0 hours</code></pre>
+<p>The battery went from 30 % to 68 % in 53 minutes across a reboot,
+with the service restarting on its own.</p>
+<hr />
+<h4 id="step-12--power-the-camera">Step 12 — Power the Camera</h4>
+<p>The camera never enumerated, and nothing in the tree mentions one.
+Samsung's ACPI tables put it on USB: <code>ICAM</code> sits on port 4 of
+the internal hub <code>EHUB</code>, and the hub's power-on method
+switches it on:</p>
+<pre><code>Method (_PS0, 0, NotSerialized)
+{
+    ADBG (&quot;EHUB_PS0&quot;)
+    \_SB.GIO0.CAME = One
+}</code></pre>
+<p><code>CAME</code> is an output on TLMM GPIO 13, which the boot
+firmware leaves low. Driving it high brought the camera up at once:</p>
+<pre><code>usb 1-1.4: Product: 720p HD Camera
+usb 1-1.4: Manufacturer: Chicony
+uvcvideo 1-1.4:1.0: Found UVC 1.00 device 720p HD Camera (04f2:b72f)</code></pre>
+<p>A <code>gpio-hog</code> in the tree holds GPIO 13 high from boot. The
+camera now registers before the video decoder, so it takes
+<code>/dev/video0</code> and <code>video1</code>, and Venus moves to
+<code>video2</code> and <code>video3</code>.</p>
+<hr />
+<h4 id="step-13--find-the-backlight-channel">Step 13 — Find the
+Backlight Channel</h4>
+<p>Samsung's panel configuration names a PMIC-driven PWM backlight at
+6250 Hz, and the boot firmware leaves the PM6150L light pulse generator
+(LPG) running. With <code>pwm-backlight</code> on LPG3, the GNOME slider
+moved LPG3's duty cycle and the screen stayed the same.</p>
+<p>LPG4 was running at 50 % with nothing in Linux holding it. Exported
+through <code>/sys/class/pwm</code>, it was switched between 5 % and 100
+% every 2 seconds:</p>
+<pre><code>C=/sys/class/pwm/pwmchip1/pwm3
+for i in $(seq 1 20); do
+  echo 8000 &gt; $C/duty_cycle; sleep 2
+  echo 159688 &gt; $C/duty_cycle; sleep 2
+done</code></pre>
+<p>The screen got darker and brighter in step.
+<code>pwm-backlight</code> now uses channel index 3, and the slider
+drives LPG4:</p>
+<pre><code> pwm-3   (backlight           ): requested
+  requested configuration:  enabled, 158889/160000 ns, normal polarity</code></pre>
+<hr />
 <h4 id="what-works">What Works?</h4>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-7.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-10.png"
 alt="Table: Hardware, State" /></p>
 <hr />
 <h4 id="compare-and-contrast">Compare and Contrast</h4>
-<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-8.png"
+<p><img src="https://raw.githubusercontent.com/xbill9/linux-arm-adventures/main/articles/galaxy-book-go-debian/medium/img/devto-galaxy-book-go-debian-table-11.png"
 alt="Table: Yoga C630, Galaxy Book Go" /></p>
 <hr />
 <h4 id="so-is-it-a-daily-driver">So, Is It a Daily Driver?</h4>
 <p>For writing, terminals, a browser and SSH, yes. This article is the
 test: the keyboard, the Wayland desktop, Wi-Fi and the assistant ran
 together for the whole session without a fault.</p>
-<p>Three gaps decide where it stops. With no battery reading, nothing
-warns before the laptop dies. With no brightness control, the screen
-stays at the firmware's level. With software video decode in the browser
-and 3.4 GiB of memory, YouTube stutters in Chrome, and plays through the
-hardware decoder in mpv. The speakers work, and the camera does not.</p>
+<p>The battery reading, charging, brightness, speakers and camera close
+the gaps that kept it on a desk. What remains: browsers decode video in
+software, and with 3.4 GiB of memory YouTube stutters in Chrome and
+plays through the hardware decoder in mpv. The headphone jack and
+microphone are untested, USB-C works only when plugged in at boot, and
+every Wi-Fi, GPU, video and audio feature rests on firmware copied out
+of Windows.</p>
 <hr />
 <h4 id="summary">Summary</h4>
 <p>The goal of this article was to run a current Debian with a full
 desktop on a laptop that has no upstream support, and then use it. The
 key to the solution was treating Samsung's Windows install as the
-reference: its driver store supplied the firmware, and its ACPI tables
-supplied the keyboard interrupt the community tree had guessed. The
-results were:</p>
+reference: its driver store supplied the firmware and the audio
+calibration, and its ACPI tables supplied the keyboard interrupt, the
+camera power pin and the battery addresses that the community tree
+lacked. Each fix took one or more test boots. The results were:</p>
 <ul>
 <li>🟢 Debian sid, kernel 7.2.9 and GNOME Shell 50.5 on Wayland, with
 GPU acceleration, Wi-Fi, Bluetooth, keyboard, touchpad, power button and
@@ -612,15 +729,20 @@ interrupt storm is gone too.</li>
 script before each reboot.</li>
 <li>🟢 This article was written, fact-checked and built on the
 machine.</li>
-<li>❌ Battery, brightness and the camera need device tree work that has
-not started.</li>
+<li>🟢 The battery reads and charges: a service relays the battery's
+requests to the BQ25710 charger every 60 s.</li>
+<li>🟢 The camera, powered by GPIO 13, and brightness, on PM6150L
+LPG4.</li>
+<li>⚠️ Wi-Fi, GPU, video and audio depend on five firmware files found
+only in a Windows driver store.</li>
 <li>⚠️ Suspend has one tested cycle, and the Wi-Fi restart service has
 not yet fired on a real boot.</li>
 </ul>
 <p>Scope: one Galaxy Book Go (NP340XLA-KA3CA, Wi-Fi model, BIOS
 <code>P00AJW.036</code>), Debian sid as of 2026-10-11, Samsung firmware
-from the Windows driver store, brought up over two days, with the dog
-food session and the audio and video tests on 2026-10-12.</p>
+from the Windows driver store, brought up over two days and 26 logged
+boots, with the dog food session and the audio, video, battery, camera
+and backlight work on 2026-10-12.</p>
 <p>The strategy for bringing up Debian on the Galaxy Book Go was
 validated with an incremental step by step approach.</p>
 <hr />
@@ -638,6 +760,8 @@ href="https://github.com/aarch64-laptops/debian-cdimage/issues/21">aarch64-lapto
 href="https://github.com/velvet-os/imagebuilder/issues/136">velvet-os/imagebuilder#136</a></li>
 <li>Draft device tree and kernel notes (<code>readme.qc7</code>): <a
 href="https://github.com/hexdump0815/linux-mainline-qcom-kernel">hexdump0815/linux-mainline-qcom-kernel</a></li>
+<li>BQ25710 charger datasheet: <a
+href="https://www.ti.com/lit/ds/symlink/bq25710.pdf">ti.com/lit/ds/symlink/bq25710.pdf</a></li>
 </ul>
 </body>
 </html>

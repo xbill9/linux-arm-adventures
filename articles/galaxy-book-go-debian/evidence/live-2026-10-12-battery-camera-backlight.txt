@@ -1,0 +1,153 @@
+# Live capture, Galaxy Book Go, 2026-10-12T19:06:27-04:00: battery, charger, camera, backlight
+
+$ cat /sys/class/power_supply/sbs-4-000b/uevent
+DEVTYPE=power_supply
+OF_NAME=battery
+OF_FULLNAME=/soc@0/geniqup@8c0000/i2c@890000/battery@b
+OF_COMPATIBLE_0=sbs,sbs-battery
+OF_COMPATIBLE_N=1
+POWER_SUPPLY_NAME=sbs-4-000b
+POWER_SUPPLY_TYPE=Battery
+POWER_SUPPLY_STATUS=Charging
+POWER_SUPPLY_HEALTH=Unknown
+POWER_SUPPLY_PRESENT=1
+POWER_SUPPLY_TECHNOLOGY=Li-ion
+POWER_SUPPLY_CYCLE_COUNT=8
+POWER_SUPPLY_VOLTAGE_MAX_DESIGN=7720000
+POWER_SUPPLY_VOLTAGE_MIN_DESIGN=7720000
+POWER_SUPPLY_VOLTAGE_NOW=8316000
+POWER_SUPPLY_CURRENT_NOW=2067000
+POWER_SUPPLY_CURRENT_AVG=2067000
+POWER_SUPPLY_CHARGE_FULL_DESIGN=5320000
+POWER_SUPPLY_CHARGE_FULL=5380000
+POWER_SUPPLY_CHARGE_NOW=3779000
+POWER_SUPPLY_CONSTANT_CHARGE_CURRENT_MAX=5320000
+POWER_SUPPLY_CONSTANT_CHARGE_VOLTAGE_MAX=8860000
+POWER_SUPPLY_ENERGY_FULL_DESIGN=41070000
+POWER_SUPPLY_ENERGY_FULL=41530000
+POWER_SUPPLY_ENERGY_NOW=29170000
+POWER_SUPPLY_CAPACITY=70
+POWER_SUPPLY_CAPACITY_ERROR_MARGIN=0
+POWER_SUPPLY_CAPACITY_LEVEL=Normal
+POWER_SUPPLY_TEMP=273
+POWER_SUPPLY_TIME_TO_EMPTY_NOW=3932100
+POWER_SUPPLY_TIME_TO_EMPTY_AVG=3932100
+POWER_SUPPLY_TIME_TO_FULL_AVG=2520
+POWER_SUPPLY_TYPE=Battery
+POWER_SUPPLY_MANUFACTURE_YEAR=2021
+POWER_SUPPLY_MANUFACTURE_MONTH=7
+POWER_SUPPLY_MANUFACTURE_DAY=9
+POWER_SUPPLY_MODEL_NAME=4432D53
+POWER_SUPPLY_MANUFACTURER=SDI
+POWER_SUPPLY_SERIAL_NUMBER=0c05
+
+$ upower -i /org/freedesktop/UPower/devices/battery_sbs_4_000b
+  native-path:          sbs-4-000b
+  vendor:               SDI
+  model:                4432D53
+  serial:               0c05
+  power supply:         yes
+  updated:              Mon 12 Oct 2026 07:06:12 PM EDT (16 seconds ago)
+  has history:          yes
+  has statistics:       yes
+  battery
+    present:             yes
+    rechargeable:        yes
+    state:               charging
+    warning-level:       none
+    energy:              29.09 Wh
+    energy-empty:        0 Wh
+    energy-full:         41.53 Wh
+    energy-full-design:  41.07 Wh
+    voltage-min-design:  7.72 V
+    voltage-max-design:  7.72 V
+    capacity-level:      Normal
+    energy-rate:         16.7489 W
+    voltage:             8.313 V
+    charge-cycles:       8
+    time to full:        44.5 minutes
+    percentage:          70%
+    temperature:         27.3 degrees C
+    capacity:            100%
+    technology:          lithium-ion
+    icon-name:          'battery-full-charging-symbolic'
+  History (charge):
+    1791846342	70.000	charging
+  History (rate):
+    1791846372	16.749	charging
+    1791846342	16.757	charging
+    1791846312	17.954	charging
+    1791846282	16.755	charging
+  History (voltage):
+    1791846372	8.313	charging
+    1791846342	8.307	charging
+    1791846312	8.300	charging
+    1791846282	8.295	charging
+
+
+$ journalctl -u gbgo-charge -b --no-pager
+Oct 12 18:15:11 debian systemd[1]: Starting gbgo-charge.service - Galaxy Book Go: relay the battery's charge requests to the charger...
+Oct 12 18:15:11 debian systemd[1]: Started gbgo-charge.service - Galaxy Book Go: relay the battery's charge requests to the charger.
+Oct 12 18:15:11 debian gbgo-charge[827]: charge: 8760 mV, 2048 mA (gauge asks 8860 mV 6916 mA; battery 7993 mV, 26 C, charger status 0x8400)
+
+$ lsusb
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 002: ID 0424:2514 Microchip Technology, Inc. (formerly SMSC) USB 2.0 Hub
+Bus 001 Device 003: ID 0b95:1790 ASIX Electronics Corp. AX88179 Gigabit Ethernet
+Bus 001 Device 004: ID 045e:0737 Microsoft Corp. Compact Optical Mouse 500
+Bus 001 Device 005: ID 04f2:b72f Chicony Electronics Co., Ltd 720p HD Camera
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+
+$ journalctl -k -b --no-pager -o cat | grep -E 'usb 1-1.4|uvcvideo'
+usb 1-1.4: new high-speed USB device number 5 using xhci-hcd
+usb 1-1.4: New USB device found, idVendor=04f2, idProduct=b72f, bcdDevice=92.98
+usb 1-1.4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+usb 1-1.4: Product: 720p HD Camera
+usb 1-1.4: Manufacturer: Chicony
+uvcvideo 1-1.4:1.0: Found UVC 1.00 device 720p HD Camera (04f2:b72f)
+usbcore: registered new interface driver uvcvideo
+
+$ sudo grep -A3 pwm-3 /sys/kernel/debug/pwm
+ pwm-3   (backlight           ): requested
+  requested configuration:  enabled, 158889/160000 ns, normal polarity
+  actual configuration:     enabled, 158750/159688 ns, normal polarity
+ pwm-4   ((null)              ):
+
+$ cat /sys/class/backlight/backlight/brightness /sys/class/backlight/backlight/max_brightness
+4084
+4095
+
+$ dpkg -L firmware-qcom-soc | grep -ic samsung
+0
+
+$ journalctl --list-boots
+IDX BOOT ID                          FIRST ENTRY                 LAST ENTRY
+-25 9b4bd8cc571648e7b4daddc41de70c85 Mon 2026-04-13 15:38:06 EDT Sun 2026-10-11 11:44:01 EDT
+-24 0df61c4f104348328322be8e9cf24816 Sun 2026-10-11 11:44:02 EDT Sun 2026-10-11 11:46:50 EDT
+-23 4ddb412ec502434fa21b9e9cd979d5f7 Sun 2026-10-11 11:46:51 EDT Sun 2026-10-11 11:48:59 EDT
+-22 bc40bbd5c8864d2791f65ee1bd8486f3 Sun 2026-10-11 11:48:59 EDT Sun 2026-10-11 11:58:30 EDT
+-21 c0d458899fa2492dbfa1f22c2d9e6677 Sun 2026-10-11 11:58:30 EDT Sun 2026-10-11 12:00:32 EDT
+-20 9a44708cee9f4a46810856d2fe761b04 Sun 2026-10-11 12:00:33 EDT Sun 2026-10-11 12:02:41 EDT
+-19 82024f3f37074e519c65def7ebe0fd28 Sun 2026-10-11 12:02:41 EDT Sun 2026-10-11 12:26:58 EDT
+-18 074aa11a813744c8baf512ff9c1e75ad Sun 2026-10-11 12:26:58 EDT Sun 2026-10-11 12:39:36 EDT
+-17 36b9add7278f4b30aa517de161a5aa02 Sun 2026-10-11 12:39:36 EDT Sun 2026-10-11 12:44:44 EDT
+-16 2159c1c35448444f906f8eb1cce1bf15 Sun 2026-10-11 12:44:44 EDT Sun 2026-10-11 12:55:31 EDT
+-15 df40bab9833947828eb8211bf7ec2e1d Sun 2026-10-11 12:55:31 EDT Sun 2026-10-11 12:58:55 EDT
+-14 892c1ff0829d4a3ab43abff311890caf Sun 2026-10-11 12:58:55 EDT Sun 2026-10-11 13:00:43 EDT
+-13 3b091cdd1b4d4f35aec233ee2153af42 Sun 2026-10-11 13:00:43 EDT Sun 2026-10-11 13:07:39 EDT
+-12 bcfe007e53e8434dbb4021a720a83792 Sun 2026-10-11 13:07:40 EDT Sun 2026-10-11 14:06:14 EDT
+-11 55b2fae2a5634150be944dc76b60c4ea Sun 2026-10-11 14:06:15 EDT Sun 2026-10-11 14:10:08 EDT
+-10 c9385ebcb90f40a799b52c47c57915b8 Sun 2026-10-11 14:10:09 EDT Sun 2026-10-11 19:24:32 EDT
+ -9 2b1bcb0cbd7d4395a61851d8d26c2a21 Sun 2026-10-11 19:24:33 EDT Mon 2026-10-12 06:07:28 EDT
+ -8 62774d38b84c4ce99af1746113c3e77e Mon 2026-10-12 06:13:05 EDT Mon 2026-10-12 12:56:48 EDT
+ -7 112a1ed34ece4c2da349b59233471584 Mon 2026-10-12 12:56:49 EDT Mon 2026-10-12 13:15:02 EDT
+ -6 b0b817fb861d4f7e9ae1c1ba5965dbff Mon 2026-10-12 13:15:03 EDT Mon 2026-10-12 14:39:02 EDT
+ -5 7f01e8aa67fb48b28ebb1041a9f1fd81 Mon 2026-10-12 14:39:03 EDT Mon 2026-10-12 15:32:56 EDT
+ -4 e79bdea10c624f97814667ac8443a9ef Mon 2026-10-12 15:32:57 EDT Mon 2026-10-12 17:13:08 EDT
+ -3 75d8edb436124b9db77fcb317326543f Mon 2026-10-12 17:13:09 EDT Mon 2026-10-12 17:35:18 EDT
+ -2 5e6fa173f279489fa5ed70f5e1149ce4 Mon 2026-10-12 17:35:19 EDT Mon 2026-10-12 17:49:44 EDT
+ -1 b5a54353d60f4070a30693925069e23a Mon 2026-10-12 17:49:45 EDT Mon 2026-10-12 18:15:05 EDT
+  0 0e2db9d5bfa647b88d61baefae5930e6 Mon 2026-10-12 18:15:06 EDT Mon 2026-10-12 19:06:29 EDT
+
+# charger 0x09 readings 18:0x (from DEBIAN.md): ChargerStatus 0x8000, ChargeCurrent 0x0000, MaxChargeVoltage 0x2238, ADCVBUS 0xb9 -> 15040 mV, ManufacturerID 0x0040, DeviceID 0x0089
+# charge: 30 % at 18:09, 68 % at 19:02

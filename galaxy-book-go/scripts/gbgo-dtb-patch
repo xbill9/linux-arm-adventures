@@ -20,7 +20,7 @@
 #     2026-10-12: LPG3 (index 2) follows a pwm-backlight but leaves the screen
 #     unchanged; LPG4, left running by the firmware at 50 %, dims and brightens
 #     the screen when driven through /sys/class/pwm (seen by the user).
-#     Only applied with GBGO_BACKLIGHT=1. The bridge PWM (pwmchip0,
+#     On by default; GBGO_BACKLIGHT=0 leaves it out. The bridge PWM (pwmchip0,
 #     ti_sn65dsi86.pwm) was tested live 2026-10-11 and does not change brightness.
 #  3. lid: no node at all. ACPI LID0 returns the raw level of GPIO 93
 #     (1 = open), so SW_LID on TLMM 93, active low.
@@ -53,7 +53,7 @@ TLMM=$(awk '/pinctrl@3500000 \{/{f=1} f&&/phandle = </{gsub(/.*<|>.*/,""); print
 [ -n "$TLMM" ] || { echo "TLMM phandle not found" >&2; exit 1; }
 # a phandle no node uses yet, for the LPG
 LPGPH=$(printf '0x%x' $(( $(grep -o 'phandle = <0x[0-9a-f]*>' "$T/in.dts" | sed 's/.*<\(0x[0-9a-f]*\)>/\1/' | sort -u | while read -r h; do printf '%d\n' "$h"; done | sort -n | tail -1) + 1 )))
-BL=${GBGO_BACKLIGHT:-0}
+BL=${GBGO_BACKLIGHT:-1}
 awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" -v birq="$BIRQ" '
   # 3. lid switch: a new top-level node, just before the root node closes
   #    (dtc wants a node'"'"'s properties before its subnodes)
@@ -115,7 +115,7 @@ diff -u "$T/in.dts" "$T/out.dts" || true
 # exactly the expected edits: +25 (3 keyboard, 10 lid, 1 bridge pinctrl, 4 battery,
 # 7 camera hog)
 # -7 (3 keyboard, pon status, 3 bridge),
-# plus +7 -1 with GBGO_BACKLIGHT=1 (2 lpg, 5 backlight; lpg status)
+# plus +7 -1 for the backlight (2 lpg, 5 backlight; lpg status), unless GBGO_BACKLIGHT=0
 add=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>' || true)
 del=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^<' || true)
 want_add=25; want_del=7; [ "$BL" = 1 ] && want_add=32 && want_del=8

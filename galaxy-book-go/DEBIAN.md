@@ -291,7 +291,7 @@ Fix: [scripts/gbgo-charge](scripts/gbgo-charge) (`/usr/local/sbin/`) + [system/g
 
 Result: `charge: 8760 mV, 2048 mA (gauge asks 8860 mV 6916 mA; battery 7877 mV, 24 C, charger status 0x8400)`. Gauge current 2067 mA, `POWER_SUPPLY_STATUS=Charging`, UPower `charging`, 3.0 h to full. Input 1400 mA at 15 V.
 
-Not yet tested: the stop path, unplugging and replugging the adapter, charging to full, across a reboot.
+Verified across a reboot (18:15). Not yet tested: the stop path, unplugging and replugging the adapter, charging to full.
 
 ## Brightness: LPG3 ruled out (18:10)
 
@@ -299,7 +299,11 @@ On the test DTB, `pwm-backlight` drives LPG3 (index 2): the slider changes `/sys
 
 LPG4 (index 3, not requested by Linux) is running from the boot firmware: `enabled, 80000/159688 ns`, 50 %. Exported through `/sys/class/pwm/pwmchip1`. At 25 % the user could not tell. Switched between 8000 ns (5 %) and 159688 ns (100 %) every 2 s for 80 s: **the screen got brighter and darker** (user, 18:13). LPG4 is the backlight.
 
-Test boot armed (18:14): `gbgo-dtb-patch` fix 4 now puts `pwm-backlight` on index 3 (LPG4). `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `5c08a26797f4c591…`, same on the raw disk; it differs from the 17:49 test DTB (now `….test.lpg3`, `edbc2a9eeae7e0e4…`) by `pwms = <… 0x02 …>` → `0x03` only. `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set. Expected: the GNOME slider changes the screen. Untested.
+Test boot armed (18:14): `gbgo-dtb-patch` fix 4 now puts `pwm-backlight` on index 3 (LPG4). `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb.test` = `5c08a26797f4c591…`, same on the raw disk; it differs from the 17:49 test DTB (now `….test.lpg3`, `edbc2a9eeae7e0e4…`) by `pwms = <… 0x02 …>` → `0x03` only. `gbgo-boot-verify`: all checks pass. `grub-reboot gbgo-dtbtest-7.2.9+deb14-arm64` set. Expected: the GNOME slider changes the screen.
+
+LPG4 test boot (18:15): `/sys/class/backlight/backlight` holds `pwm-3` (`requested configuration: enabled, 158889/160000 ns`), brightness 4084/4095. `gbgo-charge` started at 18:15:11 and charged on its own (battery 30 % at 18:09, 68 % at 19:02, `Charging`), so charging across a reboot is verified. Camera on `1-1.4`. Slider effect by eye: not yet confirmed.
+
+Default, 19:03: `/boot/dtb/sc7180-samsung-galaxy-book-go.dtb` = `5c08a26797f4c591…` (bridge IRQ off, battery, camera hog, backlight on LPG4), same on the raw disk; the previous default is `….dtb.nobattery` (`a547e6a4bf115e62…`). `gbgo-dtb-patch` now adds the backlight unless `GBGO_BACKLIGHT=0`; `gbgo-dtb-patch` on `.dtb.orig` then `gbgo-dtb-audio.py` reproduces the default byte for byte. `gbgo-boot-verify`: all checks pass.
 
 Since the camera hog, the camera probes first: it is `/dev/video0` and `video1`, Venus `video2` and `video3`.
 

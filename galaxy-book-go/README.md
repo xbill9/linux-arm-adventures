@@ -46,7 +46,7 @@ Order of attack:
 
 | Device | State | Notes |
 |---|---|---|
-| Display | framebuffer works; **very dim** | GPU (freedreno) works with Windows firmware in the initrd. One user fixed the dim maximum by building with every backlight driver disabled (6.19.10); others blacklist `msm`. No brightness control |
+| Display | works; backlight PWM is PM6150L **LPG4** (`pwm-backlight` in the default DTB, slider effect by eye not yet confirmed); display bridge IRQ removed | See DEBIAN.md "Brightness", "Display bridge IRQ" |
 | Keyboard | **flaky** | `geni_i2c … Bus arbitration lost, clock line undriveable` plus `i2c_hid_of` log spam, which **costs CPU** and returns after 10–15 min idle. Pressing Esc early in boot stops it. The GPIO interrupt is guessed (TLMM 32→38; "about half [of candidates] work"). **Phantom keypresses** on 20251220-01 |
 | Keyboard in X11 (trixie) | needs workaround | It is detected as a mouse. Install `xserver-xorg-input-evdev` and add `/etc/X11/xorg.conf.d/52-keyboard.conf` with `MatchIsKeyboard "on"`, `MatchDevicePath "/dev/input/event*"`, `Driver "evdev"` (included in images since 251028) |
 | Keyboard in Wayland | broken | libinput sees event0 as `tablet_pad`. Workaround: weston x11 backend |
@@ -55,8 +55,8 @@ Order of attack:
 | USB-C | works only if connected **at boot**, alongside USB-A | |
 | Wi-Fi | works with Windows firmware (+ pd-mapper) | |
 | Bluetooth | works with a MAC workaround | systemd oneshot `Before=bluetooth.service` running `echo \| btmgmt -i hci0 public-addr <real MAC from Windows ipconfig /all>` |
-| Battery | SBS gauge at `0x0b` on `i2c@890000` (`sbs-battery`); **charges** with `gbgo-charge.service` relaying the gauge's requests to the BQ25710 charger at `0x09`; DTB node under test | See DEBIAN.md "Battery", "Charging" |
-| Camera | Chicony 720p UVC on internal hub port 4, powered by TLMM 13; works when GPIO 13 is driven high; DTB hog under test | See DEBIAN.md "Camera" |
+| Battery | SBS gauge at `0x0b` on `i2c@890000` (`sbs-battery`, in the default DTB); **charges** with `gbgo-charge.service` relaying the gauge's requests to the BQ25710 charger at `0x09` | See DEBIAN.md "Battery", "Charging" |
+| Camera | Chicony 720p UVC on internal hub port 4, powered by TLMM 13 (gpio-hog in the default DTB) | See DEBIAN.md "Camera" |
 | Audio | **speakers work** (audio DTB is the default; 16-bit stereo on tertiary MI2S); headphones and mic untested | See DEBIAN.md "Audio" |
 | Video decode | Venus (H.264, VP8, VP9, HEVC, MPEG-2) works in mpv/ffmpeg via V4L2; **browsers decode in software** (no VA-API driver) | See DEBIAN.md "Video decode" |
 | UFS | works | keep Windows on it (firmware source); run Linux from USB/SD |
