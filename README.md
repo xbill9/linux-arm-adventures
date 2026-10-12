@@ -30,6 +30,9 @@ c630/
   backups/                    boot partitions, configs and logs pulled from the laptop
 articles/
   c630-debian/                the C630 write-up for dev.to, Medium and Substack: source markdown, cover, Medium HTML, evidence
+  galaxy-book-go-debian/       the Galaxy Book Go write-up (dev.to draft 4838962, Medium HTML), written on the machine; cover, evidence
+setup/
+  new-machine.sh              pull Claude Code config, memories, publishing kit, dev.to key and git identity from an older install
 galaxy-book-go/
   README.md                   research: keyboard triage, Linux state of the art, boot tricks, sources
   DEBIAN.md                   Debian 13 on this unit: why it didn't boot, the DTB boot fix, keyboard-as-tablet fix, recovery
