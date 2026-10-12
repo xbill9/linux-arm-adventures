@@ -1,0 +1,68 @@
+#!/bin/sh
+# Galaxy Book Go: keep the battery charging. Runs as gbgo-charge.service.
+#   gbgo-charge          loop forever (the service)
+#   gbgo-charge once     one pass, print what it read and wrote
+#   gbgo-charge stop     set the charge current to 0
+# The charger is a TI bq25710 family part (SMBus 0x09, ManufacturerID 0x0040,
+# DeviceID 0x0089) next to the Smart Battery gauge (0x0b) on i2c@890000. Its
+# watchdog sets ChargeCurrent (0x14) to 0 unless the host writes it within
+# 175 s (bq25710 datasheet 9.3.10.1), and nothing in Linux writes it, so the
+# battery never charges. This plays the host: every 60 s it relays the gauge's
+# own requests (ChargingVoltage 0x15, ChargingCurrent 0x14) to the charger,
+# with these limits:
+#   voltage: min(gauge request, 8760 mV, the value the boot firmware programs);
+#            a request outside 8000..8900 mV stops charging
+#   current: min(gauge request, CAP_MA); a request of 0 or 0xffff stops it
+#   stop when the gauge reports FULLY_CHARGED (0x20) or a temperature
+#   outside 0..45 C
+# If this script dies, the charger's watchdog stops charging within 175 s.
+set -e
+CAP_MA=${GBGO_CHARGE_CAP_MA:-2048}
+VMAX_MV=8760
+G=0x0b; C=0x09
+
+bus() {
+  for d in /sys/bus/i2c/devices/i2c-*; do
+    case $(readlink -f "$d") in */890000.i2c/*) echo "${d##*-}"; return;; esac
+  done
+  echo "i2c@890000 not found" >&2; exit 1
+}
+B=$(bus)
+rd() { i2cget -f -y "$B" "$1" "$2" w; }
+wr() { i2cset -f -y "$B" "$C" "$1" "$2" w; }
+
+stop() { wr 0x14 0x0000; }
+
+pass() {
+  st=$(( $(rd $G 0x16) )); t=$(( $(rd $G 0x08) )); vb=$(( $(rd $G 0x09) ))
+  ri=$(( $(rd $G 0x14) )); rv=$(( $(rd $G 0x15) ))
+  tc=$(( (t - 2732) / 10 ))
+  why=
+  [ $(( st & 0x20 )) -ne 0 ] && why="fully charged"
+  [ "$tc" -lt 0 ] || [ "$tc" -gt 45 ] && why="temperature $tc C"
+  [ "$ri" -eq 0 ] || [ "$ri" -eq 65535 ] && why="${why:-gauge requests ${ri} mA}"
+  [ "$rv" -lt 8000 ] || [ "$rv" -gt 8900 ] && why="${why:-gauge requests ${rv} mV}"
+  if [ -n "$why" ]; then
+    stop; echo "stop: $why (battery ${vb} mV, status $(printf 0x%04x $st))"; return
+  fi
+  v=$rv; [ "$v" -gt $VMAX_MV ] && v=$VMAX_MV
+  i=$ri; [ "$i" -gt "$CAP_MA" ] && i=$CAP_MA
+  vreg=$(( (v / 8) << 3 )); ireg=$(( (i / 64) << 6 ))
+  wr 0x15 "$(printf 0x%04x $vreg)"; wr 0x14 "$(printf 0x%04x $ireg)"
+  echo "charge: $(( vreg )) mV, $(( (ireg >> 6) * 64 )) mA (gauge asks ${rv} mV ${ri} mA; battery ${vb} mV, ${tc} C, charger status $(rd $C 0x20))"
+}
+
+case ${1:-loop} in
+  once) pass ;;
+  stop) stop; echo "charge current 0" ;;
+  loop)
+    trap 'stop; exit 0' TERM INT
+    last=
+    while :; do
+      msg=$(pass 2>&1) || msg="error: $msg"
+      # log only when the decision changes, not every minute
+      k=${msg%% (*}; [ "$k" != "$last" ] && echo "$msg"; last=$k
+      sleep 60 & wait $!
+    done ;;
+  *) sed -n '2,5p' "$0"; exit 1 ;;
+esac

@@ -55,7 +55,7 @@ Order of attack:
 | USB-C | works only if connected **at boot**, alongside USB-A | |
 | Wi-Fi | works with Windows firmware (+ pd-mapper) | |
 | Bluetooth | works with a MAC workaround | systemd oneshot `Before=bluetooth.service` running `echo \| btmgmt -i hci0 public-addr <real MAC from Windows ipconfig /all>` |
-| Battery | SBS gauge at `0x0b` on `i2c@890000` works with `sbs-battery` (bound by hand); DTB node under test | See DEBIAN.md "Battery" |
+| Battery | SBS gauge at `0x0b` on `i2c@890000` (`sbs-battery`); **charges** with `gbgo-charge.service` relaying the gauge's requests to the BQ25710 charger at `0x09`; DTB node under test | See DEBIAN.md "Battery", "Charging" |
 | Camera | Chicony 720p UVC on internal hub port 4, powered by TLMM 13; works when GPIO 13 is driven high; DTB hog under test | See DEBIAN.md "Camera" |
 | Audio | **speakers work** (audio DTB is the default; 16-bit stereo on tertiary MI2S); headphones and mic untested | See DEBIAN.md "Audio" |
 | Video decode | Venus (H.264, VP8, VP9, HEVC, MPEG-2) works in mpv/ffmpeg via V4L2; **browsers decode in software** (no VA-API driver) | See DEBIAN.md "Video decode" |

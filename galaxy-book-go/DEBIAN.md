@@ -268,6 +268,39 @@ Expected: `/sys/class/power_supply/sbs-4-000b`, the camera on `1-1.4`, `/sys/cla
 - Backlight: `/sys/class/backlight/backlight`, `max_brightness` 4095, brightness 2048. The screen is lit. Whether brightness changes the screen: not yet checked by eye.
 - 31 kernel warnings at `-p warning` (26 on the default DTB). `running`, no failed units.
 
+## Charging (fixed 18:09)
+
+The battery reported `Not charging` with the adapter in because it was not charging: gauge current 0 on every read, remaining capacity flat at 1605 mAh for a minute.
+
+The charger is the device at `0x09` on `i2c@890000`: `ManufacturerID` (`0xfe`) `0x0040`, `DeviceID` (`0xff`) `0x0089`, registers matching TI's BQ25710 datasheet (SLUSD20B: SMBus address `09h` for the BQ25710; `ChargeOption0` `0x12` reads `0xe70e`, the reset value). Its state, after a one-shot ADC conversion (`ADCOption` `0x35` = `0x60ff`):
+
+| Register | Value | Meaning |
+|---|---|---|
+| `ChargerStatus` `0x20` | `0x8000` | `AC_STAT`: adapter present, not charging |
+| `ChargeCurrent` `0x14` | `0x0000` | charge current 0 |
+| `MaxChargeVoltage` `0x15` | `0x2238` | 8760 mV |
+| `ADCVBUS` `0x23` | `0xb9..` | VBUS 15040 mV (USB-C PD at 15 V) |
+| `ADCVSYSVBAT` `0x26` | `0x4b49` | VSYS 7680 mV, VBAT 7552 mV |
+| `ADCIBAT` `0x24` | `0x0000` | no charge or discharge current |
+
+The datasheet (9.3.10.1): "The charger includes watchdog timer to terminate charging if the charger does not receive a write MaxChargeVoltage() or write ChargeCurrent() command within 175 s … all register values are kept unchanged except ChargeCurrent() resets to zero." `ChargeOption0` bits 14:13 = `11b`, the 175 s watchdog. Nothing in Linux writes the charger, so charging stops 175 s after the boot firmware's last write. The gauge asks for 8860 mV and 6916 mA (`0x15`, `0x14`). On Windows the EC's driver (`EMEC`, `SAM0604`, OEM operation region `0x9C` with `CHST`, `VOLT`, `CHGC`, `CHTY`) and `PM3P` (`SAM0606`) handle this; the Windows drivers were not on hand to confirm which writes the charger. The C630's EC charges on its own.
+
+Test 18:06: `ChargeCurrent` = `0x0200` (512 mA) once → `ChargerStatus` `0x8400` (fast charge), `ADCIBAT` 448 mA, gauge current 518 mA, gauge status `0x0080` (discharging bit clear).
+
+Fix: [scripts/gbgo-charge](scripts/gbgo-charge) (`/usr/local/sbin/`) + [system/gbgo-charge.service](system/gbgo-charge.service) (enabled). Every 60 s it relays the gauge's requests: voltage `min(request, 8760 mV)`, current `min(request, 2048 mA)` (`GBGO_CHARGE_CAP_MA`). It writes 0 when the gauge asks for 0 or `0xffff`, reports `FULLY_CHARGED` (`0x20`, as in the kernel's `sbs-battery.c`), reads outside 0–45 °C, or asks for a voltage outside 8000–8900 mV. On `SIGTERM` it writes 0; if it dies, the watchdog stops charging within 175 s.
+
+Result: `charge: 8760 mV, 2048 mA (gauge asks 8860 mV 6916 mA; battery 7877 mV, 24 C, charger status 0x8400)`. Gauge current 2067 mA, `POWER_SUPPLY_STATUS=Charging`, UPower `charging`, 3.0 h to full. Input 1400 mA at 15 V.
+
+Not yet tested: the stop path, unplugging and replugging the adapter, charging to full, across a reboot.
+
+## Brightness: LPG3 ruled out (18:10)
+
+On the test DTB, `pwm-backlight` drives LPG3 (index 2): the slider changes `/sys/class/backlight/backlight` and LPG3's registers follow (`0xb341` `0x13`, `0xb342` `0x21` = 19.2 MHz, 9-bit, pre-divider 3, exponent 1 = 160 µs; `0xb344` duty `0x5e`), and the screen does not change (user). `/sys/kernel/debug/pwm` misreports LPG3's actual state as `19688/19688 ns`.
+
+LPG4 (index 3, not requested by Linux) is running from the boot firmware: `enabled, 80000/159688 ns`, 50 %. Exported through `/sys/class/pwm/pwmchip1` and set to 40000 ns (25 %) at 18:11. Whether the screen dimmed: waiting on the user.
+
+Since the camera hog, the camera probes first: it is `/dev/video0` and `video1`, Venus `video2` and `video3`.
+
 ## Brightness (in progress, 13:20)
 
 No `/sys/class/backlight`. Findings:

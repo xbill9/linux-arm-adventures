@@ -1,0 +1,13 @@
+[Unit]
+Description=Galaxy Book Go: relay the battery's charge requests to the charger
+After=systemd-modules-load.service
+
+[Service]
+Type=simple
+ExecStartPre=/sbin/modprobe i2c-dev
+ExecStart=/usr/local/sbin/gbgo-charge
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
