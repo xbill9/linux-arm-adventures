@@ -1,0 +1,5 @@
+devto = https://dev.to/xbill/debian-on-a-samsung-galaxy-book-go-written-on-the-galaxy-book-go-p99
+medium = https://medium.com/@xbill999/debian-on-a-samsung-galaxy-book-go-written-on-the-galaxy-book-go-480c488bc9b5
+substack = https://xbill9.substack.com/p/debian-on-a-samsung-galaxy-book-go
+repo = https://github.com/xbill9/linux-arm-adventures
+linkedin = https://www.linkedin.com/feed/update/urn:li:share:7515579655433654272/

@@ -1,0 +1,23 @@
+More Claude Code adventures on ARM laptops.
+Can a Windows-on-ARM laptop with no upstream Linux support become a daily Debian machine?
+
+I put Debian sid on a Samsung Galaxy Book Go (Snapdragon 7c Gen 2) and wrote the article on it.
+
+Speakers, camera, battery charging, brightness, Wi-Fi, Bluetooth and the GPU all work now. Every risky change got its own one-time test boot: 26 boots over two days, five of them for the speakers alone.
+
+The board facts came from Samsung's Windows install: the keyboard and camera pins from its ACPI tables, the speaker routing from its audio calibration, and five firmware files from its driver store. Debian ships none of that firmware, and that part still bothers me.
+
+The charger needed a small service: the TI BQ25710 stops charging unless the host rewrites its charge current every 175 seconds.
+
+Write ups are here:
+
+dev.to:
+https://dev.to/xbill/debian-on-a-samsung-galaxy-book-go-written-on-the-galaxy-book-go-p99
+
+Medium:
+https://medium.com/@xbill999/debian-on-a-samsung-galaxy-book-go-written-on-the-galaxy-book-go-480c488bc9b5
+
+Substack:
+https://xbill9.substack.com/p/debian-on-a-samsung-galaxy-book-go
+
+#debian #linux #arm64 #snapdragon
