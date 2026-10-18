@@ -195,6 +195,30 @@ Kernel 7.2.9 on the audio DTB as the default entry: `adsp` up at 7.8 s from the 
 
 Still open: headphones (RT5682 on primary MI2S, `HPOL`/`HPOR` muted by default), the internal mic (quaternary MI2S TX per Samsung's ACDB; the DTB has primary TX), and whether BOB is needed.
 
+### No sound card on one boot; boot check added (2026-10-18 17:21)
+
+Boot of 2026-10-18 17:03, kernel 7.2.9, default DTB `5c08a26797f4c591…`: `aplay -l` → no soundcards, and `platform sound: deferred probe pending: msm-snd-sc7180: MultiMedia1: error getting cpu dai name`. The previous four boots on the same kernel and DTB had card 0.
+
+| | Boot -1 (card 0) | This boot (no card) |
+|---|---|---|
+| `remote processor adsp is now up` | 9.4 s | 3.2 s |
+| `Adding APR/GPR dev: aprsvc:service:4:{3,4,7,8}` | right after | none |
+| `apr_audio_svc` rpmsg channel | bound to `qcom,apr` | bound to `qcom,apr` |
+| `qrtr-ns`, `rmtfs`, `tqftpserv` | same | same |
+
+`echo stop`, then `echo start` on `remoteproc1` (`adsp`): the four APR services register, card 0 `SamsungGalaxyBo` probes, PipeWire shows `Speakers`. `alsactl restore 0` puts back `TERT_MI2S_RX Audio Mixer MultiMedia1` `on`.
+
+#### Hypothesis (not yet tested)
+
+The early DSP start races the APR service registration. What it races against is not known.
+
+Fix, same shape as `gbgo-wifi-kick`:
+
+- [scripts/gbgo-audio-kick](scripts/gbgo-audio-kick) → `/usr/local/sbin/`: waits 20 s for `/proc/asound/card0`; if it is missing, restarts `adsp`, waits up to 30 s for the card, then runs `alsactl restore 0`.
+- [system/gbgo-audio-kick.service](system/gbgo-audio-kick.service) → `/etc/systemd/system/`, enabled (`multi-user.target`), after `alsa-restore.service`.
+
+Tested live (17:21): with card 0 present the unit logs `sound card present` and exits. With `adsp` stopped by hand, the script restarts it, card 0 comes back in 24.6 s total, the mixer route reads `on`, and PipeWire's default sink is `Speakers`. **Not yet verified across a reboot**, and the race path has only been exercised with the DSP stopped by hand.
+
 ## Video decode (17:20)
 
 Venus decodes H.264, VP8, VP9, HEVC and MPEG-2 (`v4l2-ctl --list-formats-out` on `/dev/video0`) and encodes H.264, VP8 and HEVC. No VA-API driver exists for it: `vainfo` tries `msm_drv_video.so` and fails (`vaInitialize failed`).

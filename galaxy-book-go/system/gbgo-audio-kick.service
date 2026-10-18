@@ -1,0 +1,12 @@
+[Unit]
+Description=Galaxy Book Go: restart the audio DSP if the sound card didn't come up
+After=systemd-modules-load.service alsa-restore.service
+Wants=alsa-restore.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/gbgo-audio-kick
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
