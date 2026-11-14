@@ -45,6 +45,11 @@ The modem powers up a few ms after `rmtfs`/`tqftpserv` start. When it asks for `
 
 [scripts/gbgo-wifi-kick](scripts/gbgo-wifi-kick) + [system/gbgo-wifi-kick.service](system/gbgo-wifi-kick.service) (`After=rmtfs tqftpserv`): if `wlan0` hasn't appeared 10 s after the services, restart the modem. The restart itself was tested live; **the service has not yet had to fire during a real boot** (the one verified boot won the race and it logged `wlan0 present`).
 
+2026-11-14: two faults kept this from working.
+
+- **`tqftpserv` started at ~97 s on every boot.** `tqftpserv` 1.2-1 ships `tqftpserv-populate-readwrite.service` (`Before=tqftpserv.service`), which `Requires=` `/dev/disk/by-partlabel/persist`. The Book Go has no partition by that name, so systemd waits out its 90 s device timeout first. Masked (`systemctl mask tqftpserv-populate-readwrite.service`). Expected: `tqftpserv` starts with `rmtfs` at ~10 s. **Not yet verified across a reboot.**
+- **`gbgo-wifi-kick` could not find the modem.** It matched `/sys/class/remoteproc/*/name` against `4080000.remoteproc`; on 7.3.4 and 7.4.0-rc2 that file reads `modem`. Under 7.4.0-rc2 it logged `no remoteproc 4080000.remoteproc` and exited 1, and that boot had no built-in Wi-Fi for 2.5 h (the modem never crashed, so it never retried). It now matches the remoteproc's device, and it checks `18800000.wifi` only: a USB Wi-Fi adapter used to satisfy it (7.3.4, 14:19 boot: `Wi-Fi present (wlxc83a35c254cc)` while the built-in Wi-Fi was still down). Tested live with Wi-Fi up: `Wi-Fi present (wld0)`, exit 0; the device lookup finds `remoteproc0`.
+
 ## Audio DSP: wrong reserved memory
 
 2026-10-12: a DTB with the region grown to cover Samsung's layout is armed for a one-time boot; `qcadsp7180.mbn` is now installed. See [DEBIAN.md](DEBIAN.md#audio-test-boot-armed-2026-10-12-1251).

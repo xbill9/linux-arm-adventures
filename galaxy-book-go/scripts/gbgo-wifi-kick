@@ -5,22 +5,26 @@
 # its watchdog crashes and the kernel restarts it, ~40 s later.
 # Restarting the modem once the services are up fixes it (tested 2026-10-11).
 # Run by gbgo-wifi-kick.service; does nothing if the Wi-Fi netdev already exists.
-# Checked by device, not by name: sid's systemd (naming scheme v261) renames
-# wlan0 to wld0 a few seconds into boot.
+# Checks the built-in Wi-Fi (18800000.wifi) only, so a USB Wi-Fi adapter does
+# not count, and by device, not by name: sid's systemd (naming scheme v261)
+# renames wlan0 to wld0 a few seconds into boot.
+# The modem remoteproc is found by its device (4080000.remoteproc): its sysfs
+# name is "modem" on 7.3 and 7.4.
 set -e
-wifi_up() { ls /sys/class/ieee80211/phy*/device/net/* >/dev/null 2>&1; }
-wifi_name() { basename "$(ls -d /sys/class/ieee80211/phy*/device/net/* 2>/dev/null | head -1)"; }
-NAME=4080000.remoteproc
+WIFI=/sys/bus/platform/devices/18800000.wifi
+MODEM=4080000.remoteproc
+wifi_up() { ls "$WIFI"/net/* >/dev/null 2>&1; }
+wifi_name() { basename "$(ls -d "$WIFI"/net/* 2>/dev/null | head -1)"; }
 for _ in 1 2 3 4 5 6 7 8 9 10; do
   wifi_up && { echo "Wi-Fi present ($(wifi_name))"; exit 0; }
   sleep 1
 done
 R=
 for r in /sys/class/remoteproc/remoteproc*; do
-  [ "$(cat "$r/name")" = "$NAME" ] && R=$r
+  [ "$(basename "$(readlink -f "$r/device")")" = "$MODEM" ] && R=$r
 done
-[ -n "$R" ] || { echo "no remoteproc $NAME" >&2; exit 1; }
-echo "no Wi-Fi netdev after 10 s; restarting $NAME ($R)"
+[ -n "$R" ] || { echo "no remoteproc for $MODEM" >&2; exit 1; }
+echo "no Wi-Fi netdev after 10 s; restarting $MODEM ($R)"
 [ "$(cat "$R/state")" = running ] && echo stop > "$R/state"
 sleep 2
 echo start > "$R/state"
