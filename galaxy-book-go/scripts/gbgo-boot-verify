@@ -66,7 +66,8 @@ for i in /boot/initrd.img-*; do
   L=$(lsinitramfs "$i" 2>/dev/null) || { fail "$i does not unpack"; continue; }
   miss=""
   for m in ufs-qcom phy-qcom-qmp-ufs i2c-qcom-geni i2c-hid-of msm qcom-rpmh-regulator; do
-    echo "$L" | grep -q "/$m\.ko" || miss="$miss $m"
+    # a self-built kernel may have it built in (listed in modules.builtin) instead
+    echo "$L" | grep -q "/$m\.ko" || grep -q "/$m\.ko\$" "/lib/modules/$v/modules.builtin" 2>/dev/null || miss="$miss $m"
   done
   # built into the kernel (=y) on Debian's arm64 config, so never in the initramfs as a module
   grep -q '^CONFIG_PINCTRL_SC7180=y' "/boot/config-$v" || echo "$L" | grep -q '/pinctrl-sc7180\.ko' || miss="$miss pinctrl-sc7180"
