@@ -13,9 +13,17 @@ CFG=/boot/efi/EFI/grub214/grub.cfg
 [ -f $CFG ] || exit 0
 ESP_UUID=$(${grub_probe} --target=fs_uuid /boot/efi)
 echo "Found GRUB 2.14 test menu: $CFG" >&2
+# g214_step (grubenv) records how far 2.14 got; see 09_galaxy-book-go.
 cat <<EOF
 if [ x\$feature_gcry_hw_accel = xy ]; then
-  search --no-floppy --fs-uuid --set=g214esp $ESP_UUID
-  configfile (\$g214esp)/EFI/grub214/grub.cfg
+  set g214_step=214-started
+  save_env g214_step
+  if search --no-floppy --fs-uuid --set=g214esp $ESP_UUID; then
+    set g214_step=214-esp-found
+    save_env g214_step
+    configfile (\$g214esp)/EFI/grub214/grub.cfg
+  fi
+  echo "GRUB 2.14 test: \$g214_step, test menu not reached; continuing with the normal menu"
+  sleep 10
 fi
 EOF

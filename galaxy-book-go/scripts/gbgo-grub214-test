@@ -34,6 +34,8 @@ set timeout_style=menu
 set default=g214
 search --no-floppy --fs-uuid --set=root $ROOT_UUID
 load_env -f /boot/grub/grubenv g214_stage
+set g214_step=214-menu
+save_env -f /boot/grub/grubenv g214_step
 export g214_stage
 menuentry "GRUB 2.14 TEST (\$g214_stage): Debian $KVER (Galaxy Book Go DTB)" --id g214 {
 	linux	/boot/vmlinuz-$KVER root=UUID=$ROOT_UUID ro clk_ignore_unused pd_ignore_unused ignore_loglevel msm.transparent_hugepage=0 gbgo_grub=214 gbgo_g214=\$g214_stage
@@ -84,7 +86,7 @@ arm() {
   verify
   mkdir -p $D
   echo grub > $D/stage
-  grub-editenv $ENV unset g214_stage
+  grub-editenv $ENV unset g214_stage g214_step
   grub-reboot gbgo-grub214-grub
   grub-editenv $ENV list
   log "armed stage grub (kernel $KVER)"
@@ -95,7 +97,8 @@ check() {
   [ -f $D/stage ] || exit 0
   stage=$(cat $D/stage)
   C=$(cat /proc/cmdline)
-  grub-editenv $ENV unset g214_stage
+  step=$(grub-editenv $ENV list | sed -n "s/^g214_step=//p")
+  grub-editenv $ENV unset g214_stage g214_step
   m=fail
   case " $C " in *" gbgo_grub=214 "*)
     case " $C " in *" gbgo_g214=$stage "*) m=pass ;; esac ;;
@@ -103,7 +106,7 @@ check() {
   case $m in
     pass)
       st=$(timeout 600 systemctl is-system-running --wait || true)
-      log "PASS stage $stage: kernel $(uname -r), system $st, failed units: $(systemctl --failed --no-legend | awk '{print $2}' | tr '\n' ' ')"
+      log "PASS stage $stage (last step ${step:-none}): kernel $(uname -r), system $st, failed units: $(systemctl --failed --no-legend | awk '{print $2}' | tr '\n' ' ')"
       log "     cmdline: $C"
       if [ "$stage" = grub ]; then
         echo shim > $D/stage
@@ -117,7 +120,7 @@ check() {
       fi ;;
     *)
       rm -f $D/stage
-      log "FAIL stage $stage: this boot did not come from the 2.14 test entry"
+      log "FAIL stage $stage: this boot did not come from the 2.14 test entry; last step: ${step:-none recorded}"
       log "     cmdline: $C" ;;
   esac
 }

@@ -24,7 +24,12 @@ Checked before arming: `gbgo-grub214-test verify` (hashes, `grub-script-check` o
 
 ## Results
 
-Pending: armed 2026-11-18 13:22 (`next_entry=gbgo-grub214-grub`).
+| Run | Armed | Result |
+|---|---|---|
+| 1, stage grub | 13:22 | **FAIL, cause unknown.** The boot (13:26) came up on the normal default entry: 7.3.4, command line without `gbgo_grub=214`. GRUB 2.12 had cleared `next_entry`, so the test entry ran. Kernel log, EFI tables and command line match the earlier 7.3.4 boots under 2.12 (2026-11-14), so they can't tell which GRUB loaded the kernel. Two explanations fit: (A) 2.12's chainload of 2.14 failed and 2.12 fell back to its default; (B) 2.14 started, did not reach its test menu, and booted the default through the normal menu. `feature_gcry_hw_accel` is in 2.14's built-in feature list (`strings`), so the branch itself should fire under 2.14. |
+| 2, stage grub | 13:32 | Pending. Adds `g214_step` to `grubenv` at each step (see below) and an on-screen message with a pause when a step fails. |
+
+`g214_step`, written by GRUB with `save_env` and logged by the check: `2.12-chain-start` → `2.12-chainloader-failed` or `2.12-start-returned` (2.12 side), `214-started` → `214-esp-found` → `214-menu` (2.14 side). The last value tells how far the boot got.
 
 ## Clean up
 

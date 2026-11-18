@@ -73,6 +73,9 @@ fi
 # gbgo-grub214-grub chainloads GRUB 2.14 itself; gbgo-grub214-shim chainloads
 # the new shim, which loads the GRUB 2.14 next to it. g214_stage tells the 2.14
 # test menu which one ran, and lands on the kernel command line.
+# g214_step in grubenv records how far each try got (read by gbgo-grub214-test check):
+#   2.12-chain-start -> 2.12-chainloader-failed | 2.12-start-returned
+#   -> 214-started -> 214-esp-found -> 214-menu   (00_grub214, then the test menu)
 # Arm with: gbgo-grub214-test arm
 G214=/boot/efi/EFI/grub214
 if [ -f $G214/grubaa64.efi ] && [ -f $G214/shimaa64.efi ]; then
@@ -81,12 +84,22 @@ if [ -f $G214/grubaa64.efi ] && [ -f $G214/shimaa64.efi ]; then
     cat <<ENTRY
 menuentry 'GRUB 2.14 test: chainload EFI/grub214/${s}aa64.efi (gbgo-grub214-$s)' --id gbgo-grub214-$s {
 	set g214_stage=$s
-	save_env g214_stage
+	set g214_step=2.12-chain-start
+	save_env g214_stage g214_step
 	insmod part_gpt
 	insmod fat
 	insmod chain
 	search --no-floppy --fs-uuid --set=root $ESP_UUID
-	chainloader /EFI/grub214/${s}aa64.efi
+	if chainloader /EFI/grub214/${s}aa64.efi; then
+		boot
+		set g214_step=2.12-start-returned
+	else
+		set g214_step=2.12-chainloader-failed
+	fi
+	search --no-floppy --fs-uuid --set=root $GRUB_DEVICE_UUID
+	save_env g214_step
+	echo "GRUB 2.14 test: \$g214_step. Back to the menu in 15 s."
+	sleep 15
 }
 ENTRY
   done
