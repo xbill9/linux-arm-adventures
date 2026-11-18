@@ -37,11 +37,12 @@ galaxy-book-go/
   README.md                   research: keyboard triage, Linux state of the art, boot tricks, sources
   DEBIAN.md                   Debian 13 on this unit: why it didn't boot, the DTB boot fix, keyboard-as-tablet fix, recovery
   SID.md                      trixie -> sid: holds, initramfs hook, off-machine backup, recovery
+  GRUB214.md                  GRUB 2.14 tested by chainloading it from 2.12 (packages stay held), boot-time PASS/FAIL check
   ACPI.md                     Samsung's ACPI tables: dumping them via a UEFI-shell one-time boot, virtual-pin -> GPIO map
   FIRMWARE.md                 Samsung firmware from the Windows DriverStore: tested staging, one-time GRUB test, Wi-Fi boot race, ADSP memory
   AUDIT-2026-10-11.md         drivers / firmware / hardware / system-tools audit of the Debian install
-  scripts/                    09_galaxy-book-go (GRUB generator with the DTB), gbgo-fix-boot.sh (applies it from rescue), gbgo-firmware, gbgo-wifi-kick, gbgo-audio-kick, gbgo-bt-addr, gbgo-dtb-patch, gbgo-sid-upgrade, gbgo-boot-verify, gbgo-dtb-audio.py, gbgo-audio-check, acpi-*.py
-  system/                     61-gbgo-keyboard.rules (keyboard tagged as a tablet pad), gbgo-wifi-kick.service, gbgo-audio-kick.service, gbgo-bt-addr.service, zram-generator.conf,
+  scripts/                    09_galaxy-book-go (GRUB generator with the DTB), gbgo-fix-boot.sh (applies it from rescue), gbgo-firmware, gbgo-wifi-kick, gbgo-audio-kick, gbgo-bt-addr, gbgo-dtb-patch, gbgo-sid-upgrade, gbgo-boot-verify, 00_grub214 + gbgo-grub214-test (GRUB 2.14 test), gbgo-dtb-audio.py, gbgo-audio-check, acpi-*.py
+  system/                     61-gbgo-keyboard.rules (keyboard tagged as a tablet pad), gbgo-wifi-kick.service, gbgo-audio-kick.service, gbgo-bt-addr.service, gbgo-grub214-test.service, zram-generator.conf,
                               logind/ (lid locks until suspend is tested), gschema/ (power button shows the dialog)
   efi-shell/                  startup.nsh: ACPI dump from the UEFI shell
   initramfs/                  gbgo-firmware hook (GPU firmware into the initramfs)

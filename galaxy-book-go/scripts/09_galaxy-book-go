@@ -17,7 +17,7 @@ set -e
 . /usr/share/grub/grub-mkconfig_lib  # sets grub_probe and the helpers below
 DTB=${GBGO_DTB:-/boot/dtb/sc7180-samsung-galaxy-book-go.dtb}
 ARGS="clk_ignore_unused pd_ignore_unused"
-DBG="ignore_loglevel"
+DBG="ignore_loglevel msm.transparent_hugepage=0 log_buf_len=16M efi=debug memblock=debug drm.debug=0x1e"
 # SAFE: no display driver (EFI framebuffer only) and no Qualcomm DSP/modem.
 SAFE="modprobe.blacklist=msm,qcom_q6v5_pas,qcom_q6v5_mss ignore_loglevel"
 # FWTEST: only while /usr/lib/firmware-gbgo-test exists. Firmware there is tried
@@ -67,4 +67,27 @@ menuentry 'UEFI Shell: dump ACPI tables (gbgo-shell)' --id gbgo-efishell {
 	chainloader /EFI/gbgo-shell/shellaa64.efi
 }
 ENTRY
+fi
+
+# GRUB 2.14 test (GRUB214.md), only while EFI/grub214 is on the ESP.
+# gbgo-grub214-grub chainloads GRUB 2.14 itself; gbgo-grub214-shim chainloads
+# the new shim, which loads the GRUB 2.14 next to it. g214_stage tells the 2.14
+# test menu which one ran, and lands on the kernel command line.
+# Arm with: gbgo-grub214-test arm
+G214=/boot/efi/EFI/grub214
+if [ -f $G214/grubaa64.efi ] && [ -f $G214/shimaa64.efi ]; then
+  ESP_UUID=$(${grub_probe} --target=fs_uuid /boot/efi)
+  for s in grub shim; do
+    cat <<ENTRY
+menuentry 'GRUB 2.14 test: chainload EFI/grub214/${s}aa64.efi (gbgo-grub214-$s)' --id gbgo-grub214-$s {
+	set g214_stage=$s
+	save_env g214_stage
+	insmod part_gpt
+	insmod fat
+	insmod chain
+	search --no-floppy --fs-uuid --set=root $ESP_UUID
+	chainloader /EFI/grub214/${s}aa64.efi
+}
+ENTRY
+  done
 fi

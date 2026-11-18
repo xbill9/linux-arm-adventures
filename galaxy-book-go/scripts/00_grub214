@@ -1,0 +1,21 @@
+#!/bin/sh
+# GRUB generator for the GRUB 2.14 test (see GRUB214.md). Installed as
+# /etc/grub.d/00_grub214, so its output comes before 00_header.
+# Under GRUB 2.14 only (it defines feature_gcry_hw_accel, 2.12 does not), the
+# menu jumps to the test menu on the ESP, EFI/grub214/grub.cfg, before
+# 00_header can insmod anything: 2.14 must not load 2.12 modules from
+# /boot/grub/arm64-efi. Under 2.12 the block is skipped.
+# Emits nothing unless the 2.14 test menu is on the ESP. Remove this file and
+# run update-grub when the test is over.
+set -e
+. /usr/share/grub/grub-mkconfig_lib
+CFG=/boot/efi/EFI/grub214/grub.cfg
+[ -f $CFG ] || exit 0
+ESP_UUID=$(${grub_probe} --target=fs_uuid /boot/efi)
+echo "Found GRUB 2.14 test menu: $CFG" >&2
+cat <<EOF
+if [ x\$feature_gcry_hw_accel = xy ]; then
+  search --no-floppy --fs-uuid --set=g214esp $ESP_UUID
+  configfile (\$g214esp)/EFI/grub214/grub.cfg
+fi
+EOF

@@ -1,0 +1,132 @@
+#!/bin/sh
+# GRUB 2.14 test on the Galaxy Book Go (see GRUB214.md), without installing it.
+# GRUB 2.12 stays the boot loader; a one-time entry chainloads 2.14 from
+# /boot/efi/EFI/grub214. Two stages, one reboot each:
+#   grub  GRUB 2.12 -> GRUB 2.14 -> kernel
+#   shim  GRUB 2.12 -> new shim -> GRUB 2.14 -> kernel
+# A hang or black screen: hold power 10 s; the next boot is the normal default
+# under 2.12, and the check below records FAIL.
+#
+#   gbgo-grub214-test menu    write EFI/grub214/grub.cfg for the GRUB_DEFAULT kernel
+#   gbgo-grub214-test verify  check every file the test boot reads
+#   gbgo-grub214-test arm     verify, then arm stage grub for the next boot
+#   gbgo-grub214-test check   run at boot by gbgo-grub214-test.service: record
+#                             PASS/FAIL; after a grub PASS, arm shim and reboot in 2 min
+#   gbgo-grub214-test status  print the results
+set -e
+G=/boot/efi/EFI/grub214
+D=/var/lib/gbgo-grub214
+R=$D/results.log
+ENV=/boot/grub/grubenv
+DTB=/boot/dtb/sc7180-samsung-galaxy-book-go.dtb
+ROOT_UUID=$(findmnt -no UUID /)
+KVER=$(sed -n "s/^GRUB_DEFAULT=gbgo-//p" /etc/default/grub)
+log() { echo "$(date -Is) $*" | tee -a $R; }
+
+menu() {
+  [ -n "$KVER" ] && [ -f /boot/vmlinuz-$KVER ] && [ -f /boot/initrd.img-$KVER ] && [ -f $DTB ] \
+    || { echo "kernel $KVER, its initrd or the DTB is missing" >&2; exit 1; }
+  # Read by GRUB 2.14 only. Uses built-in commands only: no insmod.
+  cat > $G/grub.cfg.new <<EOF
+# GRUB 2.14 test menu, written by gbgo-grub214-test menu. Read only by GRUB 2.14.
+set timeout=10
+set timeout_style=menu
+set default=g214
+search --no-floppy --fs-uuid --set=root $ROOT_UUID
+load_env -f /boot/grub/grubenv g214_stage
+export g214_stage
+menuentry "GRUB 2.14 TEST (\$g214_stage): Debian $KVER (Galaxy Book Go DTB)" --id g214 {
+	linux	/boot/vmlinuz-$KVER root=UUID=$ROOT_UUID ro clk_ignore_unused pd_ignore_unused ignore_loglevel msm.transparent_hugepage=0 gbgo_grub=214 gbgo_g214=\$g214_stage
+	initrd	/boot/initrd.img-$KVER
+	devicetree	$DTB
+}
+menuentry "GRUB 2.14 TEST: same, no initramfs (a root-mount panic on screen means the handoff works)" --id g214-noinitrd {
+	linux	/boot/vmlinuz-$KVER root=UUID=$ROOT_UUID ro clk_ignore_unused pd_ignore_unused ignore_loglevel gbgo_grub=214 gbgo_g214=noinitrd
+	devicetree	$DTB
+}
+menuentry "Reboot (back to GRUB 2.12)" --id g214-reboot {
+	reboot
+}
+EOF
+  grub-script-check $G/grub.cfg.new
+  mv $G/grub.cfg.new $G/grub.cfg
+  (cd $G && sha256sum grubaa64.efi shimaa64.efi grub.cfg > SHA256SUMS.new && mv SHA256SUMS.new SHA256SUMS)
+  sync
+  echo "wrote $G/grub.cfg for $KVER"
+}
+
+verify() {
+  bad=0
+  ok() { echo "OK    $*"; }
+  no() { echo "FAIL  $*"; bad=1; }
+  (cd $G && sha256sum -c --quiet SHA256SUMS) && ok "EFI/grub214 files match SHA256SUMS" || no "EFI/grub214 hashes"
+  strings $G/grubaa64.efi | grep -qx '2.14-5' && ok "grubaa64.efi is 2.14-5" || no "grubaa64.efi is not 2.14-5"
+  grub-script-check $G/grub.cfg && ok "test menu syntax" || no "test menu syntax"
+  grub-script-check /boot/grub/grub.cfg && ok "grub.cfg syntax" || no "grub.cfg syntax"
+  for id in gbgo-grub214-grub gbgo-grub214-shim; do
+    grep -q -- "--id $id " /boot/grub/grub.cfg && ok "grub.cfg has $id" || no "grub.cfg lacks $id"
+  done
+  grep -q 'feature_gcry_hw_accel = xy' /boot/grub/grub.cfg && ok "grub.cfg branches to the test menu under 2.14" || no "grub.cfg has no 2.14 branch"
+  # the branch must come before anything that loads a module
+  b=$(grep -n 'feature_gcry_hw_accel' /boot/grub/grub.cfg | head -1 | cut -d: -f1)
+  i=$(grep -n 'insmod\|load_video' /boot/grub/grub.cfg | head -1 | cut -d: -f1)
+  [ "$b" -lt "$i" ] && ok "2.14 branch (line $b) before the first insmod (line $i)" || no "2.14 branch after an insmod"
+  for f in /boot/vmlinuz-$KVER /boot/initrd.img-$KVER $DTB; do
+    grep -q "$f" $G/grub.cfg && [ -s "$f" ] && ok "test menu boots $f" || no "test menu: $f"
+  done
+  for f in EFI/BOOT/BOOTAA64.EFI EFI/BOOT/grubaa64.efi EFI/debian/grubaa64.efi; do
+    strings /boot/efi/$f | grep -qx '2.14-5' && no "/boot/efi/$f is 2.14" || ok "/boot/efi/$f is not 2.14"
+  done
+  [ $bad = 0 ] || { echo "verify failed"; exit 1; }
+}
+
+arm() {
+  verify
+  mkdir -p $D
+  echo grub > $D/stage
+  grub-editenv $ENV unset g214_stage
+  grub-reboot gbgo-grub214-grub
+  grub-editenv $ENV list
+  log "armed stage grub (kernel $KVER)"
+  journalctl --flush; sync
+}
+
+check() {
+  [ -f $D/stage ] || exit 0
+  stage=$(cat $D/stage)
+  C=$(cat /proc/cmdline)
+  grub-editenv $ENV unset g214_stage
+  m=fail
+  case " $C " in *" gbgo_grub=214 "*)
+    case " $C " in *" gbgo_g214=$stage "*) m=pass ;; esac ;;
+  esac
+  case $m in
+    pass)
+      st=$(timeout 600 systemctl is-system-running --wait || true)
+      log "PASS stage $stage: kernel $(uname -r), system $st, failed units: $(systemctl --failed --no-legend | awk '{print $2}' | tr '\n' ' ')"
+      log "     cmdline: $C"
+      if [ "$stage" = grub ]; then
+        echo shim > $D/stage
+        grub-reboot gbgo-grub214-shim
+        log "armed stage shim; rebooting in 2 min (cancel: sudo shutdown -c)"
+        journalctl --flush; sync
+        shutdown -r +2 "GRUB 2.14 test: stage grub passed; rebooting for stage shim. Cancel: sudo shutdown -c"
+      else
+        rm -f $D/stage
+        log "DONE: both stages passed"
+      fi ;;
+    *)
+      rm -f $D/stage
+      log "FAIL stage $stage: this boot did not come from the 2.14 test entry"
+      log "     cmdline: $C" ;;
+  esac
+}
+
+case "$1" in
+  menu) menu ;;
+  verify) verify ;;
+  arm) arm ;;
+  check) check ;;
+  status) cat $R 2>/dev/null; [ -f $D/stage ] && echo "pending stage: $(cat $D/stage)" || true ;;
+  *) sed -n '2,17p' "$0"; exit 1 ;;
+esac

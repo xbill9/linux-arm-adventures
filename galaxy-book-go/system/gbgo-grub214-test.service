@@ -1,0 +1,10 @@
+[Unit]
+Description=Galaxy Book Go: record the GRUB 2.14 test boot (GRUB214.md)
+ConditionPathExists=/var/lib/gbgo-grub214/stage
+
+[Service]
+Type=exec
+ExecStart=/usr/local/sbin/gbgo-grub214-test check
+
+[Install]
+WantedBy=multi-user.target
