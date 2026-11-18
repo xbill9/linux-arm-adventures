@@ -70,7 +70,14 @@ Newest last. Times are local (EDT).
 
 - 20:11: **Published the mainline 7.4 kernel as a GitHub release**: [`c630-7.4.0-rc2-23c62304`](https://github.com/xbill9/linux-arm-adventures/releases/tag/c630-7.4.0-rc2-23c62304), a pre-release. It contains `linux-image`, `linux-headers` and `linux-libc-dev` `.deb`s from `make bindeb-pkg` in `~/linux` (unmodified torvalds `23c62304dde2`, gcc 16.2.0), plus `sdm850-lenovo-yoga-c630.dtb`, the `.config` and `SHA256SUMS`. No firmware. Build `#5` booted here once at 15:31 (~1 h, clean shutdown). The `.deb`'s image is build `#7`: only `init/version.o` was recompiled and the image relinked. The DTB (`d53b6c01623c3bd5…`) and all 1781 modules are identical to what booted, but this exact `vmlinuz` has not booted. Not installed on this machine. Needed `apt install debhelper` (for `debhelper-compat`). GitHub renames `~` to `.` in asset names, so `SHA256SUMS` uses the uploaded names. Verified with `gh release download` + `sha256sum -c`.
 
+## 2026-11-18
+
+- 13:18: **GRUB 2.14-5 chainload test staged.** sid now has GRUB 2.14-5 (2.14-4 is installed and held; holds untouched). `c630-menu` gained one `TEST - chainload GRUB <ver>` entry per `/boot/efi/EFI/grubtest/grub-<ver>.efi` (ids `c630-grubtest-<ver>`). Staged: `grub-2.14-4.efi` (`5d5c15c695df35f1…`, the held package's signed image, same hash as the loader that failed on 2026-10-10) as the control, and `grub-2.14-5.efi` (`503d697c5d911946…`, from `apt-get download grub-efi-arm64-signed`, not installed). Both have prefix `/EFI/debian`, so they should re-read the stub and show the same menu; the version in the menu header tells which GRUB is running. `EFI/BOOT` is unchanged (`grubaa64.efi` `3db6ed77b8de1677…` = stick). Previous menu kept as `/boot/grub/c630.cfg.pre-grubtest`. **Untested**: whether GRUB 2.12 + shim will chainload them at all, and whether a chainloaded 2.14-4 reproduces the black screen. If it doesn't, the test proves nothing about 2.14-5.
+- 13:2x: one-time boot into `c630-grubtest-2.14-4` (the control). Result not yet recorded.
+
 ## Next
+
+- GRUB test: record the 2.14-4 control result (expected: black at handover; hold power 10 s to get back). Then `sudo c630-menu --once c630-grubtest-2.14-5` and boot a `verbose debug` entry from its menu. Afterwards delete `/boot/efi/EFI/grubtest/` and rerun `c630-menu`.
 
 - Fix the resolv.conf fight for good: let NetworkManager manage the USB Ethernet (see AUDIT).
 - Built-in mic: voice test on DMIC2/DMIC3, then mic bias/gain, then a UCM `Mic (internal)` device.

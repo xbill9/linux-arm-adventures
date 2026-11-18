@@ -22,6 +22,7 @@
 set -e
 
 U=a81deabf-0654-4f68-b795-284305d26f13
+ESP=3BA7-7161   # the ESP the firmware boots (/boot/efi)
 # modprobe.blacklist=ipa: loading the IPA firmware resets the whole SoC (bisected 2026-10-10).
 PB="clk_ignore_unused pd_ignore_unused regulator_ignore_unused usbcore.autosuspend=-1"
 P="$PB modprobe.blacklist=ipa"
@@ -108,6 +109,22 @@ menuentry "[via \$c630_from] CONTROL - installer-stick kernel + installer (no US
     initrd /boot/c630boot/initrd.gz
 }
 EOF
+
+# Boot-loader tests: one chainload entry per /boot/efi/EFI/grubtest/grub-<ver>.efi.
+# The running (working) GRUB starts the candidate, which reads EFI/debian/grub.cfg
+# and shows this same menu again; the version in the menu header tells them apart.
+# Nothing in the firmware's boot path changes. Delete the file to drop the entry.
+for g in /boot/efi/EFI/grubtest/grub-*.efi; do
+  [ -f "$g" ] || continue
+  gv=$(basename "$g" .efi); gv=${gv#grub-}
+  cat >> "$tmp" <<EOF
+
+menuentry "[via \$c630_from] TEST - chainload GRUB $gv (check the version in the menu header)" --id c630-grubtest-$gv {
+    search --no-floppy --fs-uuid --set=esp $ESP
+    chainloader (\$esp)/EFI/grubtest/grub-$gv.efi
+}
+EOF
+done
 
 grub-script-check "$tmp"
 grep -q -- "--id $DEF " "$tmp" || { echo "default entry $DEF missing; keeping old menu" >&2; rm -f "$tmp"; exit 1; }
