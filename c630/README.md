@@ -31,7 +31,7 @@ Verified on screen: the menu titles read `[via sda2 EFI/debian]`.
 - **GRUB 2.14 (sid) does not work.** Every kernel goes black the instant GRUB hands over, with no output even with `earlycon=efifb`. All `grub*` and `shim*` packages are `apt-mark hold`. **Do not unhold them without a tested way back.**
 - `/boot/grub/grub.cfg` (from `update-grub`) is still generated, but nothing boots from it. It's only reachable through `configfile`.
 
-**Prebuilt mainline kernel:** the [`c630-7.4.0-rc2-23c62304` release](https://github.com/xbill9/linux-arm-adventures/releases/tag/c630-7.4.0-rc2-23c62304) has `.deb`s, the DTB and the config. It is an rc kernel and only lightly tested. Firmware is not included.
+**Prebuilt mainline kernel:** the latest release, [`c630-7.4.0-rc3-8dac6df9`](https://github.com/xbill9/linux-arm-adventures/releases/tag/c630-7.4.0-rc3-8dac6df9), has `.deb`s, the DTB and the config. It is an rc kernel and only lightly tested. Firmware is not included.
 
 ## The boot menu: `c630-menu`
 
