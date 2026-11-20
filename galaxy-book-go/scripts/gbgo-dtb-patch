@@ -12,6 +12,11 @@
 #   counter reads 1970-01-03 (Samsung's firmware keeps the offset elsewhere), so
 #   the kernel set the system clock to 1970 at every boot until NTP. Off is
 #   better than wrong; the clock comes from systemd-timesyncd.)
+#  8. RTC, only with GBGO_RTC=1 (test, 2026-11-20): rtc@6000 on, with
+#     qcom,uefi-rtc-info, so rtc-pm8xxx takes the offset from the firmware's
+#     RTCInfo variable instead of reading 1970. Needs a kernel whose qseecom
+#     allowlist has samsung,galaxy-book-go (efivars through uefisecapp); on
+#     any other kernel the driver waits for efivars and no RTC appears.
 #  4. backlight: Samsung's panel config (GPU0._ROM XML: BacklightType 1,
 #     PmicControlType 3, PmicNum 2, 6250 Hz) = PWM from the PM6150L LPG. The
 #     draft DTB disables the LPG, so there is no brightness control. Enable the
@@ -54,7 +59,8 @@ TLMM=$(awk '/pinctrl@3500000 \{/{f=1} f&&/phandle = </{gsub(/.*<|>.*/,""); print
 # a phandle no node uses yet, for the LPG
 LPGPH=$(printf '0x%x' $(( $(grep -o 'phandle = <0x[0-9a-f]*>' "$T/in.dts" | sed 's/.*<\(0x[0-9a-f]*\)>/\1/' | sort -u | while read -r h; do printf '%d\n' "$h"; done | sort -n | tail -1) + 1 )))
 BL=${GBGO_BACKLIGHT:-1}
-awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" -v birq="$BIRQ" '
+RTC=${GBGO_RTC:-0}
+awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" -v birq="$BIRQ" -v rtc="$RTC" '
   # 3. lid switch: a new top-level node, just before the root node closes
   #    (dtc wants a node'"'"'s properties before its subnodes)
   /^\};$/ && !lid { lid=1
@@ -106,6 +112,10 @@ awk -v t="$TLMM" -v lpgph="$LPGPH" -v bl="$BL" -v birq="$BIRQ" '
   br && /pinctrl-0 = </ { sub(" " birq " ", " "); sub("<" birq " ", "<"); sub(" " birq ">", ">") }
   br && /^\t*(aux-bus|ports) \{/ {br=0}
   br && /^\t*\};/ {br=0}
+  # 8. RTC with the offset kept by the firmware (GBGO_RTC=1)
+  /rtc@6000 \{/ {rtcn=1}
+  rtc == 1 && rtcn && /status = "disabled";/ { sub("\"disabled\"", "\"okay\""); print; ind=$0; sub(/[^\t].*$/, "", ind); print ind "qcom,uefi-rtc-info;"; rtcn=0; next }
+  rtcn && /^\t*\};/ {rtcn=0}
   # 2. power button: drop pon@800 status = "disabled" (resin keeps its own)
   /pon@800 \{/ {pon=1}
   pon && /^\t*(pwrkey|resin) \{/ {pon=0}
@@ -115,10 +125,12 @@ diff -u "$T/in.dts" "$T/out.dts" || true
 # exactly the expected edits: +25 (3 keyboard, 10 lid, 1 bridge pinctrl, 4 battery,
 # 7 camera hog)
 # -7 (3 keyboard, pon status, 3 bridge),
-# plus +7 -1 for the backlight (2 lpg, 5 backlight; lpg status), unless GBGO_BACKLIGHT=0
+# plus +7 -1 for the backlight (2 lpg, 5 backlight; lpg status), unless GBGO_BACKLIGHT=0,
+# plus +2 -1 for the RTC (status, qcom,uefi-rtc-info) with GBGO_RTC=1
 add=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^>' || true)
 del=$(diff "$T/in.dts" "$T/out.dts" | grep -c '^<' || true)
 want_add=25; want_del=7; [ "$BL" = 1 ] && want_add=32 && want_del=8
+[ "$RTC" = 1 ] && want_add=$((want_add + 2)) && want_del=$((want_del + 1))
 [ "$add" = "$want_add" ] && [ "$del" = "$want_del" ] || { echo "unexpected diff: +$add -$del (want +$want_add -$want_del)" >&2; exit 1; }
 dtc -q -I dts -O dtb -o "$OUT" "$T/out.dts"
 echo "wrote $OUT"
